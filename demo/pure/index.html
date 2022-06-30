@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>demo pure</title>
+        <style>
+            .wrapper {
+                position: relative;
+                width: 100%;
+                height: 100%;
+               
+                background-color: #fff;
+            }
+            .overlayer{
+                position: absolute;
+                top:0;
+                left: 0;
+                border: 2px solid blue;
+                box-sizing: border-box;
+            }
+            .designer {
+                border: 2px solid #000;
+                width: 800px;
+                height: 600px;
+                overflow: hidden;
+                background-color: #eee;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="designer">
+            <div class="wrapper">
+                <iframe id="Iframe" 
+                    style="width: 100%;overflow: hidden;border: 0" 
+                    scrolling="no"
+                    src="http://localhost:8080/vueproj.html"></iframe>
+                <div class="overlayer" id="overlayer">
+
+                </div>
+            </div>
+        </div>
+        <script>
+            // Selecting the iframe element
+            var frame = document.getElementById("Iframe");
+            var overlayer = document.getElementById('overlayer');
+            // Adjusting the iframe height onload event
+            frame.onload = function()
+            // function execute while load the iframe
+            {
+                const innerDoc = frame.contentWindow.document;
+                const body = innerDoc.body;
+                const html = innerDoc.documentElement;
+                const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+                // set the height of the iframe as 
+                // the height of the iframe content
+                // frame.style.height = height + 'px';
+                
+                console.log(height)
+                // set the width of the iframe as the 
+                // width of the iframe content
+                // frame.style.width = frame.contentWindow.document.body.scrollWidth+'px';
+                const resetFrameBounding = new ResizeObserver(() => {
+                    const innerDoc = frame.contentWindow.document;
+                    const body = innerDoc.body;
+                    const html = innerDoc.documentElement;
+                    const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+                    const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
+                    // set the height of the iframe as 
+                    // the height of the iframe content
+                    frame.style.height = height + 'px';
+                    frame.style.width = width + 'px';
+                    overlayer.style.height = height + 'px';
+                    overlayer.style.width = width +'px';
+                });
+                resetFrameBounding.observe(body)
+
+
+                // overlayer.addEventListener('')
+            }
+            </script>
+    </body>
+</html>

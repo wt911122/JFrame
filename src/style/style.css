@@ -1,0 +1,33 @@
+.jframe-block{
+    position:absolute;
+    outline: 1px dashed rgba(170,170,170,0.7);
+    outline-offset: -2px;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.jframe-block:hover {
+    border: 2px solid #4e75ec;
+}
+.jframe-block[focus] {
+    border: 2px solid #4e75ec;
+}
+.jframe-block[accept] {
+    border: 2px solid #F2BF46;
+}
+.jframe-block[dragging] {
+    background-color: rgba(0,0,0,0.4);
+}
+.jframe-fence {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0px;
+    height: 0px;
+    transform: translate(0,0);
+    transition: all .5s;
+    border: 1px solid #43E863;
+    /* background-color: #43E863; */
+    z-index: 1000;
+}
