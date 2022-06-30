@@ -4,6 +4,7 @@ import '../../src/style/style.css';
 
 const app = document.getElementById('app');
 let id = 0;
+let currentInstance;
 class Elem {
     constructor(source) {
         this.id = id ++;
@@ -100,6 +101,24 @@ const dataElemDescription = {
     },
     blockElement(source){
         return ['UlElement', 'LiElement', 'DivElement'].includes(source.tag);
+    },
+    isAcceptElement(movingSource, targetSource) {
+        movingSource = currentInstance || movingSource;
+        const mtag = movingSource.tag;
+        const tTag = targetSource.tag;
+        if(mtag === 'DivElement') {
+            return ['LiElement', 'DivElement'].includes(tTag)
+        }
+        if(mtag === 'UlElement') {
+            return ['LiElement', 'DivElement'].includes(tTag)
+        }
+        if(mtag === 'LiElement') {
+            return ['UlElement'].includes(tTag)
+        }
+        if(mtag === 'TextElement') {
+            return ['UlElement', 'DivElement', 'LiElement'].includes(tTag)
+        }
+
     }
 }
 
@@ -123,7 +142,7 @@ function renderFocusElem(x, y, content) {
     focusContent.innerText = content;
 }
 
-let currentInstance;
+
 
 const jframeInstance = new JFrame({
     frameURL: "http://localhost:8080/vueproj.html",
