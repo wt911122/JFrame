@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>demo pure</title>
+        <style>
+            .wrapper {
+                width: 800px;
+                height: 600px;
+                border: 1px solid red;
+            }
+            .body{
+                min-width: 980px; /* 防止flex导致元素位置出错 */
+                display: flex;
+                flex-direction: row;
+            }
+            .sidebar{
+                width: 180px;
+                border: 2px solid gold;
+            }
+            .sidebar > div {
+                padding: 16px;
+                display: flex;
+                justify-content: center;
+            }
+            .part {
+                width: 80px;
+                height: 50px;
+                background-color: gold;
+                text-align: center;
+                line-height: 50px;
+            }
+        </style>
+    <script defer src="index.bundle.js"></script></head>
+    <body>
+        <div class="body">
+            <div class="sidebar">
+                <div>
+                    <div draggable="true" class="part" id="DivElement">
+                        DIVElement
+                    </div>
+                </div>
+                <div>
+                    <div draggable="true" class="part" id="UlElement">
+                        UlElement
+                    </div>
+                </div>
+                <div>
+                    <div draggable="true" class="part" id="LiElement" >
+                        LiElement
+                    </div>
+                </div>
+                <div>
+                    <div draggable="true" class="part" id="TextElement">
+                        TextElement
+                    </div>
+                </div>
+            </div>
+            <div class="wrapper" id="app"></div>
+        </div>
+    </body>
+</html>

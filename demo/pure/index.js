@@ -143,9 +143,10 @@ function renderFocusElem(x, y, content) {
 }
 
 
-
+const frameURL = `${window.location.origin}${window.location.pathname}vueproj.html`;
+console.log(frameURL)
 const jframeInstance = new JFrame({
-    frameURL: "http://localhost:8080/vueproj.html",
+    frameURL,
     dataElemDescription,
     hoverIndicator: indicatorElem,
     focusIndicator: focusElem,
