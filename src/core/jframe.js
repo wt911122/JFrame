@@ -293,10 +293,10 @@ class JFrame extends EventTarget {
         const wrapper = document.createElement('div');
         wrapper.setAttribute('style', 'position: relative;width: 100%;height: 100%;background-color: #fff;left:0;top:0');
         const iframe = document.createElement('iframe');
-        iframe.setAttribute('style', "position: absolute;top:0;left: 0;transform-origin: top left;width: 100%;overflow: hidden;border-color: blue");
+        iframe.setAttribute('style', "position: absolute;top:0;left: 0;transform-origin: top left;width: 100%;overflow: hidden;border: 2px solid transparent;");
         iframe.setAttribute('scrolling', "no");
         const overLayer = document.createElement('div');
-        overLayer.setAttribute('style', "transform-origin: top left;position: absolute;top:0;left: 0;box-sizing: border-box;user-select: none;");
+        overLayer.setAttribute('style', "transform-origin: top left;position: absolute;top:0;left: 0;box-sizing: border-box;user-select: none;border: 2px solid blue;");
         dom.setAttribute("style", "position: relative;background-color: #fff;overflow: hidden");
         const mask = document.createElement('div');
         mask.setAttribute('style', 'position: absolute;top: -10px;bottom:-10px;left:-10px;right:-10px;');
@@ -420,7 +420,8 @@ class JFrame extends EventTarget {
             if(this.fenceTarget) {
                 const {
                     source,
-                    childIdx
+                    childIdx,
+                    accept
                 } = this.fenceTarget;
                 console.log(this.getMovingTarget());
                 const target = this.getMovingTarget();
@@ -428,14 +429,16 @@ class JFrame extends EventTarget {
                 if(target) {
                     target.setDragging(false);
                 }
-                this.dispatchEvent(new JFrameEvent('elementdrop', {
-                    event,
-                    // instance,
-                    target: target?.source,
-                    jframe: this,
-                    source,
-                    childIdx
-                }));
+                if(accept) {
+                    this.dispatchEvent(new JFrameEvent('elementdrop', {
+                        event,
+                        // instance,
+                        target: target?.source,
+                        jframe: this,
+                        source,
+                        childIdx
+                    }));
+                }
             }
 
             this.fenceTarget = null;
@@ -718,7 +721,10 @@ class JFrame extends EventTarget {
                 }
             }
         });
+        
         // console.log(closestFence)
+        const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget?.source, block.source)
+        this.setFenceAccept(accept);
         if(!closestFence) {
             const isBlock = this.dataElemDescription.blockElement(block.source);
             const { x, y, width, height } = block;
@@ -729,15 +735,18 @@ class JFrame extends EventTarget {
                 const xfence = x + width /2
                 this.renderVerticalFence(xfence, y, height);
             }
+            
             this.fenceTarget = {
                 source: block.source,
                 childIdx: 0,
+                accept,
             }
             return;
         }
         this.fenceTarget = {
             source: block.source,
             childIdx,
+            accept
         }
         if(direction === 'horizontal') {
             const v = closestFence;
@@ -768,9 +777,20 @@ class JFrame extends EventTarget {
             offset = left ? 0 : 1
             this.renderVerticalFence(xfence, y, height);
         }
+        const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget, wrapperSource)
+        this.setFenceAccept(accept);
         this.fenceTarget = {
             source: wrapperSource,
             childIdx: children.findIndex(c => c === source) + offset,
+            accept,
+        }
+    }
+
+    setFenceAccept(val) {
+        if(val) {
+            this.fence.setAttribute('accept', val);
+        } else {
+            this.fence.removeAttribute('accept');
         }
     }
 

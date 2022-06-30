@@ -27,7 +27,11 @@
     height: 0px;
     transform: translate(0,0);
     transition: all .5s;
-    border: 1px solid #43E863;
+    border: 1px solid red;
     /* background-color: #43E863; */
     z-index: 1000;
+}
+
+.jframe-fence[accept] {
+    border-color: #43E863;
 }
