@@ -41,6 +41,7 @@ class Elem {
         if(this.parentElement) {
             const idx = this.parentElement.children.findIndex(e => e === this);
             this.parentElement.children.splice(idx, 1);
+            return idx;
         }
     }
 }
@@ -86,6 +87,9 @@ const dataElemDescription = {
             return ['UlElement', 'DivElement', 'LiElement', 'FlexContainer'].includes(tTag)
         }
     },
+    draggable(source) {
+        return source.tag !== 'FlexContainer';
+    }
     // paddingResizable(source) {
     //     return ['FlexContainer'].includes(source.tag);
     // },
@@ -163,34 +167,34 @@ function onDeleteElementInSplitable(target) {
         if(parentSource.children.length === 2) {
             const remainElem = parentSource.children[idx === 0 ? 1 : 0];
             const remainChildren = remainElem.children;
-            // parentSource.children = parentSource.children.concat(remainChildren);
             const grandParentEle = parentSource.parentElement;
-            if(grandParentEle) {
+            if(grandParentEle && remainChildren.length > 0) {
                 const dir = grandParentEle.props.direction;
-                parentSource.delete();
+                const grandBlock = getBlockBySource(grandParentEle);
+                const parent_idx = parentSource.delete();
                 if(dir === 'row') {
-                    const remainWidth = getBlockBySource(remainElem).width;
                     remainChildren.forEach(c => {
                         const t = getBlockBySource(c).width;
-                        c.style.width = `${t / remainWidth * 100}%`
+                        c.style.width = `${t / grandBlock.width * 100}%`
                         c.parentElement = grandParentEle;
-                        grandParentEle.children.push(c);
                     });
                 } 
                 if(dir === 'column') {
-                    const remainHeight = getBlockBySource(remainElem).height;
                     remainChildren.forEach(c => {
                         const t = getBlockBySource(c).height;
-                        c.style.height = `${t / remainHeight * 100}%`
+                        c.style.height = `${t / grandBlock.height * 100}%`
                         c.parentElement = grandParentEle;
-                        grandParentEle.children.push(c);
                     });
                 }
+                grandParentEle.children.splice(parent_idx, 0, ...remainChildren);
+            
                 jframeInstance.addEventListener('afterResize', () => {
-                    jframeInstance.setFocusTarget(grandParentEle)
+                    
+                    jframeInstance.setFocusTarget(grandBlock)
                 }, {
                     once: true,
                 })
+                return true;
             } else {
                 remainElem.delete();
                 remainChildren.forEach(c => {
@@ -204,6 +208,7 @@ function onDeleteElementInSplitable(target) {
                 }, {
                     once: true,
                 })
+                return true;
             }
         } else {
             const prevNode = parentSource.children[idx - 1];
@@ -239,17 +244,19 @@ function onDeleteElementInSplitable(target) {
             }, {
                 once: true,
             })
+            return true;
         }
         
     }
+    return false;
 }
 
 function onDeleteElement(target) {
-    onDeleteElementInSplitable(target);
+    const informed = onDeleteElementInSplitable(target);
     const sdata = target.source;
     const parentBlock = jframeInstance.source_block_element_map.getBlockBySource(sdata.parentElement);
     sdata.delete();
-    if(parentBlock) {
+    if(!informed && parentBlock) {
         jframeInstance.addEventListener('afterResize', () => {
             jframeInstance.setFocusTarget(parentBlock)
         }, {
@@ -306,7 +313,7 @@ jframeInstance.addEventListener('elementdrop', (e) => {
     const { source: sdata, childIdx, target, targetBlock } = e.detail;
     if(target) {
         if(sdata === target) return;
-        onDeleteElementInSplitable(targetBlock);
+        // onDeleteElementInSplitable(targetBlock);
         target.delete();
         sdata.children.splice(childIdx, 0, target);
         target.parentElement = sdata;

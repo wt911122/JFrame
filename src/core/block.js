@@ -14,7 +14,7 @@ class Block extends EventTarget{
 
         this._level = 0; // 当前块的深度
         const elem = targetDoc.createElement('div');
-        elem.setAttribute('draggable', true);
+        elem.setAttribute('draggable', this.jframe.dataElemDescription.draggable(this.source));
         elem.setAttribute('class', 'jframe-block');
         this.elem = elem;
         
@@ -53,7 +53,7 @@ class Block extends EventTarget{
             console.log(this);
             this.jframe.setFocusTarget(this);
         });
-        this.elem.addEventListener('dragstart', () => {
+        this.elem.addEventListener('dragstart', (e) => {
             this.setDragging(true)
             console.log('dragstart')
             this.jframe.setMovingTarget(this);
