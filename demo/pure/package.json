@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cassowary": "^0.0.2",
     "vue": "^2.6.11"
   },
   "devDependencies": {

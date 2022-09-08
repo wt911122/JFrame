@@ -5,7 +5,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 module.exports = {
     mode: 'development',
     entry: {
-        index: './index.js',
+        index: './src/main.js',
         vueproj: '../vue-proj/src/main.js'
     },
     resolve: {
@@ -42,7 +42,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, './index2.html'),
+            template: path.resolve(__dirname, './public/index.html'),
             chunks: ['index'],
             filename: 'index.html',
         }),

@@ -1,254 +1,10 @@
 // import Messager from '../message/messager';
-import JFrameEvent from '../event/event';
+import JFrameEvent from './event/event';
 import { distToSegmentSquared } from '../utils/functions';
-function getMapObject(block, element) {
-    return {
-        block,
-        element,
-    }
-}
-
-class sourceBlockElememtMap {
-    constructor() {
-        this._map = new WeakMap();
-    }
-
-    get(source) {
-        return this._map.get(source);
-    }
-
-    has(source) {
-        return this._map.has(source);
-    }
-
-    clear() {
-        this._map.clear();
-    }
-
-    getBlockBySource(source) {
-        const mapping = this._map.get(source);
-        if(mapping) {
-            return mapping.block;
-        }
-        return undefined;
-    }
-
-    getElementBySource(source) {
-        const mapping = this._map.get(source);
-        if(mapping) {
-            return mapping.element;
-        }
-        return undefined;
-    }
-
-    setBlockBySource(source, block) {
-        if(!this.has(source)) {
-            const obj = getMapObject(block);
-            this._map.set(source, obj);
-        } else {
-            const obj = this._map.get(source);
-            obj.block = block;
-        }
-    }
-    setElementBySource(source, element) {
-        if(!this.has(source)) {
-            const obj = getMapObject(undefined, element);
-            this._map.set(source, obj);
-        } else {
-            const obj = this._map.get(source);
-            obj.element = element;
-        }
-    }
-}
-
-let uuid = 0;
-class Block extends EventTarget{ 
-    constructor(source, jframe, targetDoc, targetWapper, bounding = {}) {
-        super();
-        this.id = uuid ++;
-        this.source = source;
-        this.x = bounding.x;
-        this.y = bounding.y;
-        this.width = bounding.width;
-        this.height = bounding.height;
-        this.targetDoc = targetDoc;
-        this.targetWapper = targetWapper;
-        this.jframe = jframe;
-
-        this._level = 0; // 当前块的深度
-
-        this.elem = targetDoc.createElement('div');
-        this.elem.setAttribute('draggable', true)
-        this.elem.setAttribute('class', 'jframe-block')
-        this.bindListeners();
-    }
-
-    get isFocus() {
-        return this.jframe.state.focusTarget === this;
-    }
-
-    bindListeners() {
-        this.elem.addEventListener('mouseenter', e => {
-            this.jframe.setHoverTarget(this);
-        });
-        this.elem.addEventListener('mouseleave', e => {
-            this.jframe.resetHoverTarget(this);
-        });
-        // this.elem.addEventListener('mousemove', e => {
-        //     e.stopPropagation();
-        //     console.log(e.offsetX, e.offsetY);
-
-        //     this.jframe.getActiveFence([e.offsetX, e.offsetY], this);
-        // })
-        this.elem.addEventListener('click', e => {
-            e.stopPropagation();
-            console.log(this);
-            this.jframe.setFocusTarget(this);
-        });
-        this.elem.addEventListener('dragstart', e => {
-            this.setDragging(true)
-            this.jframe.setMovingTarget(this);
-        })
-        // this.elem.addEventListener('mouseleave', e => {
-        //     console.log(e);
-        // });
-        // this.elem.addEventListener('click', e => {
-        //     this.dispatchEvent(e);
-        // });
-    }
-
-    setDragging(val) {
-        if(val) {
-            this.elem.setAttribute('dragging', val);
-        } else {
-            this.elem.removeAttribute('dragging');
-        }
-    }
-
-    setFocus(val) {
-        if(val) {
-            this.elem.setAttribute('focus', val);
-        } else {
-            this.elem.removeAttribute('focus');
-        }
-    }
-
-    setAcceptElem(val) {
-        if(val) {
-            this.elem.setAttribute('accept', val);
-        } else {
-            this.elem.removeAttribute('accept');
-        }
-    }
-
-    setBounding(bounding = {}) {
-        console.log(bounding)
-        Object.assign(this, {
-            x: bounding.left,
-            y: bounding.top,
-            width: bounding.width,
-            height: bounding.height
-        });
-    }
-    setLevel(level) {
-        this._level = level;
-        this.elem.style['z-index'] = level;
-    }
-
-    render() {
-        if(!this.elem.parentElement) {
-            this.targetWapper.appendChild(this.elem);
-        }
-        this.elem.style.left = `${this.x}px`;
-        this.elem.style.top = `${this.y}px`;
-        this.elem.style.width = `${this.width}px`;
-        this.elem.style.height = `${this.height}px`;
-    }
-
-    isHit(point) {
-        const x = this.x;
-        const y = this.y;
-        const w = this.width
-        const h = this.height
-        return point[0] >= x
-            && point[0] <= x + w
-            && point[1] >= y
-            && point[1] <= y + h;
-    }
-
-    isHitInner(point) {
-        const x = this.x + 4;
-        const y = this.y + 4;
-        const w = this.width - 8
-        const h = this.height - 8
-        return point[0] > x
-            && point[0] < x + w
-            && point[1] > y
-            && point[1] < y + h;
-    }
-
-    getHorizontalSegments() {
-        const cx = this.x + this.width;
-        const cy = this.y + this.height;
-        const { x, y } = this;
-        
-        return [
-            [{
-                x,
-                y
-            }, {
-                x: cx,
-                y
-            }],
-            [{
-                x,
-                y: cy,
-            }, {
-                x: cx,
-                y: cy,
-            }],
-        ]
-    }
-
-    getVerticalSegments() {
-        const cx = this.x + this.width;
-        const cy = this.y + this.height;
-        const { x, y } = this;
-        return [
-            [{
-                x,
-                y
-            }, {
-                x,
-                y: cy,
-            }],
-            [{
-                x: cx,
-                y,
-            }, {
-                x: cx,
-                y: cy,
-            }],
-        ]
-    }
-
-    observe(elem, callback) {
-        const observer = new MutationObserver(callback);
-        observer.observe(elem, {
-            childList: true,
-            attributes: true,
-            subtree: true,
-        });
-        this._observer = observer
-    }
-
-    destroy() {
-        this._observer.disconnect();
-        this.source = null;
-        this.elem.remove();
-    }
-}
-
+import sourceBlockElememtMap from './sourceBlockElementMap';
+import Block from './block';
+import IFrameManager from './iframe-manager';
+// import ScrollBarMixin from './mixins/scrollbarMixin';
 
 class JFrame extends EventTarget {
     constructor(configs){
@@ -257,13 +13,12 @@ class JFrame extends EventTarget {
         this.initialZoom = configs.initialZoom;
         this.padding = configs.padding || 20;
         this.maxZoom = configs.maxZoom || 2;
-        this.minZoom = configs.minZoom || 1;
+        this.minZoom = configs.minZoom || .5;
         this.dataElemDescription = configs.dataElemDescription;
-        this.hoverIndicator = configs.hoverIndicator;
-        this.focusIndicator = configs.focusIndicator;
+        this.toolbox = configs.toolbox;
         // this.source = configs.source;
 
-        this.frameBoundingRect = { width: 0, height: 0 };
+        // this.frameBoundingRect = { width: 0, height: 0 };
         this.position = { x: 0, y: 0, offsetX: 0, offsetY: 0 };
         this.scale = 1;
         this.domMeta = { x: 0, y: 0 }; 
@@ -275,7 +30,7 @@ class JFrame extends EventTarget {
             focusTarget: null,
             dragoverTarget: null,
             dragoverTargetWrapper: null,
-            
+
             fenceTarget: null,
 
             movingTarget: null,
@@ -289,44 +44,14 @@ class JFrame extends EventTarget {
         this.__clock__ = undefined;
     }
 
-    $mount(dom) {
-        const wrapper = document.createElement('div');
-        wrapper.setAttribute('style', 'position: relative;width: 100%;height: 100%;background-color: #fff;left:0;top:0');
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('style', "position: absolute;top:0;left: 0;transform-origin: top left;width: 100%;overflow: hidden;border: 2px solid transparent;");
-        iframe.setAttribute('scrolling', "no");
-        const overLayer = document.createElement('div');
-        overLayer.setAttribute('style', "transform-origin: top left;position: absolute;top:0;left: 0;box-sizing: border-box;user-select: none;border: 2px solid blue;");
-        dom.setAttribute("style", "position: relative;background-color: #fff;overflow: hidden");
-        const mask = document.createElement('div');
-        mask.setAttribute('style', 'position: absolute;top: -10px;bottom:-10px;left:-10px;right:-10px;');
-        const fence = document.createElement('div');
-        fence.setAttribute('class', 'jframe-fence');
-        overLayer.appendChild(fence);
-        overLayer.appendChild(mask);
-        wrapper.appendChild(iframe);
-        wrapper.appendChild(overLayer); 
-        if(this.hoverIndicator) {
-            this.hoverIndicator.style.display = 'none';
-            overLayer.appendChild(this.hoverIndicator);
-        }
-
-        if(this.focusIndicator) {
-            this.focusIndicator.style.display = 'none';
-            overLayer.appendChild(this.focusIndicator);
-        }
-        dom.appendChild(wrapper);
-
-        this.iframe = iframe;
-        this.overLayer = overLayer;
-        this.dom = dom;
-        this.fence = fence;
+    $mount(dom, configs) {
+        this.IFM = new IFrameManager(dom, configs);
 
         // const messager = new Messager(iframe)
         // resize的时候需要重算
         this.calculateDomMeta();
         // const { x, y } = dom.getBoundingClientRect();
-        wrapper.addEventListener('wheel', (event) => {
+        this.IFM.wrapper.addEventListener('wheel', (event) => {
             event.preventDefault();
             let { deltaX, deltaY } = event
             const { offsetX, offsetY } = this.resolveEventOffset(event);
@@ -342,10 +67,13 @@ class JFrame extends EventTarget {
         //     this.blockList.current.
         // })
 
-        this.dom.addEventListener('click', e => {
-            // e.stopPropagation();
+        this.IFM.dom.addEventListener('click', e => {
             console.log(e);
-            this.setFocusTarget(null);
+            const overLayer = this.IFM.overLayer
+            if(!e.path.includes(overLayer)) {
+                this.setFocusTarget(null);
+            }
+            
         });
         /* let dragging;
         this.dom.addEventListener('mousemove', e => {
@@ -380,7 +108,7 @@ class JFrame extends EventTarget {
             }
         }) */
 
-        this.dom.addEventListener('dragover', e => {
+        this.IFM.dom.addEventListener('dragover', e => {
             e.preventDefault();
             const { offsetX, offsetY } = this.resolveEventOffset(e);
             const point = this.calculateToIframeCoordinate(offsetX, offsetY);
@@ -395,12 +123,9 @@ class JFrame extends EventTarget {
             });
             if(blockMax) {
                 const isInnerHitted = blockMax.isHitInner(point);
-                // console.log(point, blockMax.x, blockMax.y, blockMax.width)
-                console.log(blockMax.id);
                 const hasslot = this.dataElemDescription.hasSlot(blockMax.source);
                 const wrapperSource = this.dataElemDescription.getSourceParent(blockMax.source);
                 if(hasslot && isInnerHitted || !wrapperSource) {
-                    // console.log(blockMax)
                     this.setDragoverWrapperTarget(blockMax);
                     this.renderChildClosestFence(point, blockMax);
                 } else {
@@ -410,29 +135,27 @@ class JFrame extends EventTarget {
                 } 
             } else {
                 this.setDragoverWrapperTarget(null);
-                this.hideClosestFence();
+                this.IFM.hideClosestFence();
             }
         });
 
-        this.dom.addEventListener('drop' , event => {
-            // const payload = this.consumeMessage();
-            // const instance = payload.instance;
+        this.IFM.dom.addEventListener('drop' , event => {
             if(this.fenceTarget) {
                 const {
                     source,
                     childIdx,
                     accept
                 } = this.fenceTarget;
-                console.log(this.getMovingTarget());
                 const target = this.getMovingTarget();
 
-                if(target) {
-                    target.setDragging(false);
-                }
+                // if(target) {
+                //     target.setDragging(false);
+                // }
                 if(accept) {
                     this.dispatchEvent(new JFrameEvent('elementdrop', {
                         event,
                         // instance,
+                        targetBlock: target,
                         target: target?.source,
                         jframe: this,
                         source,
@@ -443,10 +166,36 @@ class JFrame extends EventTarget {
 
             this.fenceTarget = null;
             this.setDragoverWrapperTarget(null);
-            this.hideClosestFence();
+            this.IFM.hideClosestFence();
             this.setMovingTarget(null);
-          
-        })
+        });
+
+        // document.addEventListener('pointermove', e => {
+        //     console.log(e.clientX, e.clientY)
+        // });
+
+        // this.IFM.dom.addEventListener('pointermove', e => {
+        //     if(this.resizeMeta) {
+        //         const { offsetX, offsetY } = e;
+        //         const {
+        //             lastX, lastY, target,
+        //         } = this.resizeMeta;
+        //         const deltaX = offsetX - lastX;
+        //         const deltaY = offsetX - lastY;
+                
+        //         Object.assign(this.resizeMeta, {
+        //             lastX: offsetX,
+        //             lastY: offsetY,
+        //         })
+        //     }
+        // });
+
+        // this.IFM.dom.addEventListener('pointerup', event => {
+            
+        // })
+
+        
+
 
 
         // dom.addEventListener('click', (event) => {
@@ -460,56 +209,50 @@ class JFrame extends EventTarget {
         //     this.iframe.contentWindow.postMessage(message, this.frameURL);
         // })
 
-        iframe.onload = (event) => {
+        this.IFM.iframe.onload = (event) => {
             this.resizeObserver();
+            this.IFM.resetFrameHorizontalBoundrary();
             const resetFrameBounding = new ResizeObserver(this.scheduleObserver.bind(this));
-            resetFrameBounding.observe(this.iframe.contentWindow.document.body)
+            resetFrameBounding.observe(this.IFM.iframe.contentWindow.document.body)
             
             this.dispatchEvent(new JFrameEvent('frameloaded', {
                 event,
                 target: this.iframe,
             }))
         }
-        iframe.setAttribute("src", this.frameURL);
+        this.IFM.iframe.setAttribute("src", this.frameURL);
     }
 
     calculateDomMeta() {
-        const meta = this.dom.getBoundingClientRect();
+        const meta = this.IFM.domClientRect;
         this.domMeta = { x: meta.x, y: meta.y };
     }
 
-    scheduleObserver(callback) {
+    scheduleObserver() {
         requestAnimationFrame((timestamp) => {
             const isFirstTime = this.__clock__ !== timestamp
             if(isFirstTime) {
                 this.resizeObserver();
             }
-            if(callback) {
-                callback(timestamp);
-            }
+            // console.log(callback)
+            // if(callback) {
+            //     callback(timestamp);
+            // }
             this.__clock__ = timestamp;
         })
     }
 
     resizeObserver(){
-        const innerDoc = this.iframe.contentWindow.document;
-        const body = innerDoc.body;
-        const html = innerDoc.documentElement;
-        const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
-
-        this.iframe.style.height = height + 'px';
-        this.iframe.style.width = width + 'px';
-        this.overLayer.style.height = height + 'px';
-        this.overLayer.style.width = width +'px';
-        this.frameBoundingRect = { width, height }
+        this.IFM.resetFrameVerticalBoundrary();
         
         // this.resolve(this.blockList)
         this.blockList.old = this.blockList.current;
         this.blockList.current = []
         this.reflowBlocks(this);
         this.resortBlock()
-       
+        this.dispatchEvent(new JFrameEvent('afterResize'))
+
+        this.refreshTools();
         console.log('resizeObserver');
     }
 
@@ -543,7 +286,7 @@ class JFrame extends EventTarget {
         this.source_block_element_map.setElementBySource(source, elem);
         let block = this.source_block_element_map.getBlockBySource(source);
         if(!block) {
-            block = new Block(source, this, document, this.overLayer);
+            block = new Block(source, this, document, this.IFM.overLayer);
             this.source_block_element_map.setBlockBySource(source, block);
             block.observe(elem, this.scheduleObserver.bind(this));
         }
@@ -600,8 +343,8 @@ class JFrame extends EventTarget {
         const { x, y } = this.position;
         const scale = this.scale;
         const transformCss = `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
-        this.iframe.style.transform = transformCss
-        this.overLayer.style.transform = transformCss
+        this.IFM.iframe.style.transform = transformCss
+        this.IFM.overLayer.style.transform = transformCss
     }
 
     calculateToIframeCoordinate(offsetX, offsetY) {
@@ -611,19 +354,80 @@ class JFrame extends EventTarget {
     }
 
     getRenderElement(selector) {
-        return this.iframe.contentDocument.querySelector(selector);
+        return this.IFM.querySelector(selector);
     }
 
     postMessage(message) {
-        this.iframe.contentWindow.postMessage(message, this.frameURL);
+        this.IFM.postMessage(message, this.frameURL);
     }
+    
+   /* setResizingTarget(block, clientX, clientY) {
+        Object.assign(this.state.resizeMeta, {
+            target: block,
+            lastX: clientX, 
+            lastY: clientY,
+        })
+        const elem = this.source_block_element_map.getElementBySource(block.source);
+        let processing = false;
+        const f = (e => {
+            console.log('processing', processing);
+            if(processing){
+                return;
+            }
+            processing = true;
+            const { clientX, clientY } = e;
+            const {
+                lastX, lastY, target,
+            } = this.state.resizeMeta;
+            const deltaX = (clientX - lastX) * this.scale;
+            const deltaY = (clientY - lastY) * this.scale;
+            this.dispatchEvent(new JFrameEvent('elementResizing', {
+                block: target,
+                source: target?.source,
+                deltaX,
+                deltaY
+            }))
+            const elbounds = elem.getBoundingClientRect();
+            console.log(elbounds)
+            const currWidth = elbounds.width + deltaX;
+            const currHeight = elbounds.height + deltaY;
+            elem.style.width = `${elbounds.width + deltaX}px`;
+            elem.style.height = `${elbounds.height + deltaY}px`;
+            Object.assign(this.state.resizeMeta, {
+                lastX: clientX,
+                lastY: clientY,
+                currWidth,
+                currHeight 
+            })
+            processing = false;
+        }).bind(this);
+
+        document.addEventListener('pointermove', f);
+        document.addEventListener('pointerup', event => {
+            console.log('pointerup');
+            const { currWidth, currHeight, target } = this.state.resizeMeta;
+            Object.assign(this.state.resizeMeta, {
+                target: null,
+                lastX: undefined,
+                lastY: undefined
+            })
+            document.removeEventListener('pointermove', f);
+            this.dispatchEvent(new JFrameEvent('elementResized', {
+                source: target?.source,
+                width: currWidth,
+                height: currHeight,
+            }))
+        }, {
+            once: true
+        })
+    }*/
 
     setHoverTarget(block) {
         console.log('setHoverTarget')
         this.state.hoverTarget = block;
-        if(this.hoverIndicator) {
-            this.hoverIndicator.style.display = 'block';
-        }
+        // if(this.hoverIndicator) {
+        //     this.hoverIndicator.style.display = 'block';
+        // }
         this.dispatchEvent(new JFrameEvent('elementHover', {
             target: block,
         }))
@@ -632,9 +436,9 @@ class JFrame extends EventTarget {
     resetHoverTarget(block) {
         if(this.state.hoverTarget === block){
             this.state.hoverTarget = null;
-            if(this.hoverIndicator) {
-                this.hoverIndicator.style.display = 'none';
-            }
+            // if(this.hoverIndicator) {
+            //     this.hoverIndicator.style.display = 'none';
+            // }
             this.dispatchEvent(new JFrameEvent('elementHover', {
                 target: null,
             }))
@@ -642,6 +446,9 @@ class JFrame extends EventTarget {
     }
 
     setFocusTarget(block) {
+        this.toolbox.tools.forEach(tool => {
+            tool.destroy();
+        })
         if(this.state.focusTarget) {
             this.state.focusTarget.setFocus(false);
         }
@@ -649,12 +456,35 @@ class JFrame extends EventTarget {
         if(this.state.focusTarget) {
             this.state.focusTarget.setFocus(true);
         }
-        if(this.focusIndicator) {
-            this.focusIndicator.style.display = block ? 'block' : 'none';
+        if(this.toolbox && this.toolbox.tools) {
+            if(block) {
+                // const { x, y, width, height } = block;
+                this.IFM.toggleTools(true, block)
+                this.toolbox.tools.forEach(tool => {
+                    tool.renderToolbox(block, el => { this.IFM.toolbox.appendChild(el) });
+                    tool.renderBlockTool(block, el => { this.IFM.blockTool.appendChild(el)});
+                })
+            } else {
+                this.IFM.toggleTools(false, this.state.focusTarget);
+            }
         }
+        // if(this.focusIndicator) {
+        //     this.focusIndicator.style.display = block ? 'block' : 'none';
+        // }
         this.dispatchEvent(new JFrameEvent('elementFocus', {
             target: block,
         }))
+    }
+
+    refreshTools() {
+        if(this.state.focusTarget) {
+            this.IFM.refreshToolWrapper(this.state.focusTarget)
+            this.toolbox.tools.forEach(tool => {
+                if(tool.refresh) {
+                    tool.refresh(this.state.focusTarget);
+                }
+            })
+        }
     }
 
     setDragoverWrapperTarget(block) {
@@ -724,16 +554,16 @@ class JFrame extends EventTarget {
         
         // console.log(closestFence)
         const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget?.source, block.source)
-        this.setFenceAccept(accept);
+        this.IFM.setFenceAccept(accept);
         if(!closestFence) {
             const isBlock = this.dataElemDescription.blockElement(block.source);
             const { x, y, width, height } = block;
             if(isBlock) {
                 const yfence =  y + height/2
-                this.renderHorizontalFence(x, yfence, width);
+                this.IFM.renderHorizontalFence(x, yfence, width);
             } else {
                 const xfence = x + width /2
-                this.renderVerticalFence(xfence, y, height);
+                this.IFM.renderVerticalFence(xfence, y, height);
             }
             
             this.fenceTarget = {
@@ -750,15 +580,14 @@ class JFrame extends EventTarget {
         }
         if(direction === 'horizontal') {
             const v = closestFence;
-            this.renderHorizontalFence(v.x, v.y, closestBlock.width)
+            this.IFM.renderHorizontalFence(v.x, v.y, closestBlock.width)
         } else {
             const v = closestFence;
-            this.renderVerticalFence(v.x, v.y, closestBlock.height);
+            this.IFM.renderVerticalFence(v.x, v.y, closestBlock.height);
         }
     }
 
     renderClosestFence(point, block, wrapperSource) {
-        console.log(block, wrapperSource);
         const children = this.dataElemDescription.getSourceChildren(wrapperSource);
         const source = block.source;
         const [px, py] = point;
@@ -769,16 +598,15 @@ class JFrame extends EventTarget {
             const upper = Math.abs(py - y) < Math.abs(py - y - height);
             const yfence = upper ? y : (y+height);
             offset = upper ? 0 : 1
-            console.log(x, yfence);
-            this.renderHorizontalFence(x, yfence, width);
+            this.IFM.renderHorizontalFence(x, yfence, width);
         } else {
             const left = Math.abs(px - x) < Math.abs(px - x - width);
             const xfence = left ? x : (x + width);
             offset = left ? 0 : 1
-            this.renderVerticalFence(xfence, y, height);
+            this.IFM.renderVerticalFence(xfence, y, height);
         }
-        const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget, wrapperSource)
-        this.setFenceAccept(accept);
+        const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget?.source, wrapperSource)
+        this.IFM.setFenceAccept(accept);
         this.fenceTarget = {
             source: wrapperSource,
             childIdx: children.findIndex(c => c === source) + offset,
@@ -786,32 +614,6 @@ class JFrame extends EventTarget {
         }
     }
 
-    setFenceAccept(val) {
-        if(val) {
-            this.fence.setAttribute('accept', val);
-        } else {
-            this.fence.removeAttribute('accept');
-        }
-    }
-
-    renderHorizontalFence(tx, ty, width) {
-        this.fence.style.display = 'block';
-        this.fence.style.transition = `width .3s, transform .3s`;
-        this.fence.style.transform = `translate(${tx}px, ${ty}px)`;
-        this.fence.style.height = '0px';
-        this.fence.style.width = `${width}px`;
-    }
-
-    renderVerticalFence(tx, ty, height) {
-        this.fence.style.display = 'block';
-        this.fence.style.transition = `height .3s, transform .3s`;
-        this.fence.style.transform = `translate(${tx}px, ${ty}px)`;
-        this.fence.style.height = `${height}px`;
-        this.fence.style.width = `0px`;
-    }
-    hideClosestFence() {
-        this.fence.style.display = 'none';
-    }
 
     setMovingTarget(block) {
         console.log('setMovingTarget', block)
@@ -821,7 +623,19 @@ class JFrame extends EventTarget {
     getMovingTarget() {
         return this.state.movingTarget
     }
+
+    // splitElement(target, dir) {
+    //     this.dispatchEvent(new JFrameEvent('elementSplit', {
+    //         block: target,
+    //         source: target?.source,
+    //         dir,
+    //     }))
+    // }
     
 }
 
+// Object.assign(JFrame.prototype, ScrollBarMixin);
+
 export default JFrame;
+
+export * from './toolbox/index';

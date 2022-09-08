@@ -1,0 +1,11 @@
+{
+    "id": 4,
+    "concept": "ViewElement",
+    "type": 0,
+    "tag": "FlexContainer",
+    "style": {
+        "width": "100%",
+        "height": "800px"
+    },
+    "children": []
+}

@@ -4,7 +4,7 @@
         <title>demo pure</title>
         <style>
             .wrapper {
-                width: 800px;
+                width: 1400px;
                 height: 600px;
                 border: 1px solid red;
             }
@@ -29,6 +29,31 @@
                 text-align: center;
                 line-height: 50px;
             }
+            .toolbtn {
+                display: inline-block;
+                background-color: #4E75EC;
+                padding: 6px;
+                color: #fff;
+                font-size: 12px;
+                border-radius: 5px;
+                border: 1px solid transparent;
+                margin-bottom: 6px;
+            }
+            .deleteBtn {
+                display: inline-block;
+                background-color: #4E75EC;
+                padding: 6px;
+                color: #fff;
+                font-size: 12px;
+                border-radius: 5px;
+                border: 1px solid transparent;
+                margin-bottom: 6px;
+                cursor: pointer;
+            }
+            .deleteBtnIcon {
+                width: 8px;
+                height: auto;
+            }
         </style>
     </head>
     <body>
@@ -52,6 +77,11 @@
                 <div>
                     <div draggable="true" class="part" id="TextElement">
                         TextElement
+                    </div>
+                </div>
+                <div>
+                    <div draggable="true" class="part" id="ButtonElement">
+                        BtnElement
                     </div>
                 </div>
             </div>

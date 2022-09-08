@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:demo": "cd demo/pure && npm run dev",
     "build:demo": "rm -rf docs/dist && cd demo/pure && npm run build"
   },
   "author": "",

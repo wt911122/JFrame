@@ -81,5 +81,15 @@
                 ]
             }
         ]
+    }, {
+        "id": 4,
+        "concept": "ViewElement",
+        "type": 0,
+        "tag": "FlexContainer",
+        "style": {
+            "width": "800px",
+            "height": "300px"
+        },
+        "children": []
     }]
 }

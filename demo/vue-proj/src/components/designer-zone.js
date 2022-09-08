@@ -2,13 +2,17 @@ import LiElement from './li-element.vue';
 import UlElement from './ul-element.vue';
 import TextElement from './text-element.vue';
 import DivElement from './div-element.vue';
+import BtnElement from './btn-element.vue';
+import FlexContainer from './flex-container.vue';
 
 export default {
   components: {
     UlElement,
     LiElement,
     TextElement,
-    DivElement
+    DivElement,
+    BtnElement,
+    FlexContainer
   },
   data() {
     return {
@@ -26,17 +30,18 @@ export default {
   },
   methods: {
     createElement(c, meta) {
-      console.log(meta)
       let children = [];
       if(meta.children) {
         children = meta.children.map(child => this.createElement(c, child));
       }
+      const style = meta.style || {}
 
       return c(meta.tag, {
         props: meta.props,
         attrs: {
           "data-id": meta.id,
         },
+        style,
       }, children)
     }
   },
