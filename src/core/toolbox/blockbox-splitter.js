@@ -347,10 +347,10 @@ class BlockBoxSplitter extends Tool {
                 const preblock = jframe.source_block_element_map.getBlockBySource(pre);
                 const afterblock = jframe.source_block_element_map.getBlockBySource(after);
                 if(dir === 'row') {
-                    reduce += preblock.width;
+                    reduce += (preblock.width + preblock.marginLeft + preblock.marginRight);
                 }
                 if(dir === 'column') {
-                    reduce += preblock.height;
+                    reduce += (preblock.height + preblock.marginTop + preblock.marginBottom);
                 }
                 const line = this.renderSplitLine(dir, reduce, targetBlock, preblock, afterblock);
                 if(line) {
@@ -379,11 +379,11 @@ class BlockBoxSplitter extends Tool {
             const line = splitterLines[idx];
             const preblock = jframe.source_block_element_map.getBlockBySource(pre);
             if(dir === 'row') {
-                reduce += preblock.width;
+                reduce += (preblock.width + preblock.marginLeft + preblock.marginRight);
                 line.style.left = reduce + 'px';
             }
             if(dir === 'column') {
-                reduce += preblock.height;
+                reduce += (preblock.height + preblock.marginTop + preblock.marginBottom);
                 line.style.top = reduce + 'px';
             }
             idx ++;

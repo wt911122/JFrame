@@ -322,15 +322,16 @@ jframeInstance.addEventListener('elementsResized', (e) => {
             marginTop,
             marginBottom,
          } = e;
+         debugger
         if(parseFloat(width) === 0 || parseFloat(height) === 0) {
             onDeleteElement(targetBlock);
         } else {
-            Object.assign(source, {
-                style: {
-                    width,
-                    height,
-                },
-            });
+            if(width !== undefined) {
+                source.style.width = width;
+            }
+            if(height !== undefined) {
+                source.style.height = height;
+            }
             if(marginLeft !== undefined) {
                 source.style.marginLeft = marginLeft;
             }

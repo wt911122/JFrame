@@ -119,6 +119,14 @@ class Block extends EventTarget{
             height: bounding.height
         });
     }
+    setStyle(styleSheet) {
+        Object.assign(this, {
+            marginLeft: parseFloat(styleSheet.marginLeft),
+            marginRight: parseFloat(styleSheet.marginRight),
+            marginTop: parseFloat(styleSheet.marginTop),
+            marginBottom: parseFloat(styleSheet.marginBottom),
+        })
+    }
     setLevel(level) {
         this._level = level;
         this.elem.style['z-index'] = level;

@@ -291,7 +291,9 @@ class JFrame extends EventTarget {
             block.observe(elem, this.scheduleObserver.bind(this));
         }
         block.setLevel(level);
+        const stylesheet = window.getComputedStyle(elem);
         block.setBounding(elem.getBoundingClientRect());
+        block.setStyle(stylesheet);
         this.blockList.current.push(block);
         // block.render();
     }
