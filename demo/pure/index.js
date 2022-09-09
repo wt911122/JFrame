@@ -412,9 +412,7 @@ jframeInstance.addEventListener('elementSplit', (e) => {
         } 
     }
     // 自身切分
-    if(children.length === 0 ){
-        sdata.props.direction = dir;
-    }
+    sdata.props.direction = dir;
     const c1 = new Elem({
         concept: 'ViewElement',
         tag: 'FlexContainer',
@@ -436,10 +434,18 @@ jframeInstance.addEventListener('elementSplit', (e) => {
         c2.style.height = '100%';
     }
 
-    children.push(c1);
+    sdata.children = [];
+    
+    sdata.children.push(c1);
     c1.parentElement = sdata
-    children.push(c2);
+    sdata.children.push(c2);
     c2.parentElement = sdata
+    if(children.length) {
+        children.forEach(d => {
+            c1.children.push(d);
+            d.parentElement = c1;
+        }) 
+    }
     // block.setSplit(true);
     jframeInstance.postMessage(JSON.stringify({
         type: 'rerender',
