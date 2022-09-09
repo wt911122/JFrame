@@ -5,7 +5,8 @@ import JFrame, {
     BlockDelete,
     BlockBoxResizer,
     BlockBoxSplitter,
-    BlockBoxMargin
+    BlockBoxMargin,
+    BlockBoxContentEditor
 } from '../../src/core/jframe';
 import '../../src/style/style.css';
 const deleteIcon = require('./assets/delete.png');
@@ -157,6 +158,21 @@ const jframeInstance = new JFrame({
                 accept(targetBlock) {
                     return SPLITABLE(targetBlock.source);
                 },
+            }),
+            new BlockBoxContentEditor({
+                accept(targetBlock) {
+                    return targetBlock.source.tag === 'BtnElement';
+                },
+                getContent(source) {
+                    return source.props.content;
+                },
+                onContentChange(s, content) {
+                    s.props.content = content;
+                    jframeInstance.postMessage(JSON.stringify({
+                        type: 'rerender',
+                        elements: [source.toPlainObject()],
+                    }));
+                }
             })
         ]
     },

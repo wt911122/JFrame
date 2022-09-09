@@ -233,3 +233,16 @@
     color: #fff;
     padding: 6px;
 }
+
+.jframe-block-content-editor {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    display: none;
+}
+.jframe-block-content-editor .jframe-block-content-editor-input {
+
+}
