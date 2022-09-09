@@ -216,10 +216,13 @@
     transform: translate(-50%, 0);
 }
 .jframe-block-margin-rect {
-    display: none;
+    display: flex;
     position: absolute;
     align-items: center;
     justify-content: center;
+    background: transparent;
+}
+.jframe-block-margin-rect[visible] {
     background: repeating-linear-gradient(
         45deg,
         #EBF0FF,
@@ -229,9 +232,13 @@
     );
 }
 .jframe-block-margin-rect-content{
+    display: none;
     background-color: #4E75EC;
     color: #fff;
     padding: 6px;
+}
+.jframe-block-margin-rect[visible] > .jframe-block-margin-rect-content {
+    display: block;
 }
 
 .jframe-block-content-editor {
