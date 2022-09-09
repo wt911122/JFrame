@@ -7,24 +7,35 @@ class BlockTitle extends Tool {
         wrapper.setAttribute('class', 'jframe-title-wrapper');
        
         let parent = source
+        let idx = 0;
         while(parent) {
             const block = jframe.source_block_element_map.getBlockBySource(parent);
             const el = document.createElement('span');
             el.setAttribute('class', 'jframe-title');
             el.innerText = block.source.tag;
+            const isFirst = (idx === 0);
+            if(isFirst) {
+                el.setAttribute('first-title', true);
+            }
             el.addEventListener('mouseenter', e => {
-                // jframe.setHoverTarget(block);
-                // block.setHover(true);
+                if(!isFirst) {
+                    console.log('sethover')
+                    block.setHover(true);
+                }
             });
             el.addEventListener('mouseleave', e => {
-                // jframe.resetHoverTarget(block);
-                // block.setHover(false);
+                if(!isFirst) {
+                    block.setHover(false);
+                }
             });
             el.addEventListener('click', () => {
+                block.setHover(false);
                 jframe.setFocusTarget(block);
+                
             })
             wrapper.prepend(el);
             parent = jframe.dataElemDescription.getSourceParent(parent);
+            idx ++;
         }
         
         this.el = wrapper;

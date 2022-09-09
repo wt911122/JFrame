@@ -211,7 +211,7 @@ class JFrame extends EventTarget {
 
         this.IFM.iframe.onload = (event) => {
             this.resizeObserver();
-            this.IFM.resetFrameHorizontalBoundrary();
+            // this.IFM.resetFrameHorizontalBoundrary();
             const resetFrameBounding = new ResizeObserver(this.scheduleObserver.bind(this));
             resetFrameBounding.observe(this.IFM.iframe.contentWindow.document.body)
             
@@ -244,7 +244,7 @@ class JFrame extends EventTarget {
 
     resizeObserver(){
         this.IFM.resetFrameVerticalBoundrary();
-        
+        this.IFM.resetFrameHorizontalBoundrary();
         // this.resolve(this.blockList)
         this.blockList.old = this.blockList.current;
         this.blockList.current = []
@@ -631,6 +631,55 @@ class JFrame extends EventTarget {
     //         dir,
     //     }))
     // }
+
+    bindDragdropListener(elem, pointerdown, pointermove, pointerup) {
+        const resizeMeta = {
+            lastX: undefined,
+            lastY: undefined
+        };
+        elem.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            const { clientX, clientY } = e;
+    
+            Object.assign(resizeMeta, {
+                lastX: clientX, 
+                lastY: clientY,
+            });
+            pointerdown();
+            let processing = false;
+            const f = (e => {
+                if(processing){
+                    return;
+                }
+                processing = true;
+                const { clientX, clientY } = e;
+                const {
+                    lastX, lastY, 
+                } = resizeMeta;
+                const deltaX = (clientX - lastX) / this.scale;
+                const deltaY = (clientY - lastY) / this.scale;
+                
+                pointermove(deltaX, deltaY);
+                Object.assign(resizeMeta, {
+                    lastX: clientX,
+                    lastY: clientY,
+                })
+                processing = false;
+            });
+            document.addEventListener('pointermove', f);
+            document.addEventListener('pointerup', () => {
+                Object.assign(resizeMeta, {
+                    lastX: undefined,
+                    lastY: undefined
+                })
+                document.removeEventListener('pointermove', f);
+                pointerup();
+            }, {
+                once: true
+            })
+        })
+    }
     
 }
 

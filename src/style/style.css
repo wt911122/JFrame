@@ -9,6 +9,11 @@
 
 .jframe-block:hover {
     border: 2px solid #4e75ec;
+    /* background-color: rgba(235, 240, 255, 0.6); */
+}
+.jframe-block[hover] {
+    /* border: 2px solid #4e75ec; */
+    background-color: rgba(235, 240, 255, 0.6);
 }
 .jframe-block[focus] {
     border: 2px solid #4e75ec;
@@ -97,13 +102,19 @@
     margin-top: 3px;
 }
 .jframe-title {
-    display: block;
     background-color: #4E75EC;
     padding: 6px;
     color: #fff;
     font-size: 12px;
     border-radius: 5px;
     border: 1px solid transparent;
+    display: none;
+}
+.jframe-title[first-title]{
+    display: block;
+}
+.jframe-title-wrapper:hover .jframe-title{
+    display: block;
 }
 .jframe-deleteBtn {
     vertical-align: bottom;
@@ -188,4 +199,37 @@
     padding: 5px 9px;
     background-color: #EBF0FF;
     color: #000;
+}
+
+.jframe-block-margin {
+    position: absolute;
+    background-color: #4E75EC;
+}
+.jframe-block-margin-horizontal {
+    width: 5px;
+    height: 52px;
+    transform: translate(0, -50%);
+}
+.jframe-block-margin-vertical {
+    width: 52px;
+    height: 5px;
+    transform: translate(-50%, 0);
+}
+.jframe-block-margin-rect {
+    display: none;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(
+        45deg,
+        #EBF0FF,
+        #EBF0FF 10px,
+        #fff 10px,
+        #fff 20px
+    );
+}
+.jframe-block-margin-rect-content{
+    background-color: #4E75EC;
+    color: #fff;
+    padding: 6px;
 }

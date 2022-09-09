@@ -4,8 +4,8 @@
     "type": 0,
     "tag": "FlexContainer",
     "style": {
-        "width": "100%",
-        "height": "800px"
+        "width": "1440px",
+        "height": "1024px"
     },
     "children": []
 }

@@ -76,6 +76,26 @@ class BlockBoxSplitter extends Tool {
         };
     }
 
+    refreshSplitter(targetBlock) {
+        const { width, height } = targetBlock;
+        Object.assign(this.splitterV.style, {
+            left: width/2 +'px',
+            top: '8px',
+        });
+        Object.assign(this.vline.style, {
+            height: height + 'px',
+            left: width/2 +'px'
+        })
+        Object.assign(this.splitterH.style, {
+            left: (width - 48) + 'px',
+            top: height/2 +'px'
+        });
+        Object.assign(this.hline.style, {
+            width: width +'px',
+            top: height/2 +'px'
+        });
+    }
+
     renderSplitLine(dir, reduce, targetBlock, preblock, afterBlock) {
         const { width, height } = targetBlock;
         if(dir === 'row') {
@@ -435,6 +455,7 @@ class BlockBoxSplitter extends Tool {
                 if(this.splitterLines.length !== (children.length - 1) ) {
                     this.splitterLines.forEach(l => l.remove());
                 }
+                this.refreshSplitter(targetBlock);
                 this._toggleSplitter(true);
             }
         }

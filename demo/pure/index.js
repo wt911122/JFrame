@@ -4,7 +4,8 @@ import JFrame, {
     BlockSize,
     BlockDelete,
     BlockBoxResizer,
-    BlockBoxSplitter
+    BlockBoxSplitter,
+    BlockBoxMargin
 } from '../../src/core/jframe';
 import '../../src/style/style.css';
 const deleteIcon = require('./assets/delete.png');
@@ -151,6 +152,11 @@ const jframeInstance = new JFrame({
                 getDirection(targetBlock){
                     return targetBlock.source.props.direction;
                 }
+            }),
+            new BlockBoxMargin({
+                accept(targetBlock) {
+                    return SPLITABLE(targetBlock.source);
+                },
             })
         ]
     },
@@ -290,7 +296,16 @@ jframeInstance.addEventListener('elementFocus', (e) => {
 
 jframeInstance.addEventListener('elementsResized', (e) => {
     e.detail.elements.forEach(e => {
-        const { targetBlock, source, width, height } = e;
+        const { 
+            targetBlock,
+            source, 
+            width,
+            height,
+            marginLeft,
+            marginRight,
+            marginTop,
+            marginBottom,
+         } = e;
         if(parseFloat(width) === 0 || parseFloat(height) === 0) {
             onDeleteElement(targetBlock);
         } else {
@@ -300,6 +315,18 @@ jframeInstance.addEventListener('elementsResized', (e) => {
                     height,
                 },
             });
+            if(marginLeft !== undefined) {
+                source.style.marginLeft = marginLeft;
+            }
+            if(marginRight !== undefined) {
+                source.style.marginRight = marginRight;
+            }
+            if(marginTop !== undefined) {
+                source.style.marginTop = marginTop;
+            }
+            if(marginBottom !== undefined) {
+                source.style.marginBottom = marginBottom;
+            }
         }
     })
    
