@@ -322,7 +322,6 @@ jframeInstance.addEventListener('elementsResized', (e) => {
             marginTop,
             marginBottom,
          } = e;
-         debugger
         if(parseFloat(width) === 0 || parseFloat(height) === 0) {
             onDeleteElement(targetBlock);
         } else {

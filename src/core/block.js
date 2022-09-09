@@ -17,12 +17,79 @@ class Block extends EventTarget{
         elem.setAttribute('draggable', this.jframe.dataElemDescription.draggable(this.source));
         elem.setAttribute('class', 'jframe-block');
         this.elem = elem;
+
+        const {
+            marginBarRect: marginBarRectLeft,
+            marginBarContent: marginBarRectLeftContent,
+        } = this.renderMarginBarRect();
+        const {
+            marginBarRect: marginBarRectRight,
+            marginBarContent: marginBarRectRightContent,
+        } = this.renderMarginBarRect();
+        const {
+            marginBarRect: marginBarRectTop,
+            marginBarContent: marginBarRectTopContent,
+        } = this.renderMarginBarRect();
+        const {
+            marginBarRect: marginBarRectBottom,
+            marginBarContent: marginBarRectBottomContent,
+        } = this.renderMarginBarRect();
         
+        Object.assign(this, {
+            marginBarRectLeft,
+            marginBarRectRight,
+            marginBarRectTop,
+            marginBarRectBottom,
+            marginBarRectLeftContent,
+            marginBarRectRightContent,
+            marginBarRectTopContent,
+            marginBarRectBottomContent
+        })
+        this.elem.appendChild(marginBarRectLeft)
+        this.elem.appendChild(marginBarRectRight)
+        this.elem.appendChild(marginBarRectTop)
+        this.elem.appendChild(marginBarRectBottom)
         this.bindListeners();
     }
 
     get isFocus() {
         return this.jframe.state.focusTarget === this;
+    }
+
+    toggleMarginBarRectVisible(val, dir) {
+        if(val) {
+            this.lockVisible(true);
+            this[`marginBarRect${dir}`].setAttribute('visible', true);
+        } else {
+            this.lockVisible(false);
+            this[`marginBarRect${dir}`].removeAttribute('visible');
+        }
+    }
+
+    lockVisible(val) {
+        this.processingMarginRectVisible = val;
+    }
+
+
+    renderMarginBarRect() {
+        const marginBarRect = document.createElement('div');
+        marginBarRect.setAttribute('class', 'jframe-block-margin-rect');
+        const marginBarContent = document.createElement('div');
+        marginBarContent.setAttribute('class', 'jframe-block-margin-rect-content');
+        marginBarRect.appendChild(marginBarContent);
+        // marginBarRect.setAttribute('visible', true)
+        marginBarRect.addEventListener('mouseenter', () => {
+            if(this.processingMarginRectVisible) return
+            marginBarRect.setAttribute('visible', true);
+        });
+        marginBarRect.addEventListener('mouseleave', () => {
+            if(this.processingMarginRectVisible) return
+            marginBarRect.removeAttribute('visible')
+        });
+        return {
+            marginBarRect,
+            marginBarContent
+        }
     }
 
     toggleTools(val) {
@@ -140,6 +207,53 @@ class Block extends EventTarget{
         this.elem.style.top = `${this.y}px`;
         this.elem.style.width = `${this.width}px`;
         this.elem.style.height = `${this.height}px`;
+
+        const { width, height, marginLeft, marginRight, marginTop, marginBottom } = this;
+        const wholeWidth =  width + marginLeft + marginRight;
+        const wholeHeight = height + marginTop + marginBottom;
+        const {
+            marginBarRectLeft,
+            marginBarRectRight,
+            marginBarRectTop,
+            marginBarRectBottom,
+            marginBarRectLeftContent,
+            marginBarRectRightContent,
+            marginBarRectTopContent,
+            marginBarRectBottomContent
+        } = this;
+        Object.assign(marginBarRectLeft.style, {
+            left: -marginLeft - 2 + 'px',
+            top: -marginTop - 2 + 'px',
+            width: marginLeft + 'px',
+            height: wholeHeight + 'px'
+        });
+        marginBarRectLeftContent.innerText = Math.round(marginLeft) + 'px';
+
+        Object.assign(marginBarRectRight.style, {
+            left: width - 2 + 'px',
+            top: -marginTop - 2 + 'px',
+            width: marginRight + 'px',
+            height: wholeHeight + 'px'
+        })
+        marginBarRectRightContent.innerText = Math.round(marginRight) + 'px';
+    
+        Object.assign(marginBarRectTop.style, {
+            left: -marginLeft - 2 + 'px',
+            top: -marginTop - 2 + 'px',
+            width: wholeWidth + 'px',
+            height: marginTop + 'px'
+        })
+        marginBarRectTopContent.innerText = Math.round(marginTop) + 'px';
+        
+        Object.assign(marginBarRectBottom.style, {
+            left: -marginLeft -2 + 'px',
+            top: height-2 + 'px',
+            width: wholeWidth + 'px',
+            height: marginBottom + 'px'
+        })
+        marginBarRectBottomContent.innerText = Math.round(marginBottom) + 'px';
+    
+
     }
 
     isHit(point) {
