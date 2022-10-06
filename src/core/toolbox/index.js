@@ -7,3 +7,4 @@ export { default as BlockBoxSplitter } from './blockbox-splitter';
 export { default as BlockBoxMargin } from './blockbox-margin';
 
 export { default as BlockBoxContentEditor } from './blockbox-conent';
+export { default as BlockAlignment } from './block-alignment'; 

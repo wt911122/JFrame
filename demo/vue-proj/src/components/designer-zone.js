@@ -31,13 +31,19 @@ export default {
   methods: {
     createElement(c, meta) {
       let children = [];
+      let isContainer = false;
       if(meta.children) {
+        console.log(meta.children[0])
+        isContainer = (meta.children[0]?.tag !== 'FlexContainer');
         children = meta.children.map(child => this.createElement(c, child));
       }
       const style = meta.style || {}
-
+      
       return c(meta.tag, {
-        props: meta.props,
+        props: {
+          ...meta.props,
+          isContainer,
+        },
         attrs: {
           "data-id": meta.id,
         },

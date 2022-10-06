@@ -169,35 +169,6 @@ class JFrame extends EventTarget {
             this.IFM.hideClosestFence();
             this.setMovingTarget(null);
         });
-
-        // document.addEventListener('pointermove', e => {
-        //     console.log(e.clientX, e.clientY)
-        // });
-
-        // this.IFM.dom.addEventListener('pointermove', e => {
-        //     if(this.resizeMeta) {
-        //         const { offsetX, offsetY } = e;
-        //         const {
-        //             lastX, lastY, target,
-        //         } = this.resizeMeta;
-        //         const deltaX = offsetX - lastX;
-        //         const deltaY = offsetX - lastY;
-                
-        //         Object.assign(this.resizeMeta, {
-        //             lastX: offsetX,
-        //             lastY: offsetY,
-        //         })
-        //     }
-        // });
-
-        // this.IFM.dom.addEventListener('pointerup', event => {
-            
-        // })
-
-        
-
-
-
         // dom.addEventListener('click', (event) => {
         //     event.preventDefault();
         //     const { offsetX, offsetY } = this.resolveEventOffset(event);
@@ -210,10 +181,14 @@ class JFrame extends EventTarget {
         // })
 
         this.IFM.iframe.onload = (event) => {
-            this.resizeObserver();
+            
+            // const resetFrameBounding = new ResizeObserver(this.scheduleObserver.bind(this));
+            // resetFrameBounding.observe(rootElem);
+            // this.resizeObserver();
             // this.IFM.resetFrameHorizontalBoundrary();
             const resetFrameBounding = new ResizeObserver(this.scheduleObserver.bind(this));
             resetFrameBounding.observe(this.IFM.iframe.contentWindow.document.body)
+            
             
             this.dispatchEvent(new JFrameEvent('frameloaded', {
                 event,
@@ -243,9 +218,11 @@ class JFrame extends EventTarget {
     }
 
     resizeObserver(){
-        this.IFM.resetFrameVerticalBoundrary();
-        this.IFM.resetFrameHorizontalBoundrary();
+        // this.IFM.resetFrameVerticalBoundrary();
+        // this.IFM.resetFrameHorizontalBoundrary();
         // this.resolve(this.blockList)
+        
+        this.reflowIFM();
         this.blockList.old = this.blockList.current;
         this.blockList.current = []
         this.reflowBlocks(this);
@@ -254,6 +231,21 @@ class JFrame extends EventTarget {
 
         this.refreshTools();
         console.log('resizeObserver');
+    }
+
+    reflowIFM() {
+        if(!this.IFM._observer) {
+            const { 
+                getRoot,
+                bindElement,
+            } = this.dataElemDescription;
+            const root = getRoot();
+            const rootElem = bindElement(this, root);
+            if(rootElem) {
+                this.IFM.observe(rootElem)
+            }
+        }
+
     }
 
     reflowBlocks() {
@@ -289,6 +281,13 @@ class JFrame extends EventTarget {
             block = new Block(source, this, document, this.IFM.overLayer);
             this.source_block_element_map.setBlockBySource(source, block);
             block.observe(elem, this.scheduleObserver.bind(this));
+            if(this.toolbox && this.toolbox.tools) {
+                this.toolbox.tools.forEach(tool => {
+                    if(tool.blockRenderer) {
+                        block.registTool(tool.blockRenderer(block));
+                    }
+                })
+            }
         }
         block.setLevel(level);
         const stylesheet = window.getComputedStyle(elem);
@@ -302,7 +301,9 @@ class JFrame extends EventTarget {
         const { old, current } = this.blockList;
         const removed = old.filter(ob => !current.find(cb => ob.id === cb.id));
         removed.forEach(b => { b.destroy(); });
-        this.blockList.current.forEach(b => { b.render(); });
+        this.blockList.current.forEach(b => { 
+            b.render();
+        });
     }
 
     resolveEventOffset(event) {
@@ -648,7 +649,7 @@ class JFrame extends EventTarget {
                 lastX: clientX, 
                 lastY: clientY,
             });
-            pointerdown();
+            const _args = pointerdown() || [];
             let processing = false;
             const f = (e => {
                 if(processing){
@@ -661,8 +662,9 @@ class JFrame extends EventTarget {
                 } = resizeMeta;
                 const deltaX = (clientX - lastX) / this.scale;
                 const deltaY = (clientY - lastY) / this.scale;
-                
-                pointermove(deltaX, deltaY);
+                const { offsetX, offsetY } = this.resolveEventOffset(e);
+                const point = this.calculateToIframeCoordinate(offsetX, offsetY);
+                pointermove(deltaX, deltaY, point, ..._args);
                 Object.assign(resizeMeta, {
                     lastX: clientX,
                     lastY: clientY,
@@ -670,13 +672,13 @@ class JFrame extends EventTarget {
                 processing = false;
             });
             document.addEventListener('pointermove', f);
-            document.addEventListener('pointerup', () => {
+            document.addEventListener('pointerup', (e) => {
                 Object.assign(resizeMeta, {
                     lastX: undefined,
                     lastY: undefined
                 })
                 document.removeEventListener('pointermove', f);
-                pointerup();
+                pointerup(e, ..._args);
             }, {
                 once: true
             })

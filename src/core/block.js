@@ -1,3 +1,4 @@
+import Splitter from './splitter';
 let uuid = 0;
 class Block extends EventTarget{ 
     constructor(source, jframe, targetDoc, targetWapper, bounding = {}) {
@@ -17,38 +18,24 @@ class Block extends EventTarget{
         elem.setAttribute('draggable', this.jframe.dataElemDescription.draggable(this.source));
         elem.setAttribute('class', 'jframe-block');
         this.elem = elem;
+  
+        this.splitLines = [];
+        this._hoverEnable = true;
+
+        this.tools = [];
 
         const {
-            marginBarRect: marginBarRectLeft,
-            marginBarContent: marginBarRectLeftContent,
-        } = this.renderMarginBarRect();
-        const {
-            marginBarRect: marginBarRectRight,
-            marginBarContent: marginBarRectRightContent,
-        } = this.renderMarginBarRect();
-        const {
-            marginBarRect: marginBarRectTop,
-            marginBarContent: marginBarRectTopContent,
-        } = this.renderMarginBarRect();
-        const {
-            marginBarRect: marginBarRectBottom,
-            marginBarContent: marginBarRectBottomContent,
-        } = this.renderMarginBarRect();
+            indicator,
+            indicatorNumber,
+        } = this.renderBoundsIndicator();
         
         Object.assign(this, {
-            marginBarRectLeft,
-            marginBarRectRight,
-            marginBarRectTop,
-            marginBarRectBottom,
-            marginBarRectLeftContent,
-            marginBarRectRightContent,
-            marginBarRectTopContent,
-            marginBarRectBottomContent
+            indicator,
+            indicatorNumber
         })
-        this.elem.appendChild(marginBarRectLeft)
-        this.elem.appendChild(marginBarRectRight)
-        this.elem.appendChild(marginBarRectTop)
-        this.elem.appendChild(marginBarRectBottom)
+
+        this.elem.appendChild(indicator);
+        
         this.bindListeners();
     }
 
@@ -56,41 +43,24 @@ class Block extends EventTarget{
         return this.jframe.state.focusTarget === this;
     }
 
-    toggleMarginBarRectVisible(val, dir) {
-        if(val) {
-            this.lockVisible(true);
-            this[`marginBarRect${dir}`].setAttribute('visible', true);
-        } else {
-            this.lockVisible(false);
-            this[`marginBarRect${dir}`].removeAttribute('visible');
-        }
-    }
+    // toggleMarginBarRectVisible(val, dir) {
+    //     if(val) {
+    //         this.lockVisible(true);
+    //         this[`marginBarRect${dir}`].setAttribute('visible', true);
+    //     } else {
+    //         this.lockVisible(false);
+    //         this[`marginBarRect${dir}`].removeAttribute('visible');
+    //     }
+    // }
 
     lockVisible(val) {
         this.processingMarginRectVisible = val;
     }
 
-
-    renderMarginBarRect() {
-        const marginBarRect = document.createElement('div');
-        marginBarRect.setAttribute('class', 'jframe-block-margin-rect');
-        const marginBarContent = document.createElement('div');
-        marginBarContent.setAttribute('class', 'jframe-block-margin-rect-content');
-        marginBarRect.appendChild(marginBarContent);
-        // marginBarRect.setAttribute('visible', true)
-        marginBarRect.addEventListener('mouseenter', () => {
-            if(this.processingMarginRectVisible) return
-            marginBarRect.setAttribute('visible', true);
-        });
-        marginBarRect.addEventListener('mouseleave', () => {
-            if(this.processingMarginRectVisible) return
-            marginBarRect.removeAttribute('visible')
-        });
-        return {
-            marginBarRect,
-            marginBarContent
-        }
+    registTool(tool) {
+        this.tools.push(tool);
     }
+
 
     toggleTools(val) {
         if(val) {
@@ -102,12 +72,20 @@ class Block extends EventTarget{
         }
     }
 
+    toggleHoverEnable(val) {
+        this._hoverEnable = val;
+    }
+
     bindListeners() {
         this.elem.addEventListener('mouseenter', e => {
-            this.jframe.setHoverTarget(this);
+            if(this._hoverEnable) {
+                this.jframe.setHoverTarget(this);
+            }
         });
         this.elem.addEventListener('mouseleave', e => {
-            this.jframe.resetHoverTarget(this);
+            if(this._hoverEnable) {
+                this.jframe.resetHoverTarget(this);
+            }
         });
         // this.elem.addEventListener('mousemove', e => {
         //     e.stopPropagation();
@@ -162,22 +140,6 @@ class Block extends EventTarget{
         }
     }
 
-    // setSplit(val) {
-    //     if(val) {
-    //         const { 
-    //             splitterH, splitterV
-    //         } = this.splitter;
-    //         splitterH.style.display = 'none';
-    //         splitterV.style.display = 'none';
-    //     } else {
-    //         const { 
-    //             splitterH, splitterV
-    //         } = this.splitter;
-    //         splitterH.style.display = 'block';
-    //         splitterV.style.display = 'block';
-    //     }
-    // }
-
     setBounding(bounding = {}) {
         Object.assign(this, {
             x: bounding.left,
@@ -207,53 +169,101 @@ class Block extends EventTarget{
         this.elem.style.top = `${this.y}px`;
         this.elem.style.width = `${this.width}px`;
         this.elem.style.height = `${this.height}px`;
+        // this.renderMargin();
+        this.tools.forEach(tool => {
+            tool.render(this);
+        })
+        this.renderSplitLines();
+    }
 
-        const { width, height, marginLeft, marginRight, marginTop, marginBottom } = this;
-        const wholeWidth =  width + marginLeft + marginRight;
-        const wholeHeight = height + marginTop + marginBottom;
+    renderSplitLines() {
+        const jframe = this.jframe;
+        const source = this.source;
+        if(!jframe.dataElemDescription.splitable(source)) {
+            return;
+        }
+        const dir = jframe.dataElemDescription.getSplitableDiretion(source);
+        let idx = 0;
+        let reduce = 0;
+        let lidx = 0;
+        const children = jframe.dataElemDescription.getSourceChildren(source);
+        while(idx < children.length) {
+            const pre = children[idx];
+            if(idx < children.length - 1) {
+                const after = children[idx + 1];
+                const preblock = jframe.source_block_element_map.getBlockBySource(pre);
+                const afterblock = jframe.source_block_element_map.getBlockBySource(after);
+                if(dir === 'row') {
+                    reduce += (preblock.width + preblock.marginLeft + preblock.marginRight);
+                }
+                if(dir === 'column') {
+                    reduce += (preblock.height + preblock.marginTop + preblock.marginBottom);
+                }
+                let splitter = this.splitLines[idx];
+                if(!splitter) {
+                    splitter = new Splitter(this);
+                    this.splitLines[idx] = splitter;
+                    splitter.attach(jframe.IFM.jframeTool);
+                }
+                lidx++;
+                splitter.setProps(dir, reduce, preblock, afterblock);
+            }
+            idx ++;
+        }
+        const l = this.splitLines.length;
+        while(lidx < l) {
+            this.splitLines[lidx].destroy();
+            lidx ++;
+        }
+    }
+
+    renderBoundsIndicator() {
+        const indicator = document.createElement('div');
+        indicator.setAttribute('class', 'jframe-block-indicator');
+        indicator.style.display = 'none';
+        const indicatorNumber = document.createElement('div');
+        indicatorNumber.setAttribute('class', 'jframe-block-indicator-number');
+        indicator.appendChild(indicatorNumber)
+        return {
+            indicator,
+            indicatorNumber,
+        }
+    }
+
+    toggleIndicator(val, dir, point, whole) {
         const {
-            marginBarRectLeft,
-            marginBarRectRight,
-            marginBarRectTop,
-            marginBarRectBottom,
-            marginBarRectLeftContent,
-            marginBarRectRightContent,
-            marginBarRectTopContent,
-            marginBarRectBottomContent
+            indicator,
+            indicatorNumber
         } = this;
-        Object.assign(marginBarRectLeft.style, {
-            left: -marginLeft - 2 + 'px',
-            top: -marginTop - 2 + 'px',
-            width: marginLeft + 'px',
-            height: wholeHeight + 'px'
-        });
-        marginBarRectLeftContent.innerText = Math.round(marginLeft) + 'px';
-
-        Object.assign(marginBarRectRight.style, {
-            left: width - 2 + 'px',
-            top: -marginTop - 2 + 'px',
-            width: marginRight + 'px',
-            height: wholeHeight + 'px'
-        })
-        marginBarRectRightContent.innerText = Math.round(marginRight) + 'px';
-    
-        Object.assign(marginBarRectTop.style, {
-            left: -marginLeft - 2 + 'px',
-            top: -marginTop - 2 + 'px',
-            width: wholeWidth + 'px',
-            height: marginTop + 'px'
-        })
-        marginBarRectTopContent.innerText = Math.round(marginTop) + 'px';
-        
-        Object.assign(marginBarRectBottom.style, {
-            left: -marginLeft -2 + 'px',
-            top: height-2 + 'px',
-            width: wholeWidth + 'px',
-            height: marginBottom + 'px'
-        })
-        marginBarRectBottomContent.innerText = Math.round(marginBottom) + 'px';
-    
-
+        if(val) {
+            if(dir === 'row') {
+                Object.assign(indicator.style, {
+                    width: this.width + 'px',
+                    height: 0,
+                    display: 'block',
+                    transform: `translate(0px, ${point[1] - this.y}px)`,
+                });
+                Object.assign(indicatorNumber.style, {
+                    top: 0,
+                    left: '50%'
+                })
+            } 
+            if(dir === 'column') {
+                Object.assign(indicator.style, {
+                    width: 0,
+                    height: this.height + 'px',
+                    display: 'block',
+                    transform: `translate(${point[0] - this.x}px, 0px)`,
+                });
+                Object.assign(indicatorNumber.style, {
+                    top: '50%',
+                    left: 0
+                })
+            }
+            indicatorNumber.innerText = `${Math.round(this.width/whole*100)}%(${Math.round(this.width)}px)`
+        } else {
+            indicator.style.display = 'none';
+        }
     }
 
     isHit(point) {
@@ -340,6 +350,7 @@ class Block extends EventTarget{
     destroy() {
         this._observer.disconnect();
         this.source = null;
+        this.splitLines.forEach(l => { l.destroy(); })
         this.elem.remove();
     }
 }

@@ -10,7 +10,9 @@ class IFrameManager {
             left:0;
             top:0;
             user-select: none;
-            overflow:hidden;`);
+            overflow:hidden;
+            background: rgba(0,0,0,0.1);
+            `);
         const iframe = document.createElement('iframe');
         iframe.setAttribute('style', `
             position: absolute;
@@ -20,17 +22,11 @@ class IFrameManager {
             width: 100%;
             overflow: hidden;
             border: 2px solid transparent;
+            background: #fff;
             user-select: none;`);
         iframe.setAttribute('scrolling', "no");
         const overLayer = document.createElement('div');
-        overLayer.setAttribute('style', `
-            transform-origin: top left;
-            position: absolute;
-            top:0;
-            left: 0;
-            user-select: none;
-            border: 2px solid blue;
-            user-select: none;`);
+        overLayer.setAttribute('class', 'jframe-overlayer');
         dom.setAttribute("style", `
             position: relative;
             background-color: #fff;
@@ -52,11 +48,14 @@ class IFrameManager {
         const blockTool = document.createElement('div');
         blockTool.setAttribute('class', 'jframe-blocktool')
 
+        const jframeTool = document.createElement('div');
+        jframeTool.setAttribute('class', 'jframe-frametool')
 
         overLayer.appendChild(fence);
         overLayer.appendChild(mask);
         overLayer.appendChild(toolbox);
         overLayer.appendChild(blockTool);
+        overLayer.appendChild(jframeTool);
         wrapper.appendChild(iframe);
         wrapper.appendChild(overLayer); 
         
@@ -83,6 +82,7 @@ class IFrameManager {
         this.fence = fence;
         this.toolbox = toolbox;
         this.blockTool = blockTool;
+        this.jframeTool = jframeTool;
         // this.blockToolFragment = blockToolFragment;
         // this.hoverIndicator = hoverIndicator;
         // this.focusIndicator = focusIndicator;
@@ -153,7 +153,7 @@ class IFrameManager {
     //     }
     // }
 
-    resetFrameBoundrary(){
+    /* resetFrameBoundrary(){
         const innerDoc = this.iframe.contentWindow.document;
         const body = innerDoc.body;
         const html = innerDoc.documentElement;
@@ -163,7 +163,6 @@ class IFrameManager {
         this.iframe.style.width = width + 'px';
         this.overLayer.style.height = height + 'px';
         this.overLayer.style.width = width +'px';
-        // this.frameBoundingRect = { width, height }
     }
 
     resetFrameVerticalBoundrary() {
@@ -173,17 +172,47 @@ class IFrameManager {
         const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
         this.iframe.style.height = height + 'px';
         this.overLayer.style.height = height + 'px';
-        // this.frameBoundingRect.height = height;
+    } */
+
+    // resetFrameHorizontalBoundrary() {
+    //     const innerDoc = this.iframe.contentWindow.document;
+    //     const body = innerDoc.body;
+    //     const html = innerDoc.documentElement;
+    //     const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
+    //     this.iframe.style.width = width + 'px';
+    //     this.overLayer.style.width = width +'px';
+    // }
+
+    // resetFrameVerticalBoundrary() {
+    //     const innerDoc = this.iframe.contentWindow.document;
+    //     const body = innerDoc.body;
+    //     const html = innerDoc.documentElement;
+    //     const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+    //     this.iframe.style.height = height + 'px';
+    //     this.overLayer.style.height = height + 'px';
+    // }
+
+    observe(rootElem) {
+        const observer = new ResizeObserver(() => {
+            const bounding = rootElem.getBoundingClientRect();
+            const styleSheet = window.getComputedStyle(rootElem);
+            const w = bounding.width + (parseFloat(styleSheet.marginLeft) || 0) + (parseFloat(styleSheet.marginRight) || 0);
+            const h = bounding.height + (parseFloat(styleSheet.marginBottom) || 0) + (parseFloat(styleSheet.marginTop) || 0);
+            this.resetFrameHorizontalBoundrary(w);
+            this.resetFrameVerticalBoundrary(h);
+        });
+        observer.observe(rootElem);
+        this._observer = observer;
     }
 
-    resetFrameHorizontalBoundrary() {
-        const innerDoc = this.iframe.contentWindow.document;
-        const body = innerDoc.body;
-        const html = innerDoc.documentElement;
-        const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
+    resetFrameHorizontalBoundrary(width) {
         this.iframe.style.width = width + 'px';
         this.overLayer.style.width = width +'px';
-        // this.frameBoundingRect.width = width;
+    }
+
+     resetFrameVerticalBoundrary(height) {
+        this.iframe.style.height = height + 'px';
+        this.overLayer.style.height = height + 'px';
     }
 
     querySelector(selector) {
@@ -195,6 +224,10 @@ class IFrameManager {
 
     get domClientRect() {
         return this.dom.getBoundingClientRect();
+    }
+
+    toggleBlockHoverStyle(val) {
+        this.overLayer.setAttribute('disablehover', val);
     }
     
     

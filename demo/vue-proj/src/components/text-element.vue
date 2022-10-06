@@ -1,5 +1,5 @@
 <template>
-  <div style="display:inline-block;margin:0 20px;">{{content}}</div>
+  <span>{{content}}</span>
 </template>
 
 <script>

@@ -11,6 +11,10 @@ class Tool {
 
     }
 
+    renderFrame(targetBlock, appendChild) {
+        
+    }
+
     refresh(targetBlock) {
         
     }

@@ -1,3 +1,17 @@
+.jframe-overlayer {
+    transform-origin: top left;
+    position: absolute;
+    top:0;
+    left: 0;
+    user-select: none;
+    border: 2px solid transparent;
+    user-select: none;
+}
+
+.jframe-overlayer[disablehover=true] .jframe-block {
+    background: transparent!important;
+} 
+
 .jframe-block{
     position:absolute;
     outline: 1px dashed rgba(170,170,170,0.7);
@@ -9,7 +23,7 @@
 
 .jframe-block:hover {
     border: 2px solid #4e75ec;
-    /* background-color: rgba(235, 240, 255, 0.6); */
+    background-color: rgba(235, 240, 255, 0.6);
 }
 .jframe-block[hover] {
     /* border: 2px solid #4e75ec; */
@@ -60,6 +74,16 @@
     background: #fff;
 }
 
+.jframe-frametool{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform: translate(0, -100%);
+    z-index: 100000;
+}
+
 .jframe-toolbox {
     display: none;
     position: absolute;
@@ -93,6 +117,45 @@
     border: 1px solid transparent;
     margin-bottom: 6px;
 }
+
+.jframe-toolbtn-group-item  {
+    display: inline-block;
+    height: 9px;
+    width: 9px;
+    cursor: pointer; 
+    background-position: center;
+    background-size: 150%;
+    background-repeat: no-repeat;
+}
+.jframe-toolbtn-group-item + .jframe-toolbtn-group-item  {
+    margin-left: 3px;
+}
+.jframe-toolbtn-group-item[light=true] {
+    opacity: 1;
+}
+.jframe-toolbtn-group-item[light=false] {
+    opacity: 0.6;
+}
+.jframe-toolbtn-group-justify-start {
+    background-image: url(./justify-start.png);
+}
+.jframe-toolbtn-group-justify-end {
+    background-image: url(./justify-end.png);
+}
+.jframe-toolbtn-group-column {
+    background-image: url(./direction-column.png);
+}
+.jframe-toolbtn-group-alignment-start {
+    background-image: url(./alignment-start.png);
+}
+.jframe-toolbtn-group-alignment-center {
+    background-image: url(./alignment-center.png);
+}
+.jframe-toolbtn-group-alignment-end {
+    background-image: url(./alignment-end.png);
+}
+
+
 .jframe-title-wrapper{
     position: relative;
     display: inline-block;
@@ -169,7 +232,7 @@
 
 .jframe-block-line.jframe-line-vertical{
     position: absolute; 
-    border-left: 2px solid #4e75ec;
+    border-left: 2px solid #BBCCFF;
     width: 0;
     transform: translate(-1px, 0);
     cursor: ew-resize;
@@ -177,7 +240,7 @@
 
 .jframe-block-line.jframe-line-horizontal{
     position: absolute; 
-    border-top: 2px solid #4e75ec;
+    border-top: 2px solid #BBCCFF;
     height: 0;
     transform: translate(0, -1px);
     cursor: ns-resize;
@@ -222,6 +285,12 @@
     justify-content: center;
     background: transparent;
 }
+.jframe-overlayer[disablehover=true] .jframe-block-margin-rect {
+    background: transparent!important;
+}
+.jframe-overlayer[disablehover=true] .jframe-block-margin-rect-content {
+    display: none!important;
+}
 .jframe-block-margin-rect[visible] {
     background: repeating-linear-gradient(
         45deg,
@@ -241,6 +310,10 @@
     display: block;
 }
 
+.jframe-block-margin-input{
+    
+}
+
 .jframe-block-content-editor {
     position: absolute;
     display: flex;
@@ -253,3 +326,4 @@
 .jframe-block-content-editor .jframe-block-content-editor-input {
 
 }
+

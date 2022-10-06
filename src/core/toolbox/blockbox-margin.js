@@ -12,18 +12,71 @@ class BlockBoxMargin extends Tool {
         this.accept = configs.accept;
     }
 
+    _calculateWidthAfterMarginChange({
+        jframe,
+        elem,
+        targetSource,
+        marginLeft: ml,
+        marginRight: mr,
+        marginTop: mt,
+        marginBottom: mb,
+    }){
+        const styleSheet = window.getComputedStyle(elem);
+        const parentSource = jframe.dataElemDescription.getSourceParent(targetSource);
+        let width = parseFloat(styleSheet.width) || 0;
+        let height = parseFloat(styleSheet.height) || 0;
+        // let hw = wholeWidth;
+        // let hh = wholeHeight;
+        let marginLeft = parseFloat(styleSheet.marginLeft) ?? 0;
+        let marginRight = parseFloat(styleSheet.marginRight) ?? 0;
+        let marginTop = parseFloat(styleSheet.marginTop) ?? 0;
+        let marginBottom = parseFloat(styleSheet.marginBottom) ?? 0;
+        
+        const wholeHeight = marginTop + marginBottom + height;
+        const wholeWidth = marginLeft + marginRight + width;
+        
+        let wratio = 1;
+        let hratio = 1;
+        const s = jframe.dataElemDescription.getSourceParent(targetSource);
+        if(s) {
+            const elem = jframe.source_block_element_map.getElementBySource(s);
+            const bounding = elem.getBoundingClientRect();
+            const hw = bounding.width;
+            const hh = bounding.height;
+            wratio = wholeWidth / hw;
+            hratio = wholeHeight / hh;
+        }
+        marginLeft = ml ?? marginLeft;
+        marginRight = mr ?? marginRight;
+        marginTop = mt ?? marginTop;
+        marginBottom = mb ?? marginBottom;
+        if(parentSource) {
+            width = `calc(${wratio * 100}% - ${marginLeft+marginRight}px)`;
+            height = `calc(${hratio * 100}% - ${marginTop+marginBottom}px)`;
+        } 
+        
+
+        return {
+            width,
+            height,
+            marginLeft: `${marginLeft}px`,
+            marginRight: `${marginRight}px`,
+            marginTop: `${marginTop}px`,
+            marginBottom: `${marginBottom}px`,
+        }
+    }
+
     renderBlockTool(targetBlock, appendChild) {
         if(this.accept(targetBlock)) {
             const { width, height, jframe, source: targetSource } = targetBlock;
             const elem = jframe.source_block_element_map.getElementBySource(targetSource);
-            
 
             const marginBarLeft = document.createElement('div');
             marginBarLeft.setAttribute('class', 'jframe-block-margin jframe-block-margin-horizontal');
             Object.assign(marginBarLeft.style, {
                 left: 0,
                 top: height / 2 + 'px',
-                cursor: 'e-resize'
+                cursor: 'ew-resize'
             })
 
             const marginBarRight = document.createElement('div');
@@ -31,7 +84,7 @@ class BlockBoxMargin extends Tool {
             Object.assign(marginBarRight.style, {
                 left: width - 5 + 'px',
                 top: height / 2 + 'px',
-                cursor: 'w-resize'
+                cursor: 'ew-resize'
             })
 
             const marginBarTop = document.createElement('div');
@@ -39,7 +92,7 @@ class BlockBoxMargin extends Tool {
             Object.assign(marginBarTop.style, {
                 left: width / 2 + 'px',
                 top: 0,
-                cursor: 'n-resize'
+                cursor: 'ns-resize'
             })
 
             const marginBarBottom = document.createElement('div');
@@ -47,30 +100,9 @@ class BlockBoxMargin extends Tool {
             Object.assign(marginBarBottom.style, {
                 left: width / 2 + 'px',
                 top: height - 5 + 'px',
-                cursor: 's-resize'
+                cursor: 'ns-resize'
             })
-            let processing = false;
-            const dispatcher = () => {
-                jframe.dispatchEvent(new JFrameEvent('elementsResized', {
-                    elements: [
-                        {
-                            targetBlock: targetBlock,
-                            source: targetBlock?.source,
-                            width: elem.style.width,
-                            height: elem.style.height,
-                            marginLeft: elem.style.marginLeft,
-                            marginRight: elem.style.marginRight,
-                            marginTop: elem.style.marginTop,
-                            marginBottom: elem.style.marginBottom
-                        }
-                    ]
-                }))
-                targetBlock.toggleMarginBarRectVisible(false, 'Left')
-                targetBlock.toggleMarginBarRectVisible(false, 'Right')
-                targetBlock.toggleMarginBarRectVisible(false, 'Top')
-                targetBlock.toggleMarginBarRectVisible(false, 'Bottom')
-                processing = false;
-            }
+            
             const styleSheet = window.getComputedStyle(elem);
             let marginLeft = parseFloat(styleSheet.marginLeft) || 0;
             let marginRight = parseFloat(styleSheet.marginRight) || 0;
@@ -78,16 +110,66 @@ class BlockBoxMargin extends Tool {
             let marginBottom = parseFloat(styleSheet.marginBottom) || 0;
             let wholeHeight = marginTop + marginBottom + targetBlock.height;
             let wholeWidth = marginLeft + marginRight + targetBlock.width;
-            
+
+            const dispatcher = () => {
+                /* const styleSheet = window.getComputedStyle(elem);
+                const parentSource = jframe.dataElemDescription.getSourceParent(targetBlock.source);
+                let width = parseFloat(styleSheet.width) || 0;
+                let height = parseFloat(styleSheet.height) || 0;
+                marginLeft = parseFloat(styleSheet.marginLeft) || 0;
+                marginRight = parseFloat(styleSheet.marginRight) || 0;
+                marginTop = parseFloat(styleSheet.marginTop) || 0;
+                marginBottom = parseFloat(styleSheet.marginBottom) || 0;
+                
+                wholeHeight = marginTop + marginBottom + height;
+                wholeWidth = marginLeft + marginRight + width;
+                
+                let wratio = 1;
+                let hratio = 1;
+                const s = jframe.dataElemDescription.getSourceParent(targetSource);
+                if(s) {
+                    const elem = jframe.source_block_element_map.getElementBySource(s);
+                    const bounding = elem.getBoundingClientRect();
+                    const hw = bounding.width;
+                    const hh = bounding.height;
+                    wratio = wholeWidth / hw;
+                    hratio = wholeHeight / hh;
+                }
+                if(parentSource) {
+                    width = `calc(${wratio * 100}% - ${marginLeft+marginRight}px)`;
+                    height = `calc(${hratio * 100}% - ${marginTop+marginBottom}px)`;
+                }*/
+                
+                // const wratio = parseFloat(stylesheet.width) / hw * 100;
+                // const hratio = parseFloat(stylesheet.height) / hh * 100;
+               
+                jframe.dispatchEvent(new JFrameEvent('elementsResized', {
+                    elements: [
+                        {
+                            targetBlock: targetBlock,
+                            source: targetBlock?.source,
+                            ...this._calculateWidthAfterMarginChange({
+                                jframe, elem, targetSource
+                            }),
+                        }
+                    ]
+                }))
+                
+                // targetBlock.toggleMarginBarRectVisible(false, 'Left')
+                // targetBlock.toggleMarginBarRectVisible(false, 'Right')
+                // targetBlock.toggleMarginBarRectVisible(false, 'Top')
+                // targetBlock.toggleMarginBarRectVisible(false, 'Bottom')
+                jframe.IFM.toggleBlockHoverStyle(false);
+            }
             
             jframe.bindDragdropListener(marginBarLeft, () => {
                 const styleSheet = window.getComputedStyle(elem);
                 marginLeft = parseFloat(styleSheet.marginLeft) || 0;
                 marginRight = parseFloat(styleSheet.marginRight) || 0;
                 wholeWidth = marginLeft + marginRight + targetBlock.width;
-                targetBlock.toggleMarginBarRectVisible(true, 'Left')
+                // targetBlock.toggleMarginBarRectVisible(true, 'Left')
             }, (deltaX, deltaY) => {
-                processing = true;
+                jframe.IFM.toggleBlockHoverStyle(true);
                 marginLeft = Math.max(0, Math.min(deltaX + marginLeft, wholeWidth - marginRight));
                 elem.style.width = `${wholeWidth - marginLeft - marginRight}px`;
                 elem.style.marginLeft = `${marginLeft}px`;
@@ -98,9 +180,9 @@ class BlockBoxMargin extends Tool {
                 marginLeft = parseFloat(styleSheet.marginLeft) || 0;
                 marginRight = parseFloat(styleSheet.marginRight) || 0;
                 wholeWidth = marginLeft + marginRight + targetBlock.width;
-                targetBlock.toggleMarginBarRectVisible(true, 'Right')
+                // targetBlock.toggleMarginBarRectVisible(true, 'Right')
             }, (deltaX, deltaY) => {
-                processing = true;
+                jframe.IFM.toggleBlockHoverStyle(true);
                 // const elbounds = elem.getBoundingClientRect();
                 marginRight = Math.max(0, Math.min(-deltaX + marginRight, wholeWidth - marginLeft));
                 elem.style.width = `${wholeWidth - marginLeft - marginRight}px`;
@@ -112,9 +194,9 @@ class BlockBoxMargin extends Tool {
                 marginTop = parseFloat(styleSheet.marginTop) || 0;
                 marginBottom = parseFloat(styleSheet.marginBottom) || 0;
                 wholeHeight = marginTop + marginBottom + targetBlock.height;
-                targetBlock.toggleMarginBarRectVisible(true, 'Top')
+                // targetBlock.toggleMarginBarRectVisible(true, 'Top')
             }, (deltaX, deltaY) => {
-                processing = true;
+                jframe.IFM.toggleBlockHoverStyle(true);
                 marginTop = Math.max(0, Math.min(deltaY + marginTop, wholeHeight - marginBottom));
                 elem.style.height = `${wholeHeight - marginTop - marginBottom}px`;
                 elem.style.marginTop = `${marginTop}px`;
@@ -125,9 +207,9 @@ class BlockBoxMargin extends Tool {
                 marginTop = parseFloat(styleSheet.marginTop) || 0;
                 marginBottom = parseFloat(styleSheet.marginBottom) || 0;
                 wholeHeight = marginTop + marginBottom + targetBlock.height;
-                targetBlock.toggleMarginBarRectVisible(true, 'Bottom')
+                // targetBlock.toggleMarginBarRectVisible(true, 'Bottom')
             }, (deltaX, deltaY) => {
-                processing = true;
+                jframe.IFM.toggleBlockHoverStyle(true);
                 marginBottom = Math.max(0, Math.min(marginBottom - deltaY, wholeHeight - marginTop));
                 elem.style.height = `${wholeHeight - marginTop - marginBottom}px`;
                 elem.style.marginBottom = `${marginBottom}px`;
@@ -215,6 +297,154 @@ class BlockBoxMargin extends Tool {
         }
     }
     
+
+    blockRenderer(targetBlock) {
+        const flag = this.accept(targetBlock);
+        if(flag) {
+            const {
+                marginBarRect: marginBarRectLeft,
+                marginBarContent: marginBarRectLeftContent,
+            } = this._renderMarginBarRect(targetBlock, 'marginLeft');
+            const {
+                marginBarRect: marginBarRectRight,
+                marginBarContent: marginBarRectRightContent,
+            } = this._renderMarginBarRect(targetBlock, 'marginRight');
+            const {
+                marginBarRect: marginBarRectTop,
+                marginBarContent: marginBarRectTopContent,
+            } = this._renderMarginBarRect(targetBlock, 'marginTop');
+            const {
+                marginBarRect: marginBarRectBottom,
+                marginBarContent: marginBarRectBottomContent,
+            } = this._renderMarginBarRect(targetBlock, 'marginBottom');
+
+            targetBlock.elem.appendChild(marginBarRectLeft);
+            targetBlock.elem.appendChild(marginBarRectRight);
+            targetBlock.elem.appendChild(marginBarRectTop);
+            targetBlock.elem.appendChild(marginBarRectBottom);
+
+            return {
+                render(targetBlock) {
+                    if(!flag) {
+                        return;
+                    }
+                    const { width, height, marginLeft, marginRight, marginTop, marginBottom } = targetBlock;
+                    const wholeWidth =  width + marginLeft + marginRight;
+                    const wholeHeight = height + marginTop + marginBottom;
+                    Object.assign(marginBarRectLeft.style, {
+                        left: -marginLeft - 2 + 'px',
+                        top: -marginTop - 2 + 'px',
+                        width: marginLeft + 'px',
+                        height: wholeHeight + 'px'
+                    });
+                    marginBarRectLeftContent.innerText = Math.round(marginLeft) + 'px';
+            
+                    Object.assign(marginBarRectRight.style, {
+                        left: width - 2 + 'px',
+                        top: -marginTop - 2 + 'px',
+                        width: marginRight + 'px',
+                        height: wholeHeight + 'px'
+                    })
+                    marginBarRectRightContent.innerText = Math.round(marginRight) + 'px';
+                
+                    Object.assign(marginBarRectTop.style, {
+                        left: -marginLeft - 2 + 'px',
+                        top: -marginTop - 2 + 'px',
+                        width: wholeWidth + 'px',
+                        height: marginTop + 'px'
+                    })
+                    marginBarRectTopContent.innerText = Math.round(marginTop) + 'px';
+                    
+                    Object.assign(marginBarRectBottom.style, {
+                        left: -marginLeft -2 + 'px',
+                        top: height-2 + 'px',
+                        width: wholeWidth + 'px',
+                        height: marginBottom + 'px'
+                    })
+                    marginBarRectBottomContent.innerText = Math.round(marginBottom) + 'px';
+                }
+            }
+        }
+
+        return null;
+    }
+
+    _renderMarginBarRect(targetBlock, styleProperty) {
+        const marginBarRect = document.createElement('div');
+        marginBarRect.setAttribute('class', 'jframe-block-margin-rect');
+        const marginBarContent = document.createElement('div');
+        marginBarContent.setAttribute('class', 'jframe-block-margin-rect-content');
+        marginBarRect.appendChild(marginBarContent);
+        // marginBarRect.setAttribute('visible', true)
+        let oldContent;
+        const _blurHandler = () => {
+            console.log('blur', marginBarContent.innerText)
+            
+            const num = parseFloat(marginBarContent.innerHTML);
+            if(num) {
+                const jframe = targetBlock.jframe;
+                const elem = jframe.source_block_element_map.getElementBySource(targetBlock.source);
+
+                // const pixel = `${num}px`;
+                jframe.dispatchEvent(new JFrameEvent('elementsResized', {
+                    elements: [
+                        {
+                            targetBlock,
+                            source: targetBlock.source,
+                            ...this._calculateWidthAfterMarginChange({
+                                jframe, 
+                                elem, 
+                                targetSource: targetBlock.source,
+                                [styleProperty]: num,
+                            })
+                        },
+                    ]
+                }))
+            } else {
+                marginBarContent.innerText = oldContent
+            }
+            marginBarContent.removeEventListener('keydown', _f);
+            marginBarContent.setAttribute('contenteditable', false);
+        }
+        const _f = (e) => {
+            if(e.key === 'Enter'){
+                _blurHandler();
+            };
+        }
+        marginBarRect.addEventListener('mouseenter', () => {
+            // if(!this._hoverEnable) return;
+            if(this.processingMarginRectVisible) return
+            marginBarRect.setAttribute('visible', true);
+        });
+        marginBarRect.addEventListener('mouseleave', () => {
+            if(this.processingMarginRectVisible) return
+            marginBarRect.removeAttribute('visible')
+            marginBarContent.removeEventListener(blur, _blurHandler, {
+                once: true
+            })
+            marginBarContent.setAttribute('contenteditable', false);
+        });
+        marginBarRect.addEventListener('click', () =>{
+            oldContent = marginBarContent.innerText;
+            marginBarContent.setAttribute('contenteditable', true);
+            marginBarContent.addEventListener('blur', _blurHandler, {
+                once: true
+            });
+            
+            marginBarContent.addEventListener('keydown', _f)
+            const selObj = window.getSelection();
+            const range = document.createRange();
+            const rangeText = marginBarContent.firstChild;
+            range.selectNode(rangeText)
+            selObj.removeAllRanges();
+            selObj.addRange(range)
+        })
+
+        return {
+            marginBarRect,
+            marginBarContent
+        }
+    }
 
     destroy() {
         ELEMENT_KEYS.forEach(k => {

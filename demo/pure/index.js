@@ -6,7 +6,8 @@ import JFrame, {
     BlockBoxResizer,
     BlockBoxSplitter,
     BlockBoxMargin,
-    BlockBoxContentEditor
+    BlockBoxContentEditor,
+    BlockAlignment,
 } from '../../src/core/jframe';
 import '../../src/style/style.css';
 const deleteIcon = require('./assets/delete.png');
@@ -91,6 +92,12 @@ const dataElemDescription = {
     },
     draggable(source) {
         return source.tag !== 'FlexContainer';
+    },
+    splitable(source){
+        return source.tag === 'FlexContainer';
+    },
+    getSplitableDiretion(source) {
+        return source.props.direction;
     }
     // paddingResizable(source) {
     //     return ['FlexContainer'].includes(source.tag);
@@ -135,8 +142,32 @@ const jframeInstance = new JFrame({
     toolbox: {
         tools: [
             new BlockTitle(),
-            new BlockSize(),
+            new BlockSize({
+                editable(targetBlock) {
+                    return !SPLITABLE(targetBlock.source)
+                },
+            }),
+            new BlockAlignment({
+                accept(source) {
+                    if(source.tag === 'FlexContainer') {
+                        if(source.children.length > 0 && source.children[0].tag !== 'FlexContainer'){
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                onClick(targetBlock, propertyName, value) {
+                    targetBlock.source.props[propertyName] = value;
+                    jframeInstance.postMessage(JSON.stringify({
+                        type: 'rerender',
+                        elements: [source.toPlainObject()],
+                    }));
+                }
+            }),
             new BlockDelete({
+                accept(targetBlock) {
+                    return !!targetBlock.source.parentElement
+                },
                 onClick(target) {
                     onDeleteElement(target);
                 }
@@ -147,8 +178,8 @@ const jframeInstance = new JFrame({
                 }
             }),
             new BlockBoxSplitter({
-                accept(targetBlock) {
-                    return SPLITABLE(targetBlock.source);
+                accept(source) {
+                    return SPLITABLE(source);
                 },
                 getDirection(targetBlock){
                     return targetBlock.source.props.direction;
@@ -174,7 +205,7 @@ const jframeInstance = new JFrame({
                     }));
                 }
             })
-        ]
+        ],
     },
 })
 
@@ -365,11 +396,17 @@ jframeInstance.addEventListener('elementdrop', (e) => {
         sdata.children.splice(childIdx, 0, currentInstance);
         currentInstance.parentElement = sdata;
     }
-    
+    const _c = currentInstance;
     jframeInstance.postMessage(JSON.stringify({
         type: 'rerender',
         elements: [source.toPlainObject()],
     }));
+    jframeInstance.addEventListener('afterResize', () => {
+        const block = jframeInstance.source_block_element_map.getBlockBySource(target || _c)
+        jframeInstance.setFocusTarget(block);
+    }, {
+        once: true,
+    })
 })
 
 jframeInstance.addEventListener('elementSplit', (e) => {
