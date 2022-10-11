@@ -229,7 +229,12 @@
     /* top: 50%; */
     transform: translate(0, -1px);
 }
-
+.jframe-block-line.jframe-line-vertical:hover,
+.jframe-block-line.jframe-line-vertical[active],
+.jframe-block-line.jframe-line-horizontal:hover,
+.jframe-block-line.jframe-line-horizontal[active]  {
+    border-color: #43E863;
+}
 .jframe-block-line.jframe-line-vertical{
     position: absolute; 
     border-left: 2px solid #BBCCFF;

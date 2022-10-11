@@ -30,6 +30,14 @@ class Splitter {
         dom.appendChild(this.elem);
     }
 
+    toggleActive(val) {
+        if(val) {
+            this.elem.setAttribute('active', true)
+        } else {
+            this.elem.removeAttribute('active')
+        }
+    }
+
     bindSplitLineEventListener() {
         const jframe = this.targetBlock.jframe;
         jframe.bindDragdropListener(this.elem, () => {
@@ -59,6 +67,7 @@ class Splitter {
             function minmax(num) {
                 return Math.max(0, Math.min(space, num));
             }
+            this.toggleActive(true)
             return [preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax]
         }, (deltaX, deltaY, point, preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax) => {
             const {
@@ -97,6 +106,7 @@ class Splitter {
             jframe.IFM.toggleBlockHoverStyle(false);
             const prestylesheet = window.getComputedStyle(preElem);
             const afterstylesheet = window.getComputedStyle(afterElem);
+            this.toggleActive(false)
             jframe.dispatchEvent(new JFrameEvent('elementsResized', {
                 elements: [
                     {
