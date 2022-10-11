@@ -102,6 +102,14 @@ class BlockBoxMargin extends Tool {
                 top: height - 5 + 'px',
                 cursor: 'ns-resize'
             })
+
+            function toggleMarginActive(elem, val) {
+                if(val) {
+                    elem.setAttribute('active', true)
+                } else {
+                    elem.removeAttribute('active')
+                }
+            }
             
             const styleSheet = window.getComputedStyle(elem);
             let marginLeft = parseFloat(styleSheet.marginLeft) || 0;
@@ -154,6 +162,10 @@ class BlockBoxMargin extends Tool {
                         }
                     ]
                 }))
+                toggleMarginActive(marginBarLeft, false);
+                toggleMarginActive(marginBarRight, false);
+                toggleMarginActive(marginBarBottom, false);
+                toggleMarginActive(marginBarTop, false);
                 
                 // targetBlock.toggleMarginBarRectVisible(false, 'Left')
                 // targetBlock.toggleMarginBarRectVisible(false, 'Right')
@@ -167,6 +179,7 @@ class BlockBoxMargin extends Tool {
                 marginLeft = parseFloat(styleSheet.marginLeft) || 0;
                 marginRight = parseFloat(styleSheet.marginRight) || 0;
                 wholeWidth = marginLeft + marginRight + targetBlock.width;
+                toggleMarginActive(marginBarLeft, true);
                 // targetBlock.toggleMarginBarRectVisible(true, 'Left')
             }, (deltaX, deltaY) => {
                 jframe.IFM.toggleBlockHoverStyle(true);
@@ -180,6 +193,7 @@ class BlockBoxMargin extends Tool {
                 marginLeft = parseFloat(styleSheet.marginLeft) || 0;
                 marginRight = parseFloat(styleSheet.marginRight) || 0;
                 wholeWidth = marginLeft + marginRight + targetBlock.width;
+                toggleMarginActive(marginBarRight, true);
                 // targetBlock.toggleMarginBarRectVisible(true, 'Right')
             }, (deltaX, deltaY) => {
                 jframe.IFM.toggleBlockHoverStyle(true);
@@ -194,6 +208,7 @@ class BlockBoxMargin extends Tool {
                 marginTop = parseFloat(styleSheet.marginTop) || 0;
                 marginBottom = parseFloat(styleSheet.marginBottom) || 0;
                 wholeHeight = marginTop + marginBottom + targetBlock.height;
+                toggleMarginActive(marginBarTop, true);
                 // targetBlock.toggleMarginBarRectVisible(true, 'Top')
             }, (deltaX, deltaY) => {
                 jframe.IFM.toggleBlockHoverStyle(true);
@@ -207,6 +222,7 @@ class BlockBoxMargin extends Tool {
                 marginTop = parseFloat(styleSheet.marginTop) || 0;
                 marginBottom = parseFloat(styleSheet.marginBottom) || 0;
                 wholeHeight = marginTop + marginBottom + targetBlock.height;
+                toggleMarginActive(marginBarBottom, true);
                 // targetBlock.toggleMarginBarRectVisible(true, 'Bottom')
             }, (deltaX, deltaY) => {
                 jframe.IFM.toggleBlockHoverStyle(true);

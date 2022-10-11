@@ -273,6 +273,11 @@
     position: absolute;
     background-color: #4E75EC;
 }
+.jframe-block-margin:hover,
+.jframe-block-margin[active] {
+    background-color: #43E863;
+}
+
 .jframe-block-margin-horizontal {
     width: 5px;
     height: 52px;
