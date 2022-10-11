@@ -283,7 +283,7 @@
     position: absolute;
     align-items: center;
     justify-content: center;
-    background: transparent;
+    background: transparent
 }
 .jframe-overlayer[disablehover=true] .jframe-block-margin-rect {
     background: transparent!important;
@@ -291,7 +291,7 @@
 .jframe-overlayer[disablehover=true] .jframe-block-margin-rect-content {
     display: none!important;
 }
-.jframe-block-margin-rect[visible] {
+.jframe-block[focus] .jframe-block-margin-rect {
     background: repeating-linear-gradient(
         45deg,
         #EBF0FF,
@@ -300,13 +300,23 @@
         #fff 20px
     );
 }
+.jframe-block[focus] .jframe-block-margin-rect[visible] {
+    background: repeating-linear-gradient(
+        45deg,
+        #BBCCFF,
+        #BBCCFF 10px,
+        #fff 10px,
+        #fff 20px
+    );
+    
+}
 .jframe-block-margin-rect-content{
     display: none;
     background-color: #4E75EC;
     color: #fff;
     padding: 6px;
 }
-.jframe-block-margin-rect[visible] > .jframe-block-margin-rect-content {
+.jframe-block[focus] .jframe-block-margin-rect[visible] > .jframe-block-margin-rect-content {
     display: block;
 }
 

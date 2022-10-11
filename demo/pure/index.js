@@ -35,8 +35,8 @@ class Elem {
         return {
             id: this.id,
             tag: this.tag,
-            props: this.props,
-            style: this.style,
+            props: JSON.parse(JSON.stringify(this.props)),
+            style: JSON.parse(JSON.stringify(this.style)),
             children: this.children.map(e => e.toPlainObject()),
         }
     }
@@ -49,7 +49,73 @@ class Elem {
     }
 }
 
-const source = new Elem(data);
+let source = new Elem(data);
+
+function memo() {
+    let snapshots = [];
+    let i = 0;
+    function snapshot() {
+        snapshots = snapshots.slice(0, i + 1);
+        snapshots.push(source.toPlainObject());
+        i = snapshots.length - 1;
+    }
+
+    function revokable() {
+        return i > 0;
+    }
+
+    function redoable() {
+        return i < snapshots.length - 1;
+    }
+
+    function revoke() {
+        if(revokable()) {
+            i--;
+            source = new Elem(snapshots[i]);
+            jframeInstance.setFocusTarget(null)
+            jframeInstance.postMessage(JSON.stringify({
+                type: 'rerender',
+                elements: [source.toPlainObject()],
+            }));
+            console.log(snapshots);
+        }
+    }
+
+    function redo() {
+        if(redoable()) {
+            i++;
+            console.log(snapshots);
+            source = new Elem(snapshots[i]);
+            jframeInstance.setFocusTarget(null)
+            jframeInstance.postMessage(JSON.stringify({
+                type: 'rerender',
+                elements: [source.toPlainObject()],
+            }));
+        }
+    }
+    
+    return {
+        snapshot,
+        revokable,
+        redoable,
+        revoke,
+        redo
+    }
+}
+const {
+    snapshot,
+    revokable,
+    redoable,
+    revoke,
+    redo
+} = memo();
+
+document.getElementById('revokebtn').addEventListener('click', () => {
+    revoke();
+});
+document.getElementById('redobtn').addEventListener('click', () => {
+    redo();
+})
 
 const dataElemDescription = {
     getRoot() {
@@ -144,7 +210,10 @@ const jframeInstance = new JFrame({
             new BlockTitle(),
             new BlockSize({
                 editable(targetBlock) {
-                    return !SPLITABLE(targetBlock.source)
+                    if(SPLITABLE(targetBlock.source)) {
+                        return !targetBlock.source.parentElement;
+                    }
+                    return true;
                 },
             }),
             new BlockAlignment({
@@ -158,10 +227,7 @@ const jframeInstance = new JFrame({
                 },
                 onClick(targetBlock, propertyName, value) {
                     targetBlock.source.props[propertyName] = value;
-                    jframeInstance.postMessage(JSON.stringify({
-                        type: 'rerender',
-                        elements: [source.toPlainObject()],
-                    }));
+                    _rerenderJframeInstance();
                 }
             }),
             new BlockDelete({
@@ -170,6 +236,7 @@ const jframeInstance = new JFrame({
                 },
                 onClick(target) {
                     onDeleteElement(target);
+                    _rerenderJframeInstance();
                 }
             }),
             new BlockBoxResizer({
@@ -199,15 +266,20 @@ const jframeInstance = new JFrame({
                 },
                 onContentChange(s, content) {
                     s.props.content = content;
-                    jframeInstance.postMessage(JSON.stringify({
-                        type: 'rerender',
-                        elements: [source.toPlainObject()],
-                    }));
+                    _rerenderJframeInstance();
                 }
             })
         ],
     },
-})
+});
+
+function _rerenderJframeInstance() {
+    jframeInstance.postMessage(JSON.stringify({
+        type: 'rerender',
+        elements: [source.toPlainObject()],
+    }));
+    snapshot();
+}
 
 function onDeleteElementInSplitable(target) {
     const sdata = target.source;
@@ -316,30 +388,17 @@ function onDeleteElement(target) {
             once: true,
         })
     }
-    jframeInstance.postMessage(JSON.stringify({
-        type: 'rerender',
-        elements: [source.toPlainObject()],
-    }))
 }
 jframeInstance.addEventListener('frameloaded', () => {
-    console.log(JSON.stringify(data))
-    jframeInstance.postMessage(JSON.stringify({
-        type: 'rerender',
-        elements: [source.toPlainObject()],
-    }));
+    _rerenderJframeInstance();
 })
+/*
 jframeInstance.addEventListener('elementHover', (e) => {
     const { target } = e.detail;
-    // if(target) {
-    //     renderElem(target.x, target.y, target.source.tag);
-    // } 
 })
 jframeInstance.addEventListener('elementFocus', (e) => {
     const { target } = e.detail;
-    // if(target) {
-    //     renderFocusElem(target.x, target.y, target.source.tag);
-    // } 
-})
+}) */
 
 jframeInstance.addEventListener('elementsResized', (e) => {
     e.detail.elements.forEach(e => {
@@ -377,10 +436,7 @@ jframeInstance.addEventListener('elementsResized', (e) => {
         }
     })
    
-    jframeInstance.postMessage(JSON.stringify({
-        type: 'rerender',
-        elements: [source.toPlainObject()],
-    }))
+    _rerenderJframeInstance();
 })
 
 jframeInstance.addEventListener('elementdrop', (e) => {
@@ -397,16 +453,13 @@ jframeInstance.addEventListener('elementdrop', (e) => {
         currentInstance.parentElement = sdata;
     }
     const _c = currentInstance;
-    jframeInstance.postMessage(JSON.stringify({
-        type: 'rerender',
-        elements: [source.toPlainObject()],
-    }));
     jframeInstance.addEventListener('afterResize', () => {
         const block = jframeInstance.source_block_element_map.getBlockBySource(target || _c)
         jframeInstance.setFocusTarget(block);
     }, {
         once: true,
-    })
+    });
+    _rerenderJframeInstance();
 })
 
 jframeInstance.addEventListener('elementSplit', (e) => {
@@ -440,11 +493,7 @@ jframeInstance.addEventListener('elementSplit', (e) => {
             }, {
                 once: true,
             })
-            jframeInstance.postMessage(JSON.stringify({
-                type: 'rerender',
-                elements: [source.toPlainObject()],
-            }))
-            
+            _rerenderJframeInstance();
             return;
         } 
     }
@@ -484,12 +533,7 @@ jframeInstance.addEventListener('elementSplit', (e) => {
         }) 
     }
     // block.setSplit(true);
-    jframeInstance.postMessage(JSON.stringify({
-        type: 'rerender',
-        elements: [source.toPlainObject()],
-    }))
-    
-
+    _rerenderJframeInstance();
 })
 jframeInstance.$mount(app);
 
