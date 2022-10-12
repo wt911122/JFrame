@@ -283,8 +283,9 @@ class JFrame extends EventTarget {
             block.observe(elem, this.scheduleObserver.bind(this));
             if(this.toolbox && this.toolbox.tools) {
                 this.toolbox.tools.forEach(tool => {
-                    if(tool.blockRenderer) {
-                        block.registTool(tool.blockRenderer(block));
+                    const t = tool.blockRenderer && tool.blockRenderer(block);
+                    if(t) {
+                        block.registTool(t);
                     }
                 })
             }

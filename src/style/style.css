@@ -211,6 +211,12 @@
     transform: translate(0, -50%);
     background-image: url(./splitH.png);
 }
+.jframe-block-splitter-line.jframe-line-vertical:hover {
+    cursor: ew-resize;
+}
+.jframe-block-splitter-line.jframe-line-horizontal:hover {
+    cursor: ns-resize;
+}
 .jframe-block-splitter-line.jframe-line-vertical{
     position: absolute; 
     display: none;

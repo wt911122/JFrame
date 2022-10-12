@@ -246,7 +246,7 @@ const jframeInstance = new JFrame({
             }),
             new BlockBoxSplitter({
                 accept(source) {
-                    return SPLITABLE(source);
+                    return SPLITABLE(source) && source.children.length === 0 ;
                 },
                 getDirection(targetBlock){
                     return targetBlock.source.props.direction;
@@ -463,7 +463,8 @@ jframeInstance.addEventListener('elementdrop', (e) => {
 })
 
 jframeInstance.addEventListener('elementSplit', (e) => {
-    const { block, source: sdata, dir } = e.detail;
+    const { block, source: sdata, dir, splitRatio } = e.detail;
+    console.log(splitRatio)
     const children = sdata.children;
     if(sdata.parentElement && SPLITABLE(sdata.parentElement)) {
         if(sdata.parentElement.props.direction === dir) {
@@ -478,15 +479,16 @@ jframeInstance.addEventListener('elementSplit', (e) => {
             parentElement.children.splice(idx, 0, c);
             c.parentElement = parentElement;
             if(dir === 'column') {
-                const h = block.height / 2 / parentBlock.height * 100;
-                c.style.height = `${h}%`;
+                const r = block.height / parentBlock.height;
+                c.style.height = `${r*splitRatio*100}%`;
                 c.style.width = '100%';
-                sdata.style.height = `${h}%`;
+                sdata.style.height = `${r*(1-splitRatio)*100}%`;
             } else if(dir === 'row') {
-                const w = block.width / 2 / parentBlock.width * 100;
-                c.style.width = `${w}%`;
+                const r = block.width / parentBlock.width;
+                // const w = block.width / 2 / parentBlock.width * 100;
+                c.style.width = `${r*splitRatio*100}%`;
                 c.style.height = '100%';
-                sdata.style.width = `${w}%`;
+                sdata.style.width = `${r*(1-splitRatio)*100}%`;
             }
             jframeInstance.addEventListener('afterResize', () => {
                 jframeInstance.setFocusTarget(parentBlock)
@@ -509,13 +511,13 @@ jframeInstance.addEventListener('elementSplit', (e) => {
         tag: 'FlexContainer',
     })
     if(dir === 'column') {
-        c1.style.height = '50%';
-        c2.style.height = '50%';
+        c1.style.height = `${splitRatio*100}%`;
+        c2.style.height = `${100 - splitRatio*100}%`;
         c1.style.width = '100%';
         c2.style.width = '100%';
     } else if(dir === 'row') {
-        c1.style.width = '50%';
-        c2.style.width = '50%';
+        c1.style.width = `${splitRatio*100}%`;
+        c2.style.width = `${100 - splitRatio*100}%`;
         c1.style.height = '100%';
         c2.style.height = '100%';
     }

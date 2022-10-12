@@ -27,18 +27,39 @@ class BlockBoxSplitter extends Tool {
         splitterV.addEventListener('mouseenter', () => {
             vline.style.display = 'block';
         })
-        splitterV.addEventListener('mouseleave', () => {
+        const f = () => {
             vline.style.display = 'none';
-        })
-        splitterV.addEventListener('click', (e) => {
-            e.stopPropagation();
+        }
+        splitterV.addEventListener('mouseleave', f);
+        // splitterV.addEventListener('click', (e) => {
+        //     e.stopPropagation();
+        //     jframe.dispatchEvent(new JFrameEvent('elementSplit', {
+        //         block: targetBlock,
+        //         source: targetBlock?.source,
+        //         dir: 'row',
+        //     }))
+        //     this._toggleSplitter(false);
+        // })
+        function minmax(num) {
+            return Math.max(0, Math.min(width, num));
+        }
+        let startLeft = width/2;
+        jframe.bindDragdropListener(splitterV, () => {
+            splitterV.removeEventListener('mouseleave', f);
+            this._toggleSplitter(false);
+        }, (deltaX, deltaY) => {
+            startLeft = minmax(startLeft + deltaX);
+            vline.style.left = `${startLeft}px`;
+        }, () => {
             jframe.dispatchEvent(new JFrameEvent('elementSplit', {
                 block: targetBlock,
                 source: targetBlock?.source,
                 dir: 'row',
+                splitRatio: startLeft / width,
             }))
-            this._toggleSplitter(false);
-        })
+            f();
+        });
+
         return {
             vline,
             splitterV,
@@ -58,17 +79,38 @@ class BlockBoxSplitter extends Tool {
         splitterH.addEventListener('mouseenter', () => {
             hline.style.display = 'block';
         })
-        splitterH.addEventListener('mouseleave', () => {
+        const f = () => {
             hline.style.display = 'none';
-        })
-        splitterH.addEventListener('click', (e) => {
-            e.stopPropagation();
+        }
+        splitterH.addEventListener('mouseleave', f);
+        // splitterH.addEventListener('click', (e) => {
+        //     e.stopPropagation();
+        //     jframe.dispatchEvent(new JFrameEvent('elementSplit', {
+        //         block: targetBlock,
+        //         source: targetBlock?.source,
+        //         dir: 'column',
+        //     }))
+        //     this._toggleSplitter(false);
+        // });
+
+        function minmax(num) {
+            return Math.max(0, Math.min(height, num));
+        }
+        let start = height/2;
+        jframe.bindDragdropListener(splitterH, () => {
+            splitterH.removeEventListener('mouseleave', f);
+            this._toggleSplitter(false);
+        }, (deltaX, deltaY) => {
+            start = minmax(start + deltaY);
+            hline.style.top = `${start}px`;
+        }, () => {
             jframe.dispatchEvent(new JFrameEvent('elementSplit', {
                 block: targetBlock,
                 source: targetBlock?.source,
                 dir: 'column',
+                splitRatio: start / height,
             }))
-            this._toggleSplitter(false);
+            f();
         });
         return {
             hline, 
@@ -133,6 +175,8 @@ class BlockBoxSplitter extends Tool {
             } else {
                 this.refreshSplitter(targetBlock);
             }
+        } else {
+            this._toggleSplitter(false);
         }
     }
 
