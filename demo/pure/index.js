@@ -547,51 +547,51 @@ function dragstart(elem) {
     currentInstance = elem;
 }
 
-const DivElementTool = document.getElementById('DivElement');
-const UlElementTool = document.getElementById('UlElement');
-const LiElementTool = document.getElementById('LiElement');
-const TextElementTool = document.getElementById('TextElement');
+// const DivElementTool = document.getElementById('DivElement');
+// const UlElementTool = document.getElementById('UlElement');
+// const LiElementTool = document.getElementById('LiElement');
+// const TextElementTool = document.getElementById('TextElement');
 const ButtonElementTool = document.getElementById('ButtonElement');
 
-DivElementTool.addEventListener('dragstart', function() {
-    dragstart(new Elem({
-        concept: 'ViewElement',
-        tag: 'DivElement',
-    }))
-})
-DivElementTool.addEventListener('dragend', function() {
-    currentInstance = null;
-})
-UlElementTool.addEventListener('dragstart', function() {
-    dragstart(new Elem({
-        concept: 'ViewElement',
-        tag: 'UlElement',
-    }))
-})
-UlElementTool.addEventListener('dragend', function() {
-    currentInstance = null;
-})
-LiElementTool.addEventListener('dragstart', function() {
-    dragstart(new Elem({
-        concept: 'ViewElement',
-        tag: 'LiElement',
-    }))
-})
-LiElementTool.addEventListener('dragend', function() {
-    currentInstance = null;
-})
-TextElementTool.addEventListener('dragstart', function() {
-    dragstart(new Elem({
-        concept: 'ViewElement',
-        tag: 'TextElement',
-        props: {
-            content: "xxxx"
-        }
-    }))
-})
-TextElementTool.addEventListener('dragend', function() {
-    currentInstance = null;
-})
+// DivElementTool.addEventListener('dragstart', function() {
+//     dragstart(new Elem({
+//         concept: 'ViewElement',
+//         tag: 'DivElement',
+//     }))
+// })
+// DivElementTool.addEventListener('dragend', function() {
+//     currentInstance = null;
+// })
+// UlElementTool.addEventListener('dragstart', function() {
+//     dragstart(new Elem({
+//         concept: 'ViewElement',
+//         tag: 'UlElement',
+//     }))
+// })
+// UlElementTool.addEventListener('dragend', function() {
+//     currentInstance = null;
+// })
+// LiElementTool.addEventListener('dragstart', function() {
+//     dragstart(new Elem({
+//         concept: 'ViewElement',
+//         tag: 'LiElement',
+//     }))
+// })
+// LiElementTool.addEventListener('dragend', function() {
+//     currentInstance = null;
+// })
+// TextElementTool.addEventListener('dragstart', function() {
+//     dragstart(new Elem({
+//         concept: 'ViewElement',
+//         tag: 'TextElement',
+//         props: {
+//             content: "xxxx"
+//         }
+//     }))
+// })
+// TextElementTool.addEventListener('dragend', function() {
+//     currentInstance = null;
+// })
 ButtonElementTool.addEventListener('dragstart', function() {
     dragstart(new Elem({
         concept: 'ViewElement',
