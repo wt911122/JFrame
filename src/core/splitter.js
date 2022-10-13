@@ -6,7 +6,7 @@ class Splitter {
         this.bindSplitLineEventListener();
     }
 
-    setProps(dir, reduce, preblock, afterblock) {
+    setProps(dir, reduce, preblock, afterblock, siblingBlocks) {
         const { width, height, x, y } = this.targetBlock;
         const line = this.elem;
         this.dir = dir;
@@ -24,6 +24,7 @@ class Splitter {
         }
         this.preblock = preblock;
         this.afterblock = afterblock;
+        this.siblingBlocks = siblingBlocks;
     }
 
     attach(dom) {
@@ -43,7 +44,7 @@ class Splitter {
         jframe.bindDragdropListener(this.elem, () => {
             jframe.IFM.toggleBlockHoverStyle(true);
             const {
-                preblock, afterblock, targetBlock, dir
+                preblock, afterblock, targetBlock, dir,
             } = this;
             preblock.toggleHoverEnable(false);
             afterblock.toggleHoverEnable(false);
@@ -68,10 +69,10 @@ class Splitter {
                 return Math.max(0, Math.min(space, num));
             }
             this.toggleActive(true)
-            return [preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax]
-        }, (deltaX, deltaY, point, preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax) => {
+            return [preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax, space]
+        }, (deltaX, deltaY, point, preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax, space) => {
             const {
-                dir, preblock, afterblock, 
+                dir, preblock, afterblock, siblingBlocks
             } = this;
             if(dir === 'row') {
                 const w = preElem.getBoundingClientRect().width;
@@ -80,8 +81,17 @@ class Splitter {
                 const afterW = wholeRatio - preW;
                 preElem.style.width = `${preW * 100}%`;
                 afterElem.style.width = `${afterW * 100}%`;
-                preblock.toggleIndicator(true, dir, point, wholeWidth);
-                afterblock.toggleIndicator(true, dir, point, wholeWidth);
+                
+                
+                siblingBlocks.forEach(b => {
+                    if(b === preblock) {
+                        preblock.toggleIndicator(true, dir, point, wholeWidth, calW / space);
+                    } else if(b === afterblock) {
+                        afterblock.toggleIndicator(true, dir, point, wholeWidth, 1 - calW / space);
+                    } else {
+                        b.toggleIndicator(true, dir, point, wholeWidth);
+                    }
+                })
             }
 
             if(dir === 'column') {
@@ -91,22 +101,30 @@ class Splitter {
                 const afterH = wholeRatio - preH;
                 preElem.style.height = `${preH*100}%`;
                 afterElem.style.height = `${afterH*100}%`;
-                preblock.toggleIndicator(true, dir, point, wholeHeight);
-                afterblock.toggleIndicator(true, dir, point, wholeHeight);
+                siblingBlocks.forEach(b => {
+                    if(b === preblock) {
+                        preblock.toggleIndicator(true, dir, point, wholeHeight, callH / space);
+                    } else if(b === afterblock) {
+                        afterblock.toggleIndicator(true, dir, point, wholeHeight, 1-callH / space);
+                    } else {
+                        b.toggleIndicator(true, dir, point, wholeHeight);
+                    }
+                })
             }
 
         }, (event, preElem, afterElem) => {
             const {
-                preblock, afterblock
+                preblock, afterblock, siblingBlocks
             } = this;
-            preblock.toggleIndicator(false);
-            afterblock.toggleIndicator(false);
+            // preblock.toggleIndicator(false);
+            // afterblock.toggleIndicator(false);
             preblock.toggleHoverEnable(true);
             afterblock.toggleHoverEnable(true);
             jframe.IFM.toggleBlockHoverStyle(false);
             const prestylesheet = window.getComputedStyle(preElem);
             const afterstylesheet = window.getComputedStyle(afterElem);
             this.toggleActive(false)
+            siblingBlocks.forEach(b => { b.toggleIndicator(false) });
             jframe.dispatchEvent(new JFrameEvent('elementsResized', {
                 elements: [
                     {

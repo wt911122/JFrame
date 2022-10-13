@@ -187,6 +187,7 @@ class Block extends EventTarget{
         let reduce = 0;
         let lidx = 0;
         const children = jframe.dataElemDescription.getSourceChildren(source);
+        const _blocks = children.map(c => jframe.source_block_element_map.getBlockBySource(c));
         while(idx < children.length) {
             const pre = children[idx];
             if(idx < children.length - 1) {
@@ -206,7 +207,7 @@ class Block extends EventTarget{
                     splitter.attach(jframe.IFM.jframeTool);
                 }
                 lidx++;
-                splitter.setProps(dir, reduce, preblock, afterblock);
+                splitter.setProps(dir, reduce, preblock, afterblock, _blocks.slice());
             }
             idx ++;
         }
@@ -230,7 +231,7 @@ class Block extends EventTarget{
         }
     }
 
-    toggleIndicator(val, dir, point, whole) {
+    toggleIndicator(val, dir, point, whole, partRatio) {
         const {
             indicator,
             indicatorNumber
@@ -260,7 +261,11 @@ class Block extends EventTarget{
                     left: 0
                 })
             }
-            indicatorNumber.innerText = `${Math.round(this.width/whole*100)}%(${Math.round(this.width)}px)`
+            let str = `${Math.round(this.width/whole*100)}%(${Math.round(this.width)}px)`
+            if(partRatio !== undefined) {
+                str += `(${Math.round(partRatio*100)}%)`
+            }
+            indicatorNumber.innerText = str;
         } else {
             indicator.style.display = 'none';
         }
