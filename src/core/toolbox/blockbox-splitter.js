@@ -111,7 +111,7 @@ class BlockBoxSplitter extends Tool {
     }
 
     renderSplitterH(targetBlock) {
-        const { width, height, jframe, elem, y } = targetBlock;
+        const { width, height, jframe, elem, x } = targetBlock;
         const hline = document.createElement('div');
         hline.setAttribute('class', 'jframe-block-splitter-line jframe-line-horizontal');
         hline.style.width = width + 'px';
@@ -169,16 +169,18 @@ class BlockBoxSplitter extends Tool {
             Object.assign(indicatorPre.style, {
                 width: 0,
                 top: 0,
+                left: 0,
                 height: start + 'px',
                 display: 'block',
-                transform: `translate(${point[0] - y}px, 0px)`,
+                transform: `translate(${point[0] - x}px, 0px)`,
             });
             Object.assign(indicatorAfter.style, {
                 width: 0,
                 top: start + 'px',
+                left: 0,
                 height: height - start  + 'px',
                 display: 'block',
-                transform: `translate(${point[0] - y}px, 0px)`,
+                transform: `translate(${point[0] - x}px, 0px)`,
             });
 
             indicatorNumberPre.innerText = `${Math.round(start/height*100)}%(${Math.round(start)}px)`
