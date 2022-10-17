@@ -116,6 +116,9 @@ document.getElementById('revokebtn').addEventListener('click', () => {
 document.getElementById('redobtn').addEventListener('click', () => {
     redo();
 })
+document.getElementById('previewbtn').addEventListener('click', () => {
+    jframeInstance.toggleOverLayer();
+})
 
 const dataElemDescription = {
     getRoot() {
@@ -143,18 +146,24 @@ const dataElemDescription = {
         movingSource = currentInstance || movingSource;
         const mtag = movingSource.tag;
         const tTag = targetSource.tag;
-        if(mtag === 'DivElement' || mtag === 'FlexContainer') {
-            return ['LiElement', 'DivElement', 'FlexContainer'].includes(tTag)
+
+        if(tTag === 'FlexContainer') {
+            return targetSource.children.every(e => e.tag !== 'FlexContainer');
         }
-        if(mtag === 'UlElement') {
-            return ['LiElement', 'DivElement', 'FlexContainer'].includes(tTag)
-        }
-        if(mtag === 'LiElement') {
-            return ['UlElement'].includes(tTag)
-        }
-        if(mtag === 'TextElement' || mtag === 'BtnElement') {
-            return ['UlElement', 'DivElement', 'LiElement', 'FlexContainer'].includes(tTag)
-        }
+
+        // if(mtag === 'DivElement' || mtag === 'FlexContainer') {
+        //     return ['LiElement', 'DivElement', 'FlexContainer'].includes(tTag)
+        // }
+        // if(mtag === 'UlElement') {
+        //     return ['LiElement', 'DivElement', 'FlexContainer'].includes(tTag)
+        // }
+        // if(mtag === 'LiElement') {
+        //     return ['UlElement'].includes(tTag)
+        // }
+        // if(mtag === 'TextElement' || mtag === 'BtnElement') {
+        //     return ['UlElement', 'DivElement', 'LiElement', 'FlexContainer'].includes(tTag)
+        // }
+        return false;
     },
     draggable(source) {
         return source.tag !== 'FlexContainer';

@@ -193,7 +193,24 @@ class JFrame extends EventTarget {
             this.dispatchEvent(new JFrameEvent('frameloaded', {
                 event,
                 target: this.iframe,
-            }))
+            }));
+
+            this.addEventListener('afterResize', () => {
+                const { 
+                    getRoot,
+                } = this.dataElemDescription;
+                const root = getRoot();
+                const rootBlock = this.source_block_element_map.getBlockBySource(root);
+                const w = rootBlock.width;
+                const iframeWidth = this.IFM.wrapper.getBoundingClientRect().width;
+                this.scale = (iframeWidth - 20) / w;
+                this.position.x = 10;
+                this.position.y = 10;
+                this._resetTransform();
+            }, {
+                once: true,
+            })
+            
         }
         this.IFM.iframe.setAttribute("src", this.frameURL);
     }
@@ -363,6 +380,11 @@ class JFrame extends EventTarget {
 
     postMessage(message) {
         this.IFM.postMessage(message, this.frameURL);
+    }
+
+    toggleOverLayer() {
+        this.IFM.toggleOverLayer(this._ovstatus);
+        this._ovstatus = !this._ovstatus;
     }
     
    /* setResizingTarget(block, clientX, clientY) {

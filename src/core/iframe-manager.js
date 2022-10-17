@@ -230,6 +230,13 @@ class IFrameManager {
         this.overLayer.setAttribute('disablehover', val);
     }
     
+    toggleOverLayer(val) {
+        if(val) {
+            this.overLayer.style.display = 'block';
+        } else {
+            this.overLayer.style.display = 'none';
+        }
+    }
     
 }
 
