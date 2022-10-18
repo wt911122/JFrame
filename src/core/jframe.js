@@ -107,7 +107,7 @@ class JFrame extends EventTarget {
                 }
             }
         }) */
-
+        let lastBlock
         this.IFM.dom.addEventListener('dragover', e => {
             e.preventDefault();
             const { offsetX, offsetY } = this.resolveEventOffset(e);
@@ -121,6 +121,7 @@ class JFrame extends EventTarget {
                     clevel = b._level;
                 }
             });
+            lastBlock && lastBlock.setHover(false);
             if(blockMax) {
                 const isInnerHitted = blockMax.isHitInner(point);
                 const hasslot = this.dataElemDescription.hasSlot(blockMax.source);
@@ -129,10 +130,11 @@ class JFrame extends EventTarget {
                     this.setDragoverWrapperTarget(blockMax);
                     this.renderChildClosestFence(point, blockMax);
                 } else {
-                    const wrapperBlock = this.source_block_element_map.getBlockBySource(wrapperSource);
-                    this.setDragoverWrapperTarget(wrapperBlock);
-                    this.renderClosestFence(point, blockMax, wrapperSource);
+                    // const wrapperBlock = this.source_block_element_map.getBlockBySource(wrapperSource);
+                    // this.setDragoverWrapperTarget(wrapperBlock);
+                    // this.renderClosestFence(point, blockMax, wrapperSource);
                 } 
+                lastBlock = blockMax;
             } else {
                 this.setDragoverWrapperTarget(null);
                 this.IFM.hideClosestFence();
@@ -202,10 +204,20 @@ class JFrame extends EventTarget {
                 const root = getRoot();
                 const rootBlock = this.source_block_element_map.getBlockBySource(root);
                 const w = rootBlock.width;
-                const iframeWidth = this.IFM.wrapper.getBoundingClientRect().width;
-                this.scale = (iframeWidth - 20) / w;
-                this.position.x = 10;
-                this.position.y = 10;
+                const h = rootBlock.height;
+                const { width, height } = this.IFM.wrapper.getBoundingClientRect();
+                const s1 = (width - 20) / w;
+                const s2 = (height - 20) / h;
+                if(s1 < s2) {
+                    this.scale = s1;
+                    this.position.x = 10;
+                    this.position.y = (height - h * s1 + 20) / 2;
+                } else {
+                    this.scale = s2;
+                    this.position.y = 10;
+                    this.position.x = (width - w * s2 + 20) / 2;
+                }
+                
                 this._resetTransform();
             }, {
                 once: true,
@@ -529,6 +541,7 @@ class JFrame extends EventTarget {
     renderChildClosestFence(point, block) {
         console.log('renderChildClosestFence');
         const children = this.dataElemDescription.getSourceChildren(block.source);
+        const isEmpty = children.length === 0;
         const p = {x: point[0], y: point[1]};
         let dist = Infinity;
         let closestFence = null;
@@ -580,37 +593,49 @@ class JFrame extends EventTarget {
         
         // console.log(closestFence)
         const accept = this.dataElemDescription.isAcceptElement(this.state.movingTarget?.source, block.source)
-        this.IFM.setFenceAccept(accept);
-        if(!closestFence) {
-            const isBlock = this.dataElemDescription.blockElement(block.source);
-            const { x, y, width, height } = block;
-            if(isBlock) {
-                const yfence =  y + height/2
-                this.IFM.renderHorizontalFence(x, yfence, width);
+        if(accept) { 
+            if(isEmpty) {
+                block.setHover(true);
+                this.fenceTarget = {
+                    source: block.source,
+                    childIdx: 0,
+                    accept,
+                }
             } else {
-                const xfence = x + width /2
-                this.IFM.renderVerticalFence(xfence, y, height);
+                this.IFM.setFenceAccept(accept);
+                if(!closestFence) {
+                    const isBlock = this.dataElemDescription.blockElement(block.source);
+                    const { x, y, width, height } = block;
+                    if(isBlock) {
+                        const yfence =  y + height/2
+                        this.IFM.renderHorizontalFence(x, yfence, width);
+                    } else {
+                        const xfence = x + width /2
+                        this.IFM.renderVerticalFence(xfence, y, height);
+                    }
+                    
+                    this.fenceTarget = {
+                        source: block.source,
+                        childIdx: 0,
+                        accept,
+                    }
+                    return;
+                }
+                this.fenceTarget = {
+                    source: block.source,
+                    childIdx,
+                    accept
+                }
+                if(direction === 'horizontal') {
+                    const v = closestFence;
+                    this.IFM.renderHorizontalFence(v.x, v.y, closestBlock.width)
+                } else {
+                    const v = closestFence;
+                    this.IFM.renderVerticalFence(v.x, v.y, closestBlock.height);
+                } 
             }
-            
-            this.fenceTarget = {
-                source: block.source,
-                childIdx: 0,
-                accept,
-            }
-            return;
         }
-        this.fenceTarget = {
-            source: block.source,
-            childIdx,
-            accept
-        }
-        if(direction === 'horizontal') {
-            const v = closestFence;
-            this.IFM.renderHorizontalFence(v.x, v.y, closestBlock.width)
-        } else {
-            const v = closestFence;
-            this.IFM.renderVerticalFence(v.x, v.y, closestBlock.height);
-        }
+       
     }
 
     renderClosestFence(point, block, wrapperSource) {

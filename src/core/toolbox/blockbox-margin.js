@@ -393,9 +393,9 @@ class BlockBoxMargin extends Tool {
         marginBarRect.appendChild(marginBarContent);
         // marginBarRect.setAttribute('visible', true)
         let oldContent;
+        let editting = false;
         const _blurHandler = () => {
-            console.log('blur', marginBarContent.innerText)
-            
+            editting = false
             const num = parseFloat(marginBarContent.innerHTML);
             if(num) {
                 const jframe = targetBlock.jframe;
@@ -433,7 +433,7 @@ class BlockBoxMargin extends Tool {
             marginBarRect.setAttribute('visible', true);
         });
         marginBarRect.addEventListener('mouseleave', () => {
-            if(this.processingMarginRectVisible) return
+            if(this.processingMarginRectVisible || editting) return
             marginBarRect.removeAttribute('visible')
             marginBarContent.removeEventListener(blur, _blurHandler, {
                 once: true
@@ -443,6 +443,7 @@ class BlockBoxMargin extends Tool {
         marginBarRect.addEventListener('click', () =>{
             oldContent = marginBarContent.innerText;
             marginBarContent.setAttribute('contenteditable', true);
+            editting = true;
             marginBarContent.addEventListener('blur', _blurHandler, {
                 once: true
             });
