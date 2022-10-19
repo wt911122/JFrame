@@ -53,7 +53,6 @@ class BlockBoxMargin extends Tool {
             width = `calc(${wratio * 100}% - ${marginLeft+marginRight}px)`;
             height = `calc(${hratio * 100}% - ${marginTop+marginBottom}px)`;
         } 
-        
 
         return {
             width,

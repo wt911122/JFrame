@@ -47,6 +47,12 @@ class Elem {
             return idx;
         }
     }
+    iterator(cb) {
+        cb(this);
+        this.children.forEach(c => {
+            c.iterator(cb)
+        })
+    }
 }
 
 let source = new Elem(data);
@@ -675,3 +681,18 @@ contentColorInput.addEventListener('change', onColorChange(contentColorInput, (s
     sheet.color = val
 }))
 
+document.getElementById('applytoAll').addEventListener('click', () => {
+    const filterTag = currTarget.source.tag;
+    source.iterator((node) => {
+        if(node.tag === filterTag) {
+            node.style.backgroundColor = backgroundColorInput.value;
+            node.style.borderColor = borderColorInput.value;
+            node.style.color = contentColorInput.value;
+        }
+    });
+    jframeInstance.postMessage(JSON.stringify({
+        type: 'rerender',
+        elements: [source.toPlainObject()],
+    }));
+    snapshot();
+})
