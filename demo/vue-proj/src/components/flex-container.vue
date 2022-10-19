@@ -28,6 +28,8 @@ export default {
     display: flex;
     flex-direction: row;
     background: #fff;
+    box-sizing: border-box;
+    border: 1px solid transparent;
 }
 .container[direction="row"] {
     flex-direction: row;

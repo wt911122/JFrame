@@ -54,12 +54,16 @@ class Block extends EventTarget{
     //     }
     // }
 
-    lockVisible(val) {
-        this.processingMarginRectVisible = val;
-    }
+    // lockVisible(val) {
+    //     this.processingMarginRectVisible = val;
+    // }
 
     registTool(tool) {
         this.tools.push(tool);
+    }
+
+    getTool(tool) {
+        return this.tools.find(t => t.ref && t.ref === tool);
     }
 
 

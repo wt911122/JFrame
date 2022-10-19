@@ -302,10 +302,10 @@
     background: transparent
 }
 .jframe-overlayer[disablehover=true] .jframe-block-margin-rect {
-    background: transparent!important;
+    background: transparent;
 }
 .jframe-overlayer[disablehover=true] .jframe-block-margin-rect-content {
-    display: none!important;
+    display: none;
 }
 .jframe-block[focus] .jframe-block-margin-rect {
     background: repeating-linear-gradient(
