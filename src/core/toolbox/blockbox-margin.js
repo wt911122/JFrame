@@ -421,11 +421,19 @@ class BlockBoxMargin extends Tool {
             }
             marginBarContent.removeEventListener('keydown', _f);
             marginBarContent.setAttribute('contenteditable', false);
+            // marginBarRect.removeAttribute('visible')
         }
         const _f = (e) => {
             if(e.key === 'Enter'){
                 _blurHandler();
             };
+        }
+        const _resetStatus = () => {
+            marginBarRect.removeAttribute('visible')
+            marginBarContent.removeEventListener(blur, _blurHandler, {
+                once: true
+            })
+            marginBarContent.setAttribute('contenteditable', false);
         }
         marginBarRect.addEventListener('mouseenter', () => {
             // if(!this._hoverEnable) return;
@@ -434,16 +442,20 @@ class BlockBoxMargin extends Tool {
         });
         marginBarRect.addEventListener('mouseleave', () => {
             if(this.processingMarginRectVisible || editting) return
-            marginBarRect.removeAttribute('visible')
-            marginBarContent.removeEventListener(blur, _blurHandler, {
-                once: true
-            })
-            marginBarContent.setAttribute('contenteditable', false);
+            _resetStatus()
         });
+        targetBlock.addEventListener('blur', _resetStatus);
+        const _close = e => {
+            if(!e.path.includes(marginBarRect)) {
+                _resetStatus();
+                document.removeEventListener('pointerdown', _close);
+            }
+        }
         marginBarRect.addEventListener('click', () =>{
             oldContent = marginBarContent.innerText;
             marginBarContent.setAttribute('contenteditable', true);
             editting = true;
+            document.addEventListener('pointerdown', _close)
             marginBarContent.addEventListener('blur', _blurHandler, {
                 once: true
             });

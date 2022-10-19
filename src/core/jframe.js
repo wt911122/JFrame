@@ -487,7 +487,7 @@ class JFrame extends EventTarget {
         this.toolbox.tools.forEach(tool => {
             tool.destroy();
         })
-        if(this.state.focusTarget) {
+        if(this.state.focusTarget && this.state.focusTarget !== block) {
             this.state.focusTarget.setFocus(false);
         }
         this.state.focusTarget = block;

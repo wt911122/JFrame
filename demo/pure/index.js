@@ -614,3 +614,64 @@ ButtonElementTool.addEventListener('dragstart', function() {
 ButtonElementTool.addEventListener('dragend', function() {
     currentInstance = null;
 })
+
+
+const backgroundColorInput = document.getElementById('backgroundColor');
+const borderColorInput = document.getElementById('borderColor');
+const contentColorInput = document.getElementById('contentColor');
+function rgb2hex(rgb, rgba){
+    if(/^rgb\(/.test(rgba)){
+        const t = rgba.match(/^rgb?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+        rgba = `rgba(${t[1]},${t[2]},${t[3]}, 1)`
+    }
+    rgb = rgb.match(/^rgb?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    rgba = rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
+
+  var red = Math.round((rgba[1] * rgba[4]) + (rgb[1] * (1-rgba[4])));
+  var blue = Math.round((rgba[2] * rgba[4]) + (rgb[2] * (1-rgba[4])));
+  var green = Math.round((rgba[3] * rgba[4]) + (rgb[3] * (1-rgba[4])));  
+ return (rgba && rgba.length === 5) ? "#" +
+  ("0" + red.toString(16)).slice(-2) +
+  ("0" + blue.toString(16)).slice(-2) +
+  ("0" + green.toString(16)).slice(-2) : '';
+}
+let currTarget;
+jframeInstance.addEventListener('elementFocus', (e) => {
+    const { target } = e.detail;
+    if(target) {
+        currTarget = target;
+        const elem = jframeInstance.source_block_element_map.getElementBySource(target.source);
+        const stylesheet = window.getComputedStyle(elem);
+        backgroundColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.backgroundColor);
+        borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.borderColor);
+        contentColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.color);
+    } else {
+        currTarget = null;
+        backgroundColorInput.value = '#000';
+        borderColorInput.value = '#000';
+        contentColorInput.value = '#000';
+    }
+});
+const onColorChange = function(inputElem, setStyle){
+    return () => {
+        if(currTarget) {
+            const newVal = inputElem.value;
+            setStyle(currTarget.source.style, newVal);
+            jframeInstance.postMessage(JSON.stringify({
+                type: 'rerender',
+                elements: [source.toPlainObject()],
+            }));
+            snapshot();
+        }
+    }
+}
+backgroundColorInput.addEventListener('change', onColorChange(backgroundColorInput, (sheet, val) => {
+    sheet.backgroundColor = val
+}));
+borderColorInput.addEventListener('change', onColorChange(borderColorInput, (sheet, val) => {
+    sheet.borderColor = val
+}))
+contentColorInput.addEventListener('change', onColorChange(contentColorInput, (sheet, val) => {
+    sheet.color = val
+}))
+

@@ -27,6 +27,7 @@ export default {
 .container{
     display: flex;
     flex-direction: row;
+    background: #fff;
 }
 .container[direction="row"] {
     flex-direction: row;

@@ -1,4 +1,5 @@
 import Splitter from './splitter';
+import JFrameEvent from './event/event';
 let uuid = 0;
 class Block extends EventTarget{ 
     constructor(source, jframe, targetDoc, targetWapper, bounding = {}) {
@@ -127,9 +128,12 @@ class Block extends EventTarget{
     setFocus(val) {
         if(val) {
             this.elem.setAttribute('focus', val);
+            this.dispatchEvent(new JFrameEvent('focus'));
         } else {
             this.elem.removeAttribute('focus');
+            this.dispatchEvent(new JFrameEvent('blur'));
         }
+        
     }
 
     setAcceptElem(val) {
