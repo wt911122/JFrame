@@ -650,7 +650,13 @@ jframeInstance.addEventListener('elementFocus', (e) => {
         const stylesheet = window.getComputedStyle(elem);
         backgroundColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.backgroundColor);
         borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.borderColor);
-        contentColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.color);
+        if(target.source.tag === 'FlexContainer') {
+            contentColorInput.parentElement.style.display = 'none';
+        } else {
+            contentColorInput.parentElement.style.display = 'inline';
+            contentColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.color);
+        }
+        
     } else {
         currTarget = null;
         backgroundColorInput.value = '#000';
