@@ -186,6 +186,13 @@
     cursor: pointer;
     background: url(./delete.png) center/50% no-repeat #4E75EC;
 }
+.jframe-duplicateBtn{
+    vertical-align: bottom;
+    height: 14px;
+    width: 14px;
+    cursor: pointer;
+    background: url(./duplicate.png) center/50% no-repeat #4E75EC;
+}
 
 .jframe-block-splitter {
     position: absolute;

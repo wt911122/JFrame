@@ -5,7 +5,7 @@
         <style>
             .wrapper {
                 width: 1400px;
-                height: 600px;
+                height: 700px;
                 border: 1px solid red;
             }
             .body{
@@ -14,7 +14,7 @@
                 flex-direction: row;
             }
             .sidebar{
-                width: 180px;
+                width: 120px;
                 border: 2px solid gold;
             }
             .sidebar > div {
@@ -54,6 +54,10 @@
                 width: 8px;
                 height: auto;
             }
+            #aststructure {
+                width: 600px;
+                height: 380px;
+            }
         </style>
     </head>
     <body>
@@ -61,6 +65,7 @@
             <button id="revokebtn">撤销</button>
             <button id="redobtn">重做</button>
             <button id="previewbtn">预览</button>
+            <button id="astbtn">查看数据结构</button>
         </div>
         <div class="body">
             <div class="sidebar">
@@ -109,5 +114,19 @@
         <div>
             <button id="applytoAll">应用于所有同类型组件</button>
         </div>
+        <dialog id="astDialog">
+            <form method="dialog">
+              <p>
+                <label>
+                    <span style="vertical-align: top;">数据结构：</span>
+                    <textarea style="white-space: pre;" id="aststructure"></textarea>
+                </label>
+              </p>
+              <div>
+                <button value="cancel">关闭</button>
+                <button id="confirmBtn" value="default">导入</button>
+              </div>
+            </form>
+          </dialog>
     </body>
 </html>

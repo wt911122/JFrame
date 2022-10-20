@@ -3,6 +3,7 @@ import JFrame, {
     BlockTitle,
     BlockSize,
     BlockDelete,
+    BlockDuplicate,
     BlockBoxResizer,
     BlockBoxSplitter,
     BlockBoxMargin,
@@ -242,6 +243,18 @@ const jframeInstance = new JFrame({
                 },
                 onClick(targetBlock, propertyName, value) {
                     targetBlock.source.props[propertyName] = value;
+                    _rerenderJframeInstance();
+                }
+            }),
+            new BlockDuplicate({
+                accept(targetBlock) {
+                    return !SPLITABLE(targetBlock.source)
+                },
+                onClick(targetBlock) {
+                    const s = targetBlock.source;
+                    const _t = new Elem(s.toPlainObject());
+                    const idx =  s.parentElement.children.findIndex(n => n === s);
+                    s.parentElement.children.splice(idx + 1, 0, _t);
                     _rerenderJframeInstance();
                 }
             }),
@@ -701,4 +714,24 @@ document.getElementById('applytoAll').addEventListener('click', () => {
         elements: [source.toPlainObject()],
     }));
     snapshot();
+})
+
+const astDialog = document.getElementById('astDialog');
+const aststructure = document.getElementById('aststructure');
+document.getElementById('astbtn').addEventListener('click', () => {
+    astDialog.showModal()
+    aststructure.value = JSON.stringify(source.toPlainObject(), null, "\t")
+})
+document.getElementById('confirmBtn').addEventListener('click', () => {
+    try {
+        const s = JSON.parse(aststructure.value);
+        source = new Elem(s);
+        jframeInstance.postMessage(JSON.stringify({
+            type: 'rerender',
+            elements: [source.toPlainObject()],
+        }));
+        snapshot();
+    } catch(e) {
+        alert("数据结构无法转成JSON")
+    }
 })
