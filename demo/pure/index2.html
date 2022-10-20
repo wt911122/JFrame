@@ -58,6 +58,12 @@
                 width: 600px;
                 height: 380px;
             }
+            .footer {
+                padding: 10px;
+            }
+            .footer > div {
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
@@ -98,21 +104,22 @@
             <div class="wrapper" id="app"></div>
         </div>
 
-
-        <div>
-            <input type="color" id="backgroundColor" name="head">
-            <label for="backgroundColor">Background</label>
-        </div>
-        <div>
-            <input type="color" id="borderColor" name="body">
-            <label for="borderColor">Border</label>
-        </div>
-        <div>
-            <input type="color" id="contentColor" name="body">
-            <label for="contentColor">Color</label>
-        </div>
-        <div>
-            <button id="applytoAll">应用于所有同类型组件</button>
+        <div class="footer">
+            <div>
+                <input type="color" id="backgroundColor" name="head">
+                <label for="backgroundColor">Background</label>
+            </div>
+            <div>
+                <input type="color" id="borderColor" name="body">
+                <label for="borderColor">Border</label>
+            </div>
+            <div>
+                <input type="color" id="contentColor" name="body">
+                <label for="contentColor">Color</label>
+            </div>
+            <div>
+                <button id="applytoAll">应用于所有同类型组件</button>
+            </div>
         </div>
         <dialog id="astDialog">
             <form method="dialog">
