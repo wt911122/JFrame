@@ -165,7 +165,7 @@ class JFrame extends EventTarget {
                     }));
                 }
             }
-
+            lastBlock.setHover(false);
             this.fenceTarget = null;
             this.setDragoverWrapperTarget(null);
             this.IFM.hideClosestFence();

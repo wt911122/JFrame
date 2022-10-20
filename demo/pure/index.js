@@ -32,6 +32,10 @@ class Elem {
             });
         }
     }
+    insertElement(el, idx) {
+        this.children.splice(idx, 0, el);
+        el.parentElement = this
+    }
     toPlainObject() {
         return {
             id: this.id,
@@ -254,7 +258,7 @@ const jframeInstance = new JFrame({
                     const s = targetBlock.source;
                     const _t = new Elem(s.toPlainObject());
                     const idx =  s.parentElement.children.findIndex(n => n === s);
-                    s.parentElement.children.splice(idx + 1, 0, _t);
+                    s.parentElement.insertElement(_t, idx+1)
                     _rerenderJframeInstance();
                 }
             }),
