@@ -40,8 +40,10 @@ class BlockBoxMargin extends Tool {
         if(s) {
             const elem = jframe.source_block_element_map.getElementBySource(s);
             const bounding = elem.getBoundingClientRect();
-            const hw = bounding.width - 2; // 边框宽度
-            const hh = bounding.height - 2; // 边框宽度
+            const hw = bounding.width;
+            const hh =  bounding.height;
+            // const hw = bounding.width - 2; // 边框宽度
+            // const hh = bounding.height - 2; // 边框宽度
             wratio = wholeWidth / hw;
             hratio = wholeHeight / hh;
         }

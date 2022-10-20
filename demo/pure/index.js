@@ -666,7 +666,7 @@ jframeInstance.addEventListener('elementFocus', (e) => {
         const elem = jframeInstance.source_block_element_map.getElementBySource(target.source);
         const stylesheet = window.getComputedStyle(elem);
         backgroundColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.backgroundColor);
-        borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.borderColor);
+        borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.outlineColor || stylesheet.borderColor);
         if(target.source.tag === 'FlexContainer') {
             contentColorInput.parentElement.style.display = 'none';
         } else {
@@ -699,6 +699,7 @@ backgroundColorInput.addEventListener('change', onColorChange(backgroundColorInp
 }));
 borderColorInput.addEventListener('change', onColorChange(borderColorInput, (sheet, val) => {
     sheet.borderColor = val
+    sheet.outlineColor = val
 }))
 contentColorInput.addEventListener('change', onColorChange(contentColorInput, (sheet, val) => {
     sheet.color = val
