@@ -29,7 +29,7 @@ export default {
     flex-direction: row;
     background: #fff;
     box-sizing: border-box;
-    outline: 1px solid rgb(160, 160, 160);
+    outline: 1px solid #fff;
     /* border: 1px solid rgb(160, 160, 160); */
 }
 .container[direction="row"] {

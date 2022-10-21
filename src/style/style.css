@@ -1,3 +1,6 @@
+:root{
+    --jframeGlobalScale: 1
+}
 .jframe-overlayer {
     transform-origin: top left;
     position: absolute;
@@ -89,8 +92,9 @@
     position: absolute;
     left: 0;
     top: 0;
-    transform: translate(0, -100%);
+    transform: scale(calc(1 / var(--jframeGlobalScale))) translate(0, -100%);
     z-index: 100000;
+    transform-origin: 0 0;
 }
 .jframe-toolbox > * + * {
     margin-left: 6px;
@@ -243,25 +247,76 @@
     transform: translate(0, -1px);
 }
 .jframe-block-line.jframe-line-vertical:hover,
-.jframe-block-line.jframe-line-vertical[active],
+.jframe-block-line.jframe-line-vertical[active] {
+    background: repeating-linear-gradient(
+        to bottom,
+        #43E863 0px,
+        #43E863 10px,
+        #fff 10px,
+        #fff 20px
+        );
+}
 .jframe-block-line.jframe-line-horizontal:hover,
 .jframe-block-line.jframe-line-horizontal[active]  {
-    border-color: #43E863;
+    background: repeating-linear-gradient(
+        to right,
+        #43E863 0px,
+        #43E863 10px,
+        #fff 10px,
+        #fff 20px
+        );
+}
+.jframe-block-line::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: url(./cut.png) center/100% no-repeat #4E75EC;
 }
 .jframe-block-line.jframe-line-vertical{
     position: absolute; 
-    border-left: 2px solid #BBCCFF;
-    width: 0;
-    transform: translate(-1px, 0);
+    /* border-left: 2px solid #BBCCFF; */
+    width: 2px;
+    /* background-color: #BBCCFF; */
+    background: repeating-linear-gradient(
+        to bottom,
+        #BBCCFF 0px,
+        #BBCCFF 10px,
+        #fff 10px,
+        #fff 20px
+        );
+    /* transform: translate(-1px, 0); */
     cursor: ew-resize;
+    transform: scale(max(1, calc(1 / var(--jframeGlobalScale))), 1) translate(-1px, 0);
+}
+.jframe-block-line.jframe-line-vertical::after {
+    transform: scale(1, max(1, calc(1 / var(--jframeGlobalScale)))) translate(-50%, 0) rotate(90deg);
+    transform-origin: 50% 50%;
+    top: 50%;
+    left: 1px;
 }
 
 .jframe-block-line.jframe-line-horizontal{
     position: absolute; 
-    border-top: 2px solid #BBCCFF;
-    height: 0;
-    transform: translate(0, -1px);
+    /* border-top: 2px solid #BBCCFF; */
+    height: 2px;
+    /* background-color: #BBCCFF; */
+    background: repeating-linear-gradient(
+        to right,
+        #BBCCFF 0px,
+        #BBCCFF 10px,
+        #fff 10px,
+        #fff 20px
+        );
     cursor: ns-resize;
+    transform: scale(1, max(1, calc(1 / var(--jframeGlobalScale)))) translate(0, -1px);
+}
+.jframe-block-line.jframe-line-horizontal::after {
+    transform: scale( max(1, calc(1 / var(--jframeGlobalScale))), 1) translate(0, -50%);
+    transform-origin: 50% 50%;
+    left: 50%;
+    top: 1px;
 }
 
 .jframe-block-indicator {
@@ -273,9 +328,47 @@
     left: 0;
     top: 0;
 }
+.jframe-block-indicator::before,
+.jframe-block-indicator::after{
+    display: block;
+    content: '';
+    position: absolute;
+    width: 0; 
+    height: 0; 
+}
+.jframe-block-indicator-horizontal::before {
+    left: 0;
+    top: -8px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent; 
+    border-right: 8px solid #4E75EC; 
+}
+.jframe-block-indicator-horizontal::after {
+    right: 0px;
+    top: -8px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #4E75EC;
+}
+.jframe-block-indicator-vertical::before {
+    left: -8px;
+    top: 0px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #4E75EC;
+}
+.jframe-block-indicator-vertical::after {
+    left: -8px;
+    bottom: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #4E75EC;
+}
+
 .jframe-block-indicator-number{ 
     position: absolute;
-    transform: translate(-50%, -50%);
+    transform: scale(max(1, calc(1 / var(--jframeGlobalScale)))) translate(-50%, -50%);
+    transform-origin: 0 0;
     font-size: 12px;
     padding: 5px 9px;
     background-color: #EBF0FF;

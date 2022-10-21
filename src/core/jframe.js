@@ -14,12 +14,13 @@ class JFrame extends EventTarget {
         this.padding = configs.padding || 20;
         this.maxZoom = configs.maxZoom || 2;
         this.minZoom = configs.minZoom || .5;
+        this.worldMargin = configs.worldMargin || 400;
         this.dataElemDescription = configs.dataElemDescription;
         this.toolbox = configs.toolbox;
         // this.source = configs.source;
 
         // this.frameBoundingRect = { width: 0, height: 0 };
-        this.position = { x: 0, y: 0, offsetX: 0, offsetY: 0 };
+        this.position = { x: 0, y: 0 };
         this.scale = 1;
         this.domMeta = { x: 0, y: 0 }; 
 
@@ -348,10 +349,18 @@ class JFrame extends EventTarget {
         if(this._zooming) return;
         this._zooming = true;
         const oldscale = this.scale;
+        let minZoom = this.minZoom
+        if(this.worldMargin) {
+            const m = this.worldMargin;
+            const { rootWidth, rootHeight, frameWidth, frameHeight } = this.IFM;
+            const maxWidth = rootWidth + m * 2;
+            const maxHeight = rootHeight + m * 2;
+            minZoom = Math.max(minZoom, Math.max(frameWidth / maxWidth, frameHeight / maxHeight));
+        }
         let newScale = this.scale;
         const amount = deltaY > 0 ? 1.1 : 1 / 1.1;
         newScale *= amount;
-        newScale = Math.min(this.maxZoom, Math.max(this.minZoom, newScale))
+        newScale = Math.min(this.maxZoom, Math.max(minZoom, newScale))
         const { x, y } = this.position;
         const r = newScale / oldscale;
         const px = offsetX - (offsetX - x) * r
@@ -365,8 +374,47 @@ class JFrame extends EventTarget {
     panHandler(deltaX, deltaY) {
         if(this._panning) return;
         this._panning = true;
-        this.position.x += deltaX;
-        this.position.y += deltaY; 
+        if(this.worldMargin) {
+            // console.log(scale)
+            const { rootWidth, rootHeight, frameWidth, frameHeight } = this.IFM;
+            // console.log(this.position.offsetX)
+            const m = this.worldMargin
+            const s = this.scale
+
+            // const s1 = frameWidth / rootWidth;
+            // const s2 = frameHeight / rootHeight;
+            let maxX;
+            let maxY;
+            let minX;
+            let minY;
+
+            maxX = m * s;
+            minX = frameWidth - (rootWidth + m)*s;
+
+            minY = frameHeight - (rootHeight + m)*s;
+            maxY = m * s;
+            // if(s1 < s2) {
+            //     maxX = m*s;
+            //     minX = (rootWidth + m)*s - frameWidth;
+            //     minY = (m + frameHeight) * s - rootHeight + m
+            //     maxY = m*s
+            // } else {
+            //     minX = rootWidth - (m + frameWidth) * s
+            //     maxX = m*s
+            //     maxY = m*s;
+            //     minY = -m * s;
+            // }
+            // console.log(s, m + frameHeight, rootHeight, minX, minY, maxX, minY, s1 < s2)
+            // this.position.offsetX = Math.max(Math.min(-bx2, cx), -bx1);
+            this.position.x = Math.max(Math.min(this.position.x + deltaX, maxX), minX);
+            this.position.y = Math.max(Math.min(this.position.y + deltaY, maxY), minY); 
+        } else {
+            this.position.x += deltaX;
+            this.position.y += deltaY; 
+        }
+        // this.position.x += deltaX;
+        // this.position.y += deltaY; 
+        // console.log(this.position, this.IFM.rootWidth, this.IFM.rootHeight, this.scale)
         this._resetTransform();
         this._panning = false;
     }
@@ -378,6 +426,21 @@ class JFrame extends EventTarget {
         const transformCss = `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
         this.IFM.iframe.style.transform = transformCss
         this.IFM.overLayer.style.transform = transformCss
+
+        const r = document.querySelector(':root');
+        r.style.setProperty('--jframeGlobalScale', scale);
+
+        // this.IFM.toolbox.style.transform = `scale(${1 / scale}) translate(0, -100%)`;
+       
+        // this.blockList.current.forEach(b => {
+        //     b.splitLines.forEach(l => {
+        //         if(l.dir === 'row') {
+        //             l.elem.style.transform = `scale(${Math.max(1, 1/scale)}, 1) translate(-1px, 0)`;
+        //         } else {
+        //             l.elem.style.transform = `scale(1, ${Math.max(1, 1/scale)}) translate(0, -1px)`
+        //         }
+        //     })
+        // })
     }
 
     calculateToIframeCoordinate(offsetX, offsetY) {

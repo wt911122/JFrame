@@ -70,18 +70,20 @@ class BlockBoxSplitter extends Tool {
             this._toggleSplitter(false);
             elem.appendChild(indicatorPre);
             elem.appendChild(indicatorAfter);
+            indicatorPre.classList.add('jframe-block-indicator-horizontal');
+            indicatorAfter.classList.add('jframe-block-indicator-horizontal');
         }, (deltaX, deltaY, point) => {
             startLeft = minmax(startLeft + deltaX);
             vline.style.left = `${startLeft}px`;
             Object.assign(indicatorPre.style, {
-                width: startLeft + 'px',
+                width: startLeft - 4 + 'px',
                 height: 0,
                 left: 0,
                 display: 'block',
                 transform: `translate(0px, ${point[1] - y}px)`,
             });
             Object.assign(indicatorAfter.style, {
-                width: width - startLeft + 'px',
+                width: width - startLeft - 4 + 'px',
                 left: startLeft + 'px',
                 height: 0,
                 display: 'block',
@@ -95,6 +97,8 @@ class BlockBoxSplitter extends Tool {
             indicatorAfter.style.display = 'none';
             indicatorPre.remove();
             indicatorAfter.remove();
+            indicatorPre.classList.remove('jframe-block-indicator-horizontal');
+            indicatorAfter.classList.remove('jframe-block-indicator-horizontal');
             jframe.dispatchEvent(new JFrameEvent('elementSplit', {
                 block: targetBlock,
                 source: targetBlock?.source,
@@ -163,6 +167,8 @@ class BlockBoxSplitter extends Tool {
             this._toggleSplitter(false);
             elem.appendChild(indicatorPre);
             elem.appendChild(indicatorAfter);
+            indicatorPre.classList.add('jframe-block-indicator-vertical');
+            indicatorAfter.classList.add('jframe-block-indicator-vertical');
         }, (deltaX, deltaY, point) => {
             start = minmax(start + deltaY);
             hline.style.top = `${start}px`;
@@ -170,7 +176,7 @@ class BlockBoxSplitter extends Tool {
                 width: 0,
                 top: 0,
                 left: 0,
-                height: start + 'px',
+                height: start - 4 + 'px',
                 display: 'block',
                 transform: `translate(${point[0] - x}px, 0px)`,
             });
@@ -178,7 +184,7 @@ class BlockBoxSplitter extends Tool {
                 width: 0,
                 top: start + 'px',
                 left: 0,
-                height: height - start  + 'px',
+                height: height - start - 4 + 'px',
                 display: 'block',
                 transform: `translate(${point[0] - x}px, 0px)`,
             });
@@ -190,6 +196,8 @@ class BlockBoxSplitter extends Tool {
             indicatorAfter.style.display = 'none';
             indicatorPre.remove();
             indicatorAfter.remove();
+            indicatorPre.classList.remove('jframe-block-indicator-vertical');
+            indicatorAfter.classList.remove('jframe-block-indicator-vertical');
             jframe.dispatchEvent(new JFrameEvent('elementSplit', {
                 block: targetBlock,
                 source: targetBlock?.source,

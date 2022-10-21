@@ -30,7 +30,7 @@ class IFrameManager {
         dom.setAttribute("style", `
             position: relative;
             background-color: #fff;
-            overflow: hidden
+            overflow: hidden;
             user-select: none;`);
         const mask = document.createElement('div');
         mask.setAttribute('style', `
@@ -83,6 +83,10 @@ class IFrameManager {
         this.toolbox = toolbox;
         this.blockTool = blockTool;
         this.jframeTool = jframeTool;
+        this.rootWidth = 0;
+        this.rootHeight = 0;
+        this.frameWidth = wrapper.getBoundingClientRect().width;
+        this.frameHeight = wrapper.getBoundingClientRect().height;
         // this.blockToolFragment = blockToolFragment;
         // this.hoverIndicator = hoverIndicator;
         // this.focusIndicator = focusIndicator;
@@ -208,11 +212,13 @@ class IFrameManager {
     resetFrameHorizontalBoundrary(width) {
         this.iframe.style.width = width + 'px';
         this.overLayer.style.width = width +'px';
+        this.rootWidth = width;
     }
 
      resetFrameVerticalBoundrary(height) {
         this.iframe.style.height = height + 'px';
         this.overLayer.style.height = height + 'px';
+        this.rootHeight = height;
     }
 
     querySelector(selector) {

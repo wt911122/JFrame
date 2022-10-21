@@ -245,9 +245,10 @@ class Block extends EventTarget{
             indicatorNumber
         } = this;
         if(val) {
+            let str
             if(dir === 'row') {
                 Object.assign(indicator.style, {
-                    width: this.width + 'px',
+                    width: this.width - 4 + 'px',
                     height: 0,
                     display: 'block',
                     transform: `translate(0px, ${point[1] - this.y}px)`,
@@ -256,26 +257,32 @@ class Block extends EventTarget{
                     top: 0,
                     left: '50%'
                 })
+                indicator.classList.add('jframe-block-indicator-horizontal');
+                str = `${Math.round(this.width/whole*100)}%(${Math.round(this.width)}px)`;
             } 
             if(dir === 'column') {
                 Object.assign(indicator.style, {
                     width: 0,
-                    height: this.height + 'px',
+                    height: this.height - 4 + 'px',
                     display: 'block',
                     transform: `translate(${point[0] - this.x}px, 0px)`,
                 });
                 Object.assign(indicatorNumber.style, {
                     top: '50%',
                     left: 0
-                })
+                });
+                indicator.classList.add('jframe-block-indicator-vertical');
+                str = `${Math.round(this.height/whole*100)}%(${Math.round(this.height)}px)`;
             }
-            let str = `${Math.round(this.width/whole*100)}%(${Math.round(this.width)}px)`
+            
             if(partRatio !== undefined) {
                 str += `(${Math.round(partRatio*100)}%)`
             }
             indicatorNumber.innerText = str;
         } else {
             indicator.style.display = 'none';
+            indicator.classList.remove('jframe-block-indicator-horizontal');
+            indicator.classList.remove('jframe-block-indicator-vertical');
         }
     }
 

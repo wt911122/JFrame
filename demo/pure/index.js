@@ -128,6 +128,7 @@ document.getElementById('redobtn').addEventListener('click', () => {
     redo();
 })
 document.getElementById('previewbtn').addEventListener('click', () => {
+    previewbtn.innerText = previewbtn.innerText === '预览' ? '取消预览' : '预览';
     jframeInstance.toggleOverLayer();
 })
 

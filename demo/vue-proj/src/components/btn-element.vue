@@ -13,10 +13,10 @@ export default {
 <style scoped>
 .btn {
     display: inline-flex;
-    background: #4D88FF;
+    background: #fff;
     border-radius: 4px;
-    border: 1px solid #4D88FF;
-    color: #fff;
+    border: 1px solid #fff;
+    color: #000;
     box-sizing: border-box;
     width: 64px;
     height: 24px;
