@@ -13,9 +13,9 @@ export default {
 <style scoped>
 .btn {
     display: inline-flex;
-    background: #fff;
+    background: transparent;
     border-radius: 4px;
-    border: 1px solid #fff;
+    border: 1px solid transparent;
     color: #000;
     box-sizing: border-box;
     width: 64px;
