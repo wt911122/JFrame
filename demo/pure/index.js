@@ -630,8 +630,7 @@ ButtonElementTool.addEventListener('dragstart', function() {
         concept: 'ViewElement',
         tag: 'BtnElement',
         props: {
-            content: "按钮",
-            
+            content: "文本", 
         }
     }))
 })
