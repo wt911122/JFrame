@@ -289,13 +289,7 @@
 .jframe-block-line.jframe-line-vertical[active],
 .jframe-block-line.jframe-line-horizontal:hover,
 .jframe-block-line.jframe-line-horizontal[active] {
-      background: repeating-radial-gradient(
-        circle,
-        #fff,
-        #fff 5px,
-        #43E863 5px, 
-        #43E863 10px
-      );
+      background: #43E863;
 }
 .jframe-block-splitter-line:after{
     content: '';
@@ -306,13 +300,7 @@
     background: url(./cut.png) center/100% no-repeat;
 }
 .jframe-block-line {
-    background: repeating-radial-gradient(
-        circle,
-        #fff,
-        #fff 5px,
-        #4E75EC 5px, 
-        #4E75EC 10px
-      );
+    background: #4E75EC;
 }
 .jframe-block-line.jframe-line-vertical{
     position: absolute; 
