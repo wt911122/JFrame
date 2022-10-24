@@ -14,7 +14,7 @@ class JFrame extends EventTarget {
         this.padding = configs.padding || 20;
         this.maxZoom = configs.maxZoom || 2;
         this.minZoom = configs.minZoom || .5;
-        this.worldMargin = configs.worldMargin || 400;
+        this.worldMargin = configs.worldMargin || 10000;
         this.dataElemDescription = configs.dataElemDescription;
         this.toolbox = configs.toolbox;
         // this.source = configs.source;

@@ -231,26 +231,8 @@
 .jframe-block-splitter-line.jframe-line-vertical{
     position: absolute; 
     display: none;
-    border-left: 2px dashed #BBCCFF;
-    /* height: 100%; */
-    width: 0;
-    /* left: 50%; */
-    transform: translate(-1px, 0);
-}
-.jframe-block-splitter-line.jframe-line-horizontal{
-    position: absolute; 
-    display: none;
-    border-top: 2px dashed #BBCCFF;
-    /* width: 100%; */
-    height: 0;
-    /* top: 50%; */
-    transform: translate(0, -1px);
-}
-.jframe-block-line.jframe-line-vertical:hover,
-.jframe-block-line.jframe-line-vertical[active],
-.jframe-block-line.jframe-line-horizontal:hover,
-.jframe-block-line.jframe-line-horizontal[active] {
-      background: radial-gradient(
+    /* border-left: 2px dashed #BBCCFF; */
+    background: radial-gradient(
         circle,
         #fff,
         #fff 20px,
@@ -260,11 +242,62 @@
         circle,
         #fff,
         #fff 5px,
+        #4E75EC 5px, 
+        #4E75EC 10px
+      );
+    /* height: 100%; */
+    width: 2px;
+    /* left: 50%; */
+    transform: translate(-1px, 0);
+}
+.jframe-block-splitter-line.jframe-line-vertical::after {
+    transform: translate(-50%, -30%) rotate(90deg);
+    transform-origin: 50% 50%;
+    top: 50%;
+    left: 1px;
+}
+
+.jframe-block-splitter-line.jframe-line-horizontal{
+    position: absolute; 
+    display: none;
+    /* border-top: 2px dashed #BBCCFF; */
+    background: radial-gradient(
+        circle,
+        #fff,
+        #fff 20px,
+        transparent 20px, 
+        transparent 100%
+      ),repeating-radial-gradient(
+        circle,
+        #fff,
+        #fff 5px,
+        #4E75EC 5px, 
+        #4E75EC 10px
+      );
+    /* width: 100%; */
+    height: 2px;
+    /* top: 50%; */
+    transform: translate(0, -1px);
+}
+.jframe-block-splitter-line.jframe-line-horizontal::after {
+    transform: translate(-20%, -50%);
+    transform-origin: 50% 50%;
+    left: 50%;
+    top: 1px;
+}
+.jframe-block-line.jframe-line-vertical:hover,
+.jframe-block-line.jframe-line-vertical[active],
+.jframe-block-line.jframe-line-horizontal:hover,
+.jframe-block-line.jframe-line-horizontal[active] {
+      background: repeating-radial-gradient(
+        circle,
+        #fff,
+        #fff 5px,
         #43E863 5px, 
         #43E863 10px
       );
 }
-.jframe-block-line::after {
+.jframe-block-splitter-line:after{
     content: '';
     display: block;
     position: absolute;
@@ -273,13 +306,7 @@
     background: url(./cut.png) center/100% no-repeat;
 }
 .jframe-block-line {
-    background: radial-gradient(
-        circle,
-        #fff,
-        #fff 20px,
-        transparent 20px, 
-        transparent 100%
-      ),repeating-radial-gradient(
+    background: repeating-radial-gradient(
         circle,
         #fff,
         #fff 5px,

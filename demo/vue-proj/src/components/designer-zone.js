@@ -34,7 +34,7 @@ export default {
       let isContainer = false;
       if(meta.children) {
         console.log(meta.children[0])
-        isContainer = (meta.children[0]?.tag !== 'FlexContainer');
+        isContainer = (meta.children[0]?.tag && meta.children[0]?.tag !== 'FlexContainer');
         children = meta.children.map(child => this.createElement(c, child));
       }
       const style = meta.style || {}

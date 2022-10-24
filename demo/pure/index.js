@@ -513,14 +513,18 @@ jframeInstance.addEventListener('elementSplit', (e) => {
             c.parentElement = parentElement;
             if(dir === 'column') {
                 const r = block.height / parentBlock.height;
+                c.style.marginTop = sdata.style.marginTop || 0;
                 c.style.height = `${r*splitRatio*100}%`;
                 c.style.width = '100%';
+                sdata.style.marginTop = 0;
                 sdata.style.height = `${r*(1-splitRatio)*100}%`;
             } else if(dir === 'row') {
                 const r = block.width / parentBlock.width;
+                c.style.marginLeft = sdata.style.marginLeft || 0;
                 // const w = block.width / 2 / parentBlock.width * 100;
                 c.style.width = `${r*splitRatio*100}%`;
                 c.style.height = '100%';
+                sdata.style.marginLeft = 0;
                 sdata.style.width = `${r*(1-splitRatio)*100}%`;
             }
             jframeInstance.addEventListener('afterResize', () => {
