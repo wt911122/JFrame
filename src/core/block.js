@@ -10,6 +10,11 @@ class Block extends EventTarget{
         this.y = bounding.y;
         this.width = bounding.width;
         this.height = bounding.height;
+        this.marginLeft = 0;
+        this.marginRight = 0;
+        this.marginTop = 0;
+        this.marginBottom = 0;
+
         this.targetDoc = targetDoc;
         this.targetWapper = targetWapper;
         this.jframe = jframe;
@@ -188,6 +193,7 @@ class Block extends EventTarget{
         const jframe = this.jframe;
         const source = this.source;
         if(!jframe.dataElemDescription.splitable(source)) {
+            
             return;
         }
         const dir = jframe.dataElemDescription.getSplitableDiretion(source);
@@ -222,8 +228,10 @@ class Block extends EventTarget{
         const l = this.splitLines.length;
         while(lidx < l) {
             this.splitLines[lidx].destroy();
+            this.splitLines[lidx] = null;
             lidx ++;
         }
+        this.splitLines = this.splitLines.filter(l => l)
     }
 
     renderBoundsIndicator() {
