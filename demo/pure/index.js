@@ -226,6 +226,7 @@ console.log(frameURL)
 const jframeInstance = new JFrame({
     frameURL,
     dataElemDescription,
+    worldMargin: 400,
     toolbox: {
         tools: [
             new BlockTitle(),
