@@ -35,11 +35,12 @@ class BlockBoxSplitter extends Tool {
         const splitterV = document.createElement('div');
         splitterV.setAttribute('class', 'jframe-block-splitter jframe-block-splitter-vertial')
         splitterV.style.left = width/2 +'px';
-        splitterV.style.top = '8px';
+        splitterV.style.top = '24px';
         splitterV.addEventListener('mouseenter', () => {
             vline.style.display = 'block';
         })
         const f = () => {
+            vline.style.left = width/2 +'px'
             vline.style.display = 'none';
         }
         splitterV.addEventListener('mouseleave', f);
@@ -64,8 +65,9 @@ class BlockBoxSplitter extends Tool {
         function minmax(num) {
             return Math.max(0, Math.min(width, num));
         }
-        let startLeft = width/2;
+        let startLeft 
         jframe.bindDragdropListener(splitterV, () => {
+            startLeft = width/2;
             splitterV.removeEventListener('mouseleave', f);
             this._toggleSplitter(false);
             elem.appendChild(indicatorPre);
@@ -99,12 +101,16 @@ class BlockBoxSplitter extends Tool {
             indicatorAfter.remove();
             indicatorPre.classList.remove('jframe-block-indicator-horizontal');
             indicatorAfter.classList.remove('jframe-block-indicator-horizontal');
-            jframe.dispatchEvent(new JFrameEvent('elementSplit', {
-                block: targetBlock,
-                source: targetBlock?.source,
-                dir: 'row',
-                splitRatio: startLeft / width,
-            }))
+            if(startLeft > 2 && startLeft < width - 2 ){
+                jframe.dispatchEvent(new JFrameEvent('elementSplit', {
+                    block: targetBlock,
+                    source: targetBlock?.source,
+                    dir: 'row',
+                    splitRatio: startLeft / width,
+                }))
+            }  else {
+                this._toggleSplitter(true);
+            }
             f();
         });
 
@@ -122,24 +128,25 @@ class BlockBoxSplitter extends Tool {
         hline.style.top = height/2 +'px'
         const splitterH = document.createElement('div');
         splitterH.setAttribute('class', 'jframe-block-splitter jframe-block-splitter-horizontal')
-        splitterH.style.left = (width - 48) +'px';
+        splitterH.style.left = (width - 64) +'px';
         splitterH.style.top = height/2 +'px'
         splitterH.addEventListener('mouseenter', () => {
             hline.style.display = 'block';
         })
         const f = () => {
+            hline.style.top = height/2 +'px'
             hline.style.display = 'none';
         }
         splitterH.addEventListener('mouseleave', f);
-        // splitterH.addEventListener('click', (e) => {
-        //     e.stopPropagation();
-        //     jframe.dispatchEvent(new JFrameEvent('elementSplit', {
-        //         block: targetBlock,
-        //         source: targetBlock?.source,
-        //         dir: 'column',
-        //     }))
-        //     this._toggleSplitter(false);
-        // });
+        splitterH.addEventListener('click', (e) => {
+            e.stopPropagation();
+            jframe.dispatchEvent(new JFrameEvent('elementSplit', {
+                block: targetBlock,
+                source: targetBlock?.source,
+                dir: 'column',
+            }))
+            this._toggleSplitter(false);
+        });
         const {
             indicator: indicatorPre,
             indicatorNumber: indicatorNumberPre,
@@ -161,8 +168,9 @@ class BlockBoxSplitter extends Tool {
         function minmax(num) {
             return Math.max(0, Math.min(height, num));
         }
-        let start = height/2;
+        let start;
         jframe.bindDragdropListener(splitterH, () => {
+            start = height/2;
             splitterH.removeEventListener('mouseleave', f);
             this._toggleSplitter(false);
             elem.appendChild(indicatorPre);
@@ -198,12 +206,16 @@ class BlockBoxSplitter extends Tool {
             indicatorAfter.remove();
             indicatorPre.classList.remove('jframe-block-indicator-vertical');
             indicatorAfter.classList.remove('jframe-block-indicator-vertical');
-            jframe.dispatchEvent(new JFrameEvent('elementSplit', {
-                block: targetBlock,
-                source: targetBlock?.source,
-                dir: 'column',
-                splitRatio: start / height,
-            }))
+            if(start > 2 && start < height - 2 ){
+                jframe.dispatchEvent(new JFrameEvent('elementSplit', {
+                    block: targetBlock,
+                    source: targetBlock?.source,
+                    dir: 'column',
+                    splitRatio: start / height,
+                }))
+            } else {
+                this._toggleSplitter(true);
+            }
             f();
         });
 
@@ -232,14 +244,14 @@ class BlockBoxSplitter extends Tool {
         const { width, height } = targetBlock;
         Object.assign(this.splitterV.style, {
             left: width/2 +'px',
-            top: '8px',
+            top: '24px',
         });
         Object.assign(this.vline.style, {
             height: height + 'px',
             left: width/2 +'px'
         })
         Object.assign(this.splitterH.style, {
-            left: (width - 48) + 'px',
+            left: (width - 64) + 'px',
             top: height/2 +'px'
         });
         Object.assign(this.hline.style, {

@@ -21,6 +21,7 @@ class Elem {
         this.id = id ++;
         this.concept = source.concept;
         this.tag = source.tag;
+        this.title = source.tag === 'FlexContainer' ? '区域' : source.title;
         this.props = source.props || {};
         this.style = source.style || {};
         this.children = [];
@@ -516,7 +517,9 @@ jframeInstance.addEventListener('elementSplit', (e) => {
                 const r = block.height / parentBlock.height;
                 c.style.marginTop = sdata.style.marginTop || 0;
                 c.style.height = `${r*splitRatio*100}%`;
-                c.style.width = '100%';
+                c.style.width = sdata.style.width;
+                c.style.marginLeft = sdata.style.marginLeft || 0;
+                c.style.marginRight = sdata.style.marginRight || 0;
                 sdata.style.marginTop = 0;
                 sdata.style.height = `${r*(1-splitRatio)*100}%`;
             } else if(dir === 'row') {
@@ -524,12 +527,15 @@ jframeInstance.addEventListener('elementSplit', (e) => {
                 c.style.marginLeft = sdata.style.marginLeft || 0;
                 // const w = block.width / 2 / parentBlock.width * 100;
                 c.style.width = `${r*splitRatio*100}%`;
-                c.style.height = '100%';
+                c.style.height = sdata.style.height;
+                c.style.marginTop = sdata.style.marginTop || 0;
+                c.style.marginBottom = sdata.style.marginBottom || 0;
                 sdata.style.marginLeft = 0;
                 sdata.style.width = `${r*(1-splitRatio)*100}%`;
             }
             jframeInstance.addEventListener('afterResize', () => {
-                jframeInstance.setFocusTarget(parentBlock)
+                const cblock = jframeInstance.source_block_element_map.getBlockBySource(c);
+                jframeInstance.setFocusTarget(cblock)
             }, {
                 once: true,
             })
@@ -634,6 +640,7 @@ ButtonElementTool.addEventListener('dragstart', function() {
     dragstart(new Elem({
         concept: 'ViewElement',
         tag: 'BtnElement',
+        title: '文本',
         props: {
             content: "文本", 
         }
@@ -643,6 +650,41 @@ ButtonElementTool.addEventListener('dragend', function() {
     currentInstance = null;
 })
 
+const layerIndicatorElem = document.getElementById('layerIndicator');
+function makeCrumb(source) {
+    const block = jframeInstance.source_block_element_map.getBlockBySource(source);
+    const span = document.createElement('span');
+    span.setAttribute('class', 'crumb')
+    span.innerText = source.title || source.tag
+    span.addEventListener('mouseenter', () => {
+        block.setHover(true)
+    })
+    span.addEventListener('mouseleave', () => {
+        block.setHover(false)
+    });
+    span.addEventListener('click', () => {
+        jframeInstance.setFocusTarget(block)
+    });
+    console.log(span)
+    return span;
+}
+jframeInstance.addEventListener('elementFocus', (e) => {
+    layerIndicatorElem.innerHTML = '';
+    const { target } = e.detail;
+    if(target) {
+        console.log(target)
+        let s = target.source;
+        let i = 0;
+        while(s) {
+            if(i !== 0) {
+                layerIndicatorElem.prepend(" / ")
+            }
+            layerIndicatorElem.prepend(makeCrumb(s));
+            i ++;
+            s = s.parentElement;
+        } 
+    }
+})
 
 const backgroundColorInput = document.getElementById('backgroundColor');
 const borderColorInput = document.getElementById('borderColor');
@@ -707,6 +749,7 @@ borderColorInput.addEventListener('change', onColorChange(borderColorInput, (she
     sheet.outlineColor = val
 }))
 contentColorInput.addEventListener('change', onColorChange(contentColorInput, (sheet, val) => {
+    console.log(val)
     sheet.color = val
 }))
 
@@ -725,6 +768,26 @@ document.getElementById('applytoAll').addEventListener('click', () => {
     }));
     snapshot();
 })
+function parseFloatOrZero(str) {
+    return parseFloat(str) || 0;
+}
+// document.getElementById('resetMargin').addEventListener('click', () => {
+//     const height = parseFloatOrZero(currTarget.height) + parseFloatOrZero(currTarget.source.style.marginTop) + parseFloatOrZero(currTarget.source.style.marginBottom)
+//     const width = parseFloatOrZero(currTarget.width) + parseFloatOrZero(currTarget.source.style.marginLeft) + parseFloatOrZero(currTarget.source.style.marginRight)
+//     Object.assign(currTarget.source.style, {
+//         marginLeft: 0,
+//         marginRight: 0,
+//         marginTop: 0,
+//         marginBottom: 0,
+//         width: width + 'px',
+//         hei: height + 'px',
+//     });
+//     jframeInstance.postMessage(JSON.stringify({
+//         type: 'rerender',
+//         elements: [source.toPlainObject()],
+//     }));
+//     snapshot();
+// })
 
 const astDialog = document.getElementById('astDialog');
 const aststructure = document.getElementById('aststructure');

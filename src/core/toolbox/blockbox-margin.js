@@ -76,7 +76,7 @@ class BlockBoxMargin extends Tool {
             const marginBarLeft = document.createElement('div');
             marginBarLeft.setAttribute('class', 'jframe-block-margin jframe-block-margin-horizontal');
             Object.assign(marginBarLeft.style, {
-                left: 0,
+                left: 12 + 'px',
                 top: height / 2 + 'px',
                 cursor: 'ew-resize'
             })
@@ -84,7 +84,7 @@ class BlockBoxMargin extends Tool {
             const marginBarRight = document.createElement('div');
             marginBarRight.setAttribute('class', 'jframe-block-margin jframe-block-margin-horizontal');
             Object.assign(marginBarRight.style, {
-                left: width - 5 + 'px',
+                left: width - 16 + 'px',
                 top: height / 2 + 'px',
                 cursor: 'ew-resize'
             })
@@ -93,7 +93,7 @@ class BlockBoxMargin extends Tool {
             marginBarTop.setAttribute('class', 'jframe-block-margin jframe-block-margin-vertical');
             Object.assign(marginBarTop.style, {
                 left: width / 2 + 'px',
-                top: 0,
+                top: 12 + 'px',
                 cursor: 'ns-resize'
             })
 
@@ -101,7 +101,7 @@ class BlockBoxMargin extends Tool {
             marginBarBottom.setAttribute('class', 'jframe-block-margin jframe-block-margin-vertical');
             Object.assign(marginBarBottom.style, {
                 left: width / 2 + 'px',
-                top: height - 5 + 'px',
+                top: height - 16 + 'px',
                 cursor: 'ns-resize'
             })
 
@@ -303,10 +303,10 @@ class BlockBoxMargin extends Tool {
             const { width, height } = targetBlock;
             marginBarLeft.style.top = height / 2 + 'px';
             marginBarRight.style.top = height / 2 + 'px';
-            marginBarRight.style.left = (width - 5) + 'px';
+            marginBarRight.style.left = (width - 16) + 'px';
             marginBarTop.style.left = width / 2 + 'px';
             marginBarBottom.style.left = width / 2 + 'px';
-            marginBarBottom.style.top = height - 5 + 'px';
+            marginBarBottom.style.top = height - 16 + 'px';
 
             // this.onRefreshMargin(targetBlock)
         }

@@ -208,15 +208,15 @@ class JFrame extends EventTarget {
                 const h = rootBlock.height;
                 const { width, height } = this.IFM.wrapper.getBoundingClientRect();
                 const s1 = (width - 20) / w;
-                const s2 = (height - 20) / h;
+                const s2 = (height - 60) / h;
                 if(s1 < s2) {
                     this.scale = s1;
-                    this.position.x = 10;
-                    this.position.y = (height - h * s1 + 20) / 2;
+                    this.position.x = 30;
+                    this.position.y = (height - h * s1 + 60) / 2;
                 } else {
                     this.scale = s2;
-                    this.position.y = 10;
-                    this.position.x = (width - w * s2 + 20) / 2;
+                    this.position.y = 30;
+                    this.position.x = (width - w * s2 + 60) / 2;
                 }
                 
                 this._resetTransform();

@@ -5,7 +5,7 @@
         <style>
             .wrapper {
                 width: 1400px;
-                height: 700px;
+                height: 680px;
                 border: 1px solid red;
             }
             .body{
@@ -61,8 +61,17 @@
             .footer {
                 padding: 10px;
             }
-            .footer > div {
+            .footer > div > div {
                 display: inline-block;
+            }
+            #layerIndicator {
+                margin-left: 120px;
+                font-size: 14px;
+                padding: 10px 12px;
+                border: 1px solid #DFDFDF;
+            }
+            .crumb {
+                cursor: pointer;
             }
         </style>
     <script defer src="index.bundle.js"></script></head>
@@ -105,20 +114,28 @@
         </div>
 
         <div class="footer">
-            <div>
-                <input type="color" id="backgroundColor" name="head">
-                <label for="backgroundColor">Background</label>
+            <div id="layerIndicator">
+                未选中目标
             </div>
             <div>
-                <input type="color" id="borderColor" name="body">
-                <label for="borderColor">Border</label>
-            </div>
-            <div>
-                <input type="color" id="contentColor" name="body">
-                <label for="contentColor">Color</label>
-            </div>
-            <div>
-                <button id="applytoAll">应用于所有同类型组件</button>
+                <div>
+                    <input type="color" id="backgroundColor" name="head">
+                    <label for="backgroundColor">背景色</label>
+                </div>
+                <div>
+                    <input type="color" id="borderColor" name="body">
+                    <label for="borderColor">边界色</label>
+                </div>
+                <div>
+                    <input type="color" id="contentColor" name="body">
+                    <label for="contentColor">字体色</label>
+                </div>
+                <div>
+                    <button id="applytoAll">应用于所有同类型组件</button>
+                </div>
+                <!-- <div>
+                    <button id="resetMargin">重置边距</button>
+                </div> -->
             </div>
         </div>
         <dialog id="astDialog">

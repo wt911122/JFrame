@@ -3,6 +3,7 @@
     "concept": "ViewElement",
     "type": 0,
     "tag": "FlexContainer",
+    "title": "区域",
     "style": {
         "width": "1440px",
         "height": "1024px"

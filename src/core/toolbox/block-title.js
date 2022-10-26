@@ -12,7 +12,7 @@ class BlockTitle extends Tool {
             const block = jframe.source_block_element_map.getBlockBySource(parent);
             const el = document.createElement('span');
             el.setAttribute('class', 'jframe-title');
-            el.innerText = block.source.tag;
+            el.innerText = block.source.title || block.source.tag;
             const isFirst = (idx === 0);
             if(isFirst) {
                 el.setAttribute('first-title', true);
