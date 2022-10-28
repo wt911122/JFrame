@@ -183,6 +183,7 @@ class Block extends EventTarget{
         this.elem.style.width = `${this.width}px`;
         this.elem.style.height = `${this.height}px`;
         // this.renderMargin();
+        console.log('render')
         this.tools.forEach(tool => {
             tool.render(this);
         })
@@ -190,19 +191,61 @@ class Block extends EventTarget{
     }
 
     renderSplitLines() {
-        const jframe = this.jframe;
-        const source = this.source;
+        const {
+            width, height, jframe, source
+        } = this;
         if(!jframe.dataElemDescription.splitable(source)) {
-            
+            this.splitLines.forEach(s => {
+                s.destroy();
+            })
+            this.splitLines = [];
             return;
         }
+        const children = jframe.dataElemDescription.getSourceChildren(source);
+        const elem = jframe.source_block_element_map.getElementBySource(source);
+        const _blocks = children.map(c => jframe.source_block_element_map.getBlockBySource(c));
         const dir = jframe.dataElemDescription.getSplitableDiretion(source);
-        let idx = 0;
         let reduce = 0;
         let lidx = 0;
-        const children = jframe.dataElemDescription.getSourceChildren(source);
-        const _blocks = children.map(c => jframe.source_block_element_map.getBlockBySource(c));
-        while(idx < children.length) {
+        const whole = dir === 'column' ? height : width;
+        const property = dir === 'column' ? 'grid-template-rows' : 'grid-template-columns';
+        if(!elem.style[property]) {
+            this.splitLines.forEach(s => {
+                s.destroy();
+            })
+            this.splitLines = [];
+            return;
+        }
+        
+        let splitters = elem.style[property].split(/\s+/);
+        console.log(splitters)
+        const splitsSpaces = [];
+        splitters.forEach((r, idx)=> {
+            if(!splitters[idx + 1]){
+                splitsSpaces.push(whole - reduce);
+                return;
+            }
+            const percent = parseFloat(r) / 100;
+            reduce += percent*whole
+            let splitter = this.splitLines[idx];
+            if(!splitter) {
+                splitter = new Splitter(this);
+                this.splitLines[idx] = splitter;
+                splitter.attach(jframe.IFM.jframeTool);
+            }
+            lidx++;
+            splitter.setProps(
+                dir, 
+                reduce, 
+                idx, 
+                _blocks.slice());
+            splitsSpaces.push(percent*whole);
+        });
+        this.splitsSpaces = splitsSpaces;
+
+        // const children = jframe.dataElemDescription.getSourceChildren(source);
+        
+        /*while(idx < children.length) {
             const pre = children[idx];
             if(idx < children.length - 1) {
                 const after = children[idx + 1];
@@ -224,7 +267,7 @@ class Block extends EventTarget{
                 splitter.setProps(dir, reduce, preblock, afterblock, _blocks.slice());
             }
             idx ++;
-        }
+        } */
         const l = this.splitLines.length;
         while(lidx < l) {
             this.splitLines[lidx].destroy();

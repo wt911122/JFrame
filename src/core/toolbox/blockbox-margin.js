@@ -22,43 +22,18 @@ class BlockBoxMargin extends Tool {
         marginBottom: mb,
     }){
         const styleSheet = window.getComputedStyle(elem);
-        const parentSource = jframe.dataElemDescription.getSourceParent(targetSource);
-        let width = parseFloat(styleSheet.width) || 0;
-        let height = parseFloat(styleSheet.height) || 0;
-        // let hw = wholeWidth;
-        // let hh = wholeHeight;
+
         let marginLeft = parseFloat(styleSheet.marginLeft) ?? 0;
         let marginRight = parseFloat(styleSheet.marginRight) ?? 0;
         let marginTop = parseFloat(styleSheet.marginTop) ?? 0;
         let marginBottom = parseFloat(styleSheet.marginBottom) ?? 0;
-        
-        const wholeHeight = marginTop + marginBottom + height;
-        const wholeWidth = marginLeft + marginRight + width;
-        let wratio = 1;
-        let hratio = 1;
-        const s = jframe.dataElemDescription.getSourceParent(targetSource);
-        if(s) {
-            const elem = jframe.source_block_element_map.getElementBySource(s);
-            const bounding = elem.getBoundingClientRect();
-            const hw = bounding.width;
-            const hh =  bounding.height;
-            // const hw = bounding.width - 2; // 边框宽度
-            // const hh = bounding.height - 2; // 边框宽度
-            wratio = wholeWidth / hw;
-            hratio = wholeHeight / hh;
-        }
+  
         marginLeft = ml ?? marginLeft;
         marginRight = mr ?? marginRight;
         marginTop = mt ?? marginTop;
         marginBottom = mb ?? marginBottom;
-        if(parentSource) {
-            width = `calc(${wratio * 100}% - ${marginLeft+marginRight}px)`;
-            height = `calc(${hratio * 100}% - ${marginTop+marginBottom}px)`;
-        } 
 
         return {
-            width,
-            height,
             marginLeft: `${marginLeft}px`,
             marginRight: `${marginRight}px`,
             marginTop: `${marginTop}px`,
@@ -186,7 +161,6 @@ class BlockBoxMargin extends Tool {
             }, (deltaX, deltaY) => {
                 
                 marginLeft = Math.max(0, Math.min(deltaX + marginLeft, wholeWidth - marginRight));
-                elem.style.width = `${wholeWidth - marginLeft - marginRight}px`;
                 elem.style.marginLeft = `${marginLeft}px`;
             }, dispatcher);
 
@@ -200,7 +174,6 @@ class BlockBoxMargin extends Tool {
             }, (deltaX, deltaY) => {
                 // const elbounds = elem.getBoundingClientRect();
                 marginRight = Math.max(0, Math.min(-deltaX + marginRight, wholeWidth - marginLeft));
-                elem.style.width = `${wholeWidth - marginLeft - marginRight}px`;
                 elem.style.marginRight = `${marginRight}px`;
             }, dispatcher);
 
@@ -213,7 +186,6 @@ class BlockBoxMargin extends Tool {
                 toggleMarginBarRectVisible(true, 'Top')
             }, (deltaX, deltaY) => {
                 marginTop = Math.max(0, Math.min(deltaY + marginTop, wholeHeight - marginBottom));
-                elem.style.height = `${wholeHeight - marginTop - marginBottom}px`;
                 elem.style.marginTop = `${marginTop}px`;
             }, dispatcher);
 
@@ -226,7 +198,6 @@ class BlockBoxMargin extends Tool {
                 toggleMarginBarRectVisible(true, 'Bottom')
             }, (deltaX, deltaY) => {
                 marginBottom = Math.max(0, Math.min(marginBottom - deltaY, wholeHeight - marginTop));
-                elem.style.height = `${wholeHeight - marginTop - marginBottom}px`;
                 elem.style.marginBottom = `${marginBottom}px`;
             }, dispatcher);
             

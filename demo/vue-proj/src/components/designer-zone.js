@@ -4,6 +4,7 @@ import TextElement from './text-element.vue';
 import DivElement from './div-element.vue';
 import BtnElement from './btn-element.vue';
 import FlexContainer from './flex-container.vue';
+import AreaContainer from './area-container.vue';
 
 export default {
   components: {
@@ -12,7 +13,8 @@ export default {
     TextElement,
     DivElement,
     BtnElement,
-    FlexContainer
+    FlexContainer,
+    AreaContainer
   },
   data() {
     return {
@@ -33,8 +35,7 @@ export default {
       let children = [];
       let isContainer = false;
       if(meta.children) {
-        console.log(meta.children[0])
-        isContainer = (meta.children[0]?.tag && meta.children[0]?.tag !== 'FlexContainer');
+        isContainer = (meta.children[0]?.tag && meta.children[0]?.tag !== 'AreaContainer');
         children = meta.children.map(child => this.createElement(c, child));
       }
       const style = meta.style || {}

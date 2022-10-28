@@ -2,7 +2,7 @@
     "id": 4,
     "concept": "ViewElement",
     "type": 0,
-    "tag": "FlexContainer",
+    "tag": "AreaContainer",
     "title": "区域",
     "style": {
         "width": "1440px",

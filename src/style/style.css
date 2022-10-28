@@ -26,7 +26,6 @@
     border: 2px solid transparent;
     box-sizing: border-box;
     user-select: none;
-    outline-style: inset;
 }
 
 .jframe-block:hover {
@@ -308,7 +307,7 @@
     background: url(./cut.png) center/100% no-repeat;
 }
 .jframe-block-line {
-    background: #F2BF46;
+    background: rgb(125, 221, 224);
 }
 .jframe-block-line.jframe-line-vertical{
     position: absolute; 

@@ -6,7 +6,7 @@ class Splitter {
         this.bindSplitLineEventListener();
     }
 
-    setProps(dir, reduce, preblock, afterblock, siblingBlocks) {
+    setProps(dir, reduce, idx, siblingBlocks) {
         const { width, height, x, y } = this.targetBlock;
         const line = this.elem;
         this.dir = dir;
@@ -22,8 +22,7 @@ class Splitter {
             line.style.top = reduce + y +'px'
             line.style.left = x + 'px'
         }
-        this.preblock = preblock;
-        this.afterblock = afterblock;
+        this.idx = idx;
         this.siblingBlocks = siblingBlocks;
     }
 
@@ -44,109 +43,83 @@ class Splitter {
         jframe.bindDragdropListener(this.elem, () => {
             jframe.IFM.toggleBlockHoverStyle(true);
             const {
-                preblock, afterblock, targetBlock, dir,
+                idx, targetBlock, dir,
+                siblingBlocks,
             } = this;
-            preblock.toggleHoverEnable(false);
-            afterblock.toggleHoverEnable(false);
-            const preSource = preblock.source;
-            const afterSource = afterblock.source;
-            const preElem = jframe.source_block_element_map.getElementBySource(preSource);
-            const afterElem = jframe.source_block_element_map.getElementBySource(afterSource);
-            let space;
+            // siblingBlocks[idx].toggleHoverEnable(false);
+            // siblingBlocks[idx + 1].toggleHoverEnable(false);
+            const targetElem = jframe.source_block_element_map.getElementBySource(targetBlock.source);
             const wholeWidth = targetBlock.width;
             const wholeHeight = targetBlock.height;
-
-            let wholeRatio;
-            if(dir === 'row') {
-                space = preblock.width + afterblock.width;
-                wholeRatio = space / wholeWidth; 
-            }
-            if(dir === 'column') {
-                space = preblock.height + afterblock.height;
-                wholeRatio = space / wholeHeight;
-            }
+            const space = targetBlock.splitsSpaces[idx] + targetBlock.splitsSpaces[idx + 1];
             function minmax(num) {
                 return Math.max(0, Math.min(space, num));
             }
             this.toggleActive(true)
-            return [preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax, space]
-        }, (deltaX, deltaY, point, preElem, afterElem, wholeWidth, wholeHeight, wholeRatio, minmax, space) => {
+            return [targetElem, wholeWidth, wholeHeight, minmax, space]
+        }, (deltaX, deltaY, point, targetElem, wholeWidth, wholeHeight, minmax, space) => {
             const {
-                dir, preblock, afterblock, siblingBlocks
+                dir, siblingBlocks, idx
             } = this;
             if(dir === 'row') {
-                const w = preElem.getBoundingClientRect().width;
+                // const w = preElem.getBoundingClientRect().width;
+                const columns = targetElem.style['grid-template-columns'].split(/\s+/);
+                const percent = parseFloat(columns[idx])/100;
+                const w = percent * wholeWidth;
                 const calW = minmax(w + deltaX);
-                const preW = calW / wholeWidth;
-                const afterW = wholeRatio - preW;
-                preElem.style.width = `${preW * 100}%`;
-                afterElem.style.width = `${afterW * 100}%`;
-                
+                const r1 = calW / wholeWidth * 100 + '%';
+                const r2 = (space - calW) / wholeWidth * 100 + '%';
+                columns.splice(idx, 2, r1, r2);
+                targetElem.style['grid-template-columns'] = columns.join(' ');
                 
                 siblingBlocks.forEach(b => {
-                    if(b === preblock) {
-                        preblock.toggleIndicator(true, dir, point, wholeWidth, calW / space);
-                    } else if(b === afterblock) {
-                        afterblock.toggleIndicator(true, dir, point, wholeWidth, 1 - calW / space);
-                    } else {
+                    // if(b === preblock) {
+                    //     preblock.toggleIndicator(true, dir, point, wholeWidth, calW / space);
+                    // } else if(b === afterblock) {
+                    //     afterblock.toggleIndicator(true, dir, point, wholeWidth, 1 - calW / space);
+                    // } else {
                         b.toggleIndicator(true, dir, point, wholeWidth);
-                    }
+                    // }
                 })
             }
 
             if(dir === 'column') {
-                const h = preElem.getBoundingClientRect().height
-                const callH = minmax(h + deltaY);
-                const preH = callH / wholeHeight;
-                const afterH = wholeRatio - preH;
-                preElem.style.height = `${preH*100}%`;
-                afterElem.style.height = `${afterH*100}%`;
+                const rows = targetElem.style['grid-template-rows'].split(/\s+/);
+                const percent = parseFloat(rows[idx])/100;
+                const w = percent * wholeHeight;
+                const calW = minmax(w + deltaY);
+                const r1 = calW / wholeHeight * 100 + '%';;
+                const r2 = (space - calW) / wholeHeight * 100 + '%';;
+                rows.splice(idx, 2, r1, r2);
+                targetElem.style['grid-template-rows'] = rows.join(' ');
+                
                 siblingBlocks.forEach(b => {
-                    if(b === preblock) {
-                        preblock.toggleIndicator(true, dir, point, wholeHeight, callH / space);
-                    } else if(b === afterblock) {
-                        afterblock.toggleIndicator(true, dir, point, wholeHeight, 1-callH / space);
-                    } else {
+                    // if(b === preblock) {
+                    //     preblock.toggleIndicator(true, dir, point, wholeHeight, callH / space);
+                    // } else if(b === afterblock) {
+                    //     afterblock.toggleIndicator(true, dir, point, wholeHeight, 1-callH / space);
+                    // } else {
                         b.toggleIndicator(true, dir, point, wholeHeight);
-                    }
+                    // }
                 })
             }
 
-        }, (event, preElem, afterElem) => {
+            return [targetElem];
+        }, (event, targetElem) => {
             const {
-                preblock, afterblock, siblingBlocks
+                siblingBlocks, targetBlock
             } = this;
-            // preblock.toggleIndicator(false);
-            // afterblock.toggleIndicator(false);
-            preblock.toggleHoverEnable(true);
-            afterblock.toggleHoverEnable(true);
             jframe.IFM.toggleBlockHoverStyle(false);
-            const prestylesheet = window.getComputedStyle(preElem);
-            const afterstylesheet = window.getComputedStyle(afterElem);
             this.toggleActive(false)
             siblingBlocks.forEach(b => { b.toggleIndicator(false) });
-            jframe.dispatchEvent(new JFrameEvent('elementsResized', {
+            jframe.dispatchEvent(new JFrameEvent('elementResplit', {
                 elements: [
                     {
-                        targetBlock: preblock,
-                        source: preblock.source,
-                        width: preElem.style.width,
-                        height: preElem.style.height,
-                        marginLeft: prestylesheet.marginLeft,
-                        marginRight: prestylesheet.marginRight,
-                        marginTop: prestylesheet.marginTop,
-                        marginBottom: prestylesheet.marginBottom,
+                        targetBlock: targetBlock,
+                        source: targetBlock.source,
+                        gridColumns: targetElem.style['grid-template-columns'],
+                        gridRows: targetElem.style['grid-template-rows'],
                     },
-                    {
-                        targetBlock: afterblock,
-                        source: afterblock.source,
-                        width: afterElem.style.width,
-                        height: afterElem.style.height,
-                        marginLeft: afterstylesheet.marginLeft,
-                        marginRight: afterstylesheet.marginRight,
-                        marginTop: afterstylesheet.marginTop,
-                        marginBottom: afterstylesheet.marginBottom,
-                    }
                 ]
             }))
         });

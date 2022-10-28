@@ -21,7 +21,7 @@ class Elem {
         this.id = id ++;
         this.concept = source.concept;
         this.tag = source.tag;
-        this.title = source.tag === 'FlexContainer' ? '区域' : source.title;
+        this.title = source.tag === 'AreaContainer' ? '区域' : source.title;
         this.props = source.props || {};
         this.style = source.style || {};
         this.children = [];
@@ -147,21 +147,21 @@ const dataElemDescription = {
         return source.parentElement;
     },
     hasSlot(source) {
-        return ['UlElement', 'LiElement', 'DivElement', 'FlexContainer'].includes(source.tag);
+        return ['UlElement', 'LiElement', 'DivElement', 'AreaContainer'].includes(source.tag);
     },
     inlineElement(source) {
         return ['TextElement', 'BtnElement'].includes(source.tag);
     },
     blockElement(source){
-        return ['UlElement', 'LiElement', 'DivElement', 'FlexContainer'].includes(source.tag);
+        return ['UlElement', 'LiElement', 'DivElement', 'AreaContainer'].includes(source.tag);
     },
     isAcceptElement(movingSource, targetSource) {
         movingSource = currentInstance || movingSource;
         const mtag = movingSource.tag;
         const tTag = targetSource.tag;
 
-        if(tTag === 'FlexContainer') {
-            return targetSource.children.every(e => e.tag !== 'FlexContainer');
+        if(tTag === 'AreaContainer') {
+            return targetSource.children.every(e => e.tag !== 'AreaContainer');
         }
 
         // if(mtag === 'DivElement' || mtag === 'FlexContainer') {
@@ -179,10 +179,10 @@ const dataElemDescription = {
         return false;
     },
     draggable(source) {
-        return source.tag !== 'FlexContainer';
+        return source.tag !== 'AreaContainer';
     },
     splitable(source){
-        return source.tag === 'FlexContainer';
+        return source.tag === 'AreaContainer';
     },
     getSplitableDiretion(source) {
         return source.props.direction;
@@ -217,7 +217,7 @@ const dataElemDescription = {
 
 
 function SPLITABLE(source){
-    return ['FlexContainer'].includes(source.tag)
+    return ['AreaContainer'].includes(source.tag)
 }
 
 const frameURL = `${window.location.origin}${window.location.pathname}vueproj.html`;
@@ -241,8 +241,8 @@ const jframeInstance = new JFrame({
             }),
             new BlockAlignment({
                 accept(source) {
-                    if(source.tag === 'FlexContainer') {
-                        if(source.children.length > 0 && source.children[0].tag !== 'FlexContainer'){
+                    if(source.tag === 'AreaContainer') {
+                        if(source.children.length > 0 && source.children[0].tag !== 'AreaContainer'){
                             return true;
                         }
                     }
@@ -324,45 +324,35 @@ function onDeleteElementInSplitable(target) {
         const getBlockBySource = jframeInstance.source_block_element_map.getBlockBySource.bind(jframeInstance.source_block_element_map);
         const parentBlock = getBlockBySource(parentSource);
         const idx = parentSource.children.findIndex(s => s === sdata);
+        
+
         if(parentSource.children.length === 2) {
             const remainElem = parentSource.children[idx === 0 ? 1 : 0];
-            const remainChildren = remainElem.children;
+            const remainChildren = remainElem.children.filter(c => SPLITABLE(c));
             const grandParentEle = parentSource.parentElement;
-            if(grandParentEle && remainChildren.length > 0) {
-                const dir = grandParentEle.props.direction;
-                const grandBlock = getBlockBySource(grandParentEle);
-                const parent_idx = parentSource.delete();
-                if(dir === 'row') {
-                    remainChildren.forEach(c => {
-                        const t = getBlockBySource(c).width;
-                        c.style.width = `${t / grandBlock.width * 100}%`
-                        c.parentElement = grandParentEle;
+            if(!grandParentEle) {
+                if(remainElem.children.length > 0) {
+                    remainElem.children.forEach(c => {
+                        c.parentElement = parentSource;
+                    })
+                    Object.assign(parentSource.style, {
+                        marginLeft: remainElem.style.marginLeft,
+                        marginTop: remainElem.style.marginTop,
+                        marginRight: remainElem.style.marginRight,
+                        marginBottom: remainElem.style.marginBottom,
                     });
-                } 
-                if(dir === 'column') {
-                    remainChildren.forEach(c => {
-                        const t = getBlockBySource(c).height;
-                        c.style.height = `${t / grandBlock.height * 100}%`
-                        c.parentElement = grandParentEle;
-                    });
-                }
-                grandParentEle.children.splice(parent_idx, 0, ...remainChildren);
-            
-                jframeInstance.addEventListener('afterResize', () => {
+                    if(remainElem.style['grid-template-columns']) {
+                        parentSource.style['grid-template-columns'] = remainElem.style['grid-template-columns']
+                    } 
+                    if(remainElem.style['grid-template-rows']) {
+                        parentSource.style['grid-template-rows'] = remainElem.style['grid-template-rows']
+                    }
+                } else {
                     
-                    jframeInstance.setFocusTarget(grandBlock)
-                }, {
-                    once: true,
-                })
-                return true;
-            } else {
-                remainElem.delete();
-                remainChildren.forEach(c => {
-                    c.parentElement = parentSource;
-                    parentSource.children.push(c);
-                });
-                parentSource.props.direction = remainElem.props.direction;
-                
+                    delete parentSource.style['grid-template-columns']
+                    delete parentSource.style['grid-template-rows'];
+                    remainElem.delete();
+                }
                 jframeInstance.addEventListener('afterResize', () => {
                     jframeInstance.setFocusTarget(parentBlock)
                 }, {
@@ -370,35 +360,84 @@ function onDeleteElementInSplitable(target) {
                 })
                 return true;
             }
+            const grandIdx = grandParentEle.children.findIndex(c => c === parentSource);
+            if(grandParentEle && remainChildren.length > 0) {
+                const dir = grandParentEle.props.direction;
+                const grandBlock = getBlockBySource(grandParentEle);
+                const parent_idx = parentSource.delete();
+                let spaces = [];
+                let remainSpaces = [];
+                let styleName = '';
+                if(dir === 'row') {
+                    remainChildren.forEach(c => {
+                        c.parentElement = grandParentEle;
+                    });
+                    styleName = 'grid-template-columns';
+                    remainSpaces = remainElem.style['grid-template-columns'].split(/\s+/);
+                    spaces = grandParentEle.style['grid-template-columns'].split(/\s+/);
+                } 
+                if(dir === 'column') {
+                    remainChildren.forEach(c => {
+                        c.parentElement = grandParentEle;
+                    });
+                    styleName = 'grid-template-rows'
+                    remainSpaces = remainElem.style['grid-template-rows'].split(/\s+/);
+                    spaces = grandParentEle.style['grid-template-rows'].split(/\s+/);
+                }
+                
+                const wholeSpace = parseFloat(spaces[grandIdx]);
+                spaces.splice(grandIdx, 1, ...remainSpaces.map(rs => {
+                    return `${wholeSpace * parseFloat(rs) / 100}%`
+                }))
+                grandParentEle.style[styleName] = spaces.join(' ');
+                grandParentEle.children.splice(parent_idx, 1, ...remainChildren);
+            
+                jframeInstance.addEventListener('afterResize', () => {
+                    jframeInstance.setFocusTarget(grandBlock)
+                }, {
+                    once: true,
+                })
+                return true;
+            } else if(grandParentEle){
+                const grandBlock = getBlockBySource(grandParentEle);
+                remainElem.parentElement = grandParentEle;
+          
+                Object.assign(remainElem.style, {
+                    marginLeft: parentSource.style.marginLeft,
+                    marginTop: parentSource.style.marginTop,
+                    marginRight: parentSource.style.marginRight,
+                    marginBottom: parentSource.style.marginBottom,
+                })
+                grandParentEle.children.splice(grandIdx, 1, remainElem);
+                
+                jframeInstance.addEventListener('afterResize', () => {
+                    jframeInstance.setFocusTarget(grandBlock)
+                }, {
+                    once: true,
+                })
+                return true;
+            }
         } else {
-            const prevNode = parentSource.children[idx - 1];
             const afterNode = parentSource.children[idx + 1];
-            let pw = 0, aw = 0;
-            let wholewidth = target.width
-            const parentWidth = parentBlock.width;
-            if(prevNode) {
-                const prevBlock = getBlockBySource(prevNode);
-                pw = prevBlock.width;
-                wholewidth += prevBlock.width;
-            }
-            if(afterNode) {
-                const afterBlock = getBlockBySource(afterNode);
-                aw = afterBlock.width;
-                wholewidth += afterBlock.width;
-            }
-            let stylebound;
-            if(dir === 'column') {
-                stylebound = 'height'
-            } 
+            let spaces = [];
+            let styleName = '';
             if(dir === 'row') {
-                stylebound = 'width'
+                styleName = 'grid-template-columns';
+                spaces = parentSource.style['grid-template-columns'].split(/\s+/).map(parseFloat);
+            } 
+            if(dir === 'column') {
+                styleName = 'grid-template-rows'
+                spaces = parentSource.style['grid-template-rows'].split(/\s+/).map(parseFloat);
             }
-            if(prevNode) {
-                prevNode.style[stylebound] = `${pw / (aw + pw) * wholewidth / parentWidth * 100}%`
-            }
+
             if(afterNode) {
-                afterNode.style[stylebound] = `${aw / (aw + pw) * wholewidth / parentWidth * 100}%`
+                const _sp = spaces[idx] + spaces[idx + 1];
+                spaces.splice(idx, 2, _sp);
+            } else {
+                const _sp = spaces[idx] + spaces[idx - 1];
+                spaces.splice(idx-1, 2, _sp);
             }
+            parentSource.style[styleName] = spaces.map(s => `${s}%`).join(' ');
             jframeInstance.addEventListener('afterResize', () => {
                 jframeInstance.setFocusTarget(parentBlock)
             }, {
@@ -434,6 +473,23 @@ jframeInstance.addEventListener('elementHover', (e) => {
 jframeInstance.addEventListener('elementFocus', (e) => {
     const { target } = e.detail;
 }) */
+
+jframeInstance.addEventListener('elementResplit', e => {
+    e.detail.elements.forEach(e => {
+        const {
+            gridColumns,
+            gridRows,
+            source
+        } = e;
+        if(gridRows) {
+            source.style['grid-template-rows'] = gridRows;
+        }
+        if(gridColumns) {
+            source.style['grid-template-columns'] = gridColumns;
+        }
+        _rerenderJframeInstance();
+    });
+})
 
 jframeInstance.addEventListener('elementsResized', (e) => {
     e.detail.elements.forEach(e => {
@@ -508,30 +564,38 @@ jframeInstance.addEventListener('elementSplit', (e) => {
             const parentElement = sdata.parentElement;
             const c = new Elem({
                 concept: 'ViewElement',
-                tag: 'FlexContainer',
+                tag: 'AreaContainer',
             });
             const idx = parentElement.children.findIndex(e => e === sdata);
             parentElement.children.splice(idx, 0, c);
+           
             c.parentElement = parentElement;
             if(dir === 'column') {
-                const r = block.height / parentBlock.height;
+                // const r = block.height / parentBlock.height;
+                const rows = parentElement.style['grid-template-rows'].split(/\s+/);
+                const percent = parseFloat(rows[idx]);
+                rows.splice(idx, 1, `${percent*splitRatio}%`, `${percent*(1-splitRatio)}%`)
+                parentElement.style['grid-template-rows'] = rows.join(' ');
                 c.style.marginTop = sdata.style.marginTop || 0;
-                c.style.height = `${r*splitRatio*100}%`;
-                c.style.width = sdata.style.width;
+                // c.style.height = `${r*splitRatio*100}%`;
+                // c.style.width = sdata.style.width;
                 c.style.marginLeft = sdata.style.marginLeft || 0;
                 c.style.marginRight = sdata.style.marginRight || 0;
                 sdata.style.marginTop = 0;
-                sdata.style.height = `${r*(1-splitRatio)*100}%`;
+                // sdata.style.height = `${r*(1-splitRatio)*100}%`;
             } else if(dir === 'row') {
-                const r = block.width / parentBlock.width;
+                const columns = parentElement.style['grid-template-columns'].split(/\s+/);
+                const percent = parseFloat(columns[idx]); // TODO 后续改成根据单位判断, 这里全按 百分比
+                columns.splice(idx, 1, `${percent*splitRatio}%`, `${percent*(1-splitRatio)}%`)
+                parentElement.style['grid-template-columns'] = columns.join(' ');
                 c.style.marginLeft = sdata.style.marginLeft || 0;
                 // const w = block.width / 2 / parentBlock.width * 100;
-                c.style.width = `${r*splitRatio*100}%`;
-                c.style.height = sdata.style.height;
+                // c.style.width = `${r*splitRatio*100}%`;
+                // c.style.height = sdata.style.height;
                 c.style.marginTop = sdata.style.marginTop || 0;
                 c.style.marginBottom = sdata.style.marginBottom || 0;
                 sdata.style.marginLeft = 0;
-                sdata.style.width = `${r*(1-splitRatio)*100}%`;
+                // sdata.style.width = `${r*(1-splitRatio)*100}%`;
             }
             jframeInstance.addEventListener('afterResize', () => {
                 const cblock = jframeInstance.source_block_element_map.getBlockBySource(c);
@@ -547,24 +611,31 @@ jframeInstance.addEventListener('elementSplit', (e) => {
     sdata.props.direction = dir;
     const c1 = new Elem({
         concept: 'ViewElement',
-        tag: 'FlexContainer',
+        tag: 'AreaContainer',
     });
 
     const c2 = new Elem({
         concept: 'ViewElement',
-        tag: 'FlexContainer',
+        tag: 'AreaContainer',
     })
     if(dir === 'column') {
-        c1.style.height = `${splitRatio*100}%`;
-        c2.style.height = `${100 - splitRatio*100}%`;
-        c1.style.width = '100%';
-        c2.style.width = '100%';
-    } else if(dir === 'row') {
-        c1.style.width = `${splitRatio*100}%`;
-        c2.style.width = `${100 - splitRatio*100}%`;
-        c1.style.height = '100%';
-        c2.style.height = '100%';
+        sdata.style['grid-template-rows'] = `${splitRatio*100}% ${100 - splitRatio*100}%`
     }
+    if(dir === 'row') {
+        sdata.style['grid-template-columns'] = `${splitRatio*100}% ${100 - splitRatio*100}%`
+    }
+
+    // if(dir === 'column') {
+    //     c1.style.height = `${splitRatio*100}%`;
+    //     c2.style.height = `${100 - splitRatio*100}%`;
+    //     c1.style.width = '100%';
+    //     c2.style.width = '100%';
+    // } else if(dir === 'row') {
+    //     c1.style.width = `${splitRatio*100}%`;
+    //     c2.style.width = `${100 - splitRatio*100}%`;
+    //     c1.style.height = '100%';
+    //     c2.style.height = '100%';
+    // }
 
     sdata.children = [];
     
@@ -713,8 +784,8 @@ jframeInstance.addEventListener('elementFocus', (e) => {
         const elem = jframeInstance.source_block_element_map.getElementBySource(target.source);
         const stylesheet = window.getComputedStyle(elem);
         backgroundColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.backgroundColor);
-        borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.outlineColor || stylesheet.borderColor);
-        if(target.source.tag === 'FlexContainer') {
+        borderColorInput.value = rgb2hex('rgb(255, 255, 255)', stylesheet.borderColor);
+        if(target.source.tag === 'AreaContainer') {
             contentColorInput.parentElement.style.display = 'none';
         } else {
             contentColorInput.parentElement.style.display = 'inline';
@@ -746,7 +817,6 @@ backgroundColorInput.addEventListener('change', onColorChange(backgroundColorInp
 }));
 borderColorInput.addEventListener('change', onColorChange(borderColorInput, (sheet, val) => {
     sheet.borderColor = val
-    sheet.outlineColor = val
 }))
 contentColorInput.addEventListener('change', onColorChange(contentColorInput, (sheet, val) => {
     console.log(val)
