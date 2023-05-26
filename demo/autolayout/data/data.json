@@ -1,0 +1,33 @@
+
+{
+    "id": 0,
+    "concept": "ViewElement",
+    "type": 0,
+    "tag": "AutoLayoutComponent",
+    "title": "自动布局",
+    "style": {
+        "width": "100vw",
+        "height": "100vh"
+    },
+    "props": {
+        "name": "autoLayoutContainer",
+        "constraints": [
+            "H:|-20%-[title]",
+            "V:|-5.5%-[title]",
+            "C:title.height(title.width*0.176)",
+            "C:title.width(50%)"
+        ]
+    },
+    "children": [
+        {
+            "id": 1,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "ViewContainer",
+            "title": "容器",
+            "props": {
+                "name": "title"
+            }
+        }
+    ]
+}

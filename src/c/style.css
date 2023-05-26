@@ -1,0 +1,161 @@
+:root{
+    --jframeGlobalScale: 1;
+    --indicatorColor: #BD96EC;
+    --indicatorNumColor: #8639E5;
+}
+.jframe-overlayer {
+    transform-origin: top left;
+    position: absolute;
+    top:0;
+    left: 0;
+    user-select: none;
+    border: 2px solid transparent;
+    user-select: none;
+    font-family: '微软雅黑,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Tahoma,Arial,Noto Sans,PingFang SC,Microsoft YaHei,Hiragino Sans GB,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji';
+     
+}
+
+.jframe-overlayer[disablehover=true] .jframe-block {
+    background: transparent!important;
+} 
+
+.jframe-block{
+    position:absolute;
+    outline: 1px dashed rgba(170,170,170,0.7);
+    outline-offset: -2px;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+.jframe-block:hover {
+    /* border: 2px solid #4e75ec; */
+    background-color: rgba(235, 240, 255, 0.6);
+}
+.jframe-block[hover] {
+    /* border: 2px solid #4e75ec; */
+    background-color: rgba(235, 240, 255, 0.6);
+}
+.jframe-block[focus] {
+    /* border: 2px solid #4e75ec; */
+    outline: 4px solid #4e75ec;
+    outline-offset: -4px;
+}
+.jframe-block[accept] {
+    border: 2px solid #F2BF46;
+}
+.jframe-block[dragging] {
+    background-color: rgba(0,0,0,0.4);
+}
+.jframe-block-resizer{
+    width: 7px;
+    height: 7px;
+    background-color: #FFFFFF;
+    border: 1px solid #4E75EC;
+    box-sizing: border-box;
+    position: absolute;
+    cursor: nwse-resize;
+}
+.jframe-control-point {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+}
+
+.jframe-frametool{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform: translate(0, -100%);
+    z-index: 100000;
+}
+
+.jframe-toolbox {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: scale(calc(1 / var(--jframeGlobalScale))) translate(0, -100%);
+    z-index: 100000;
+    transform-origin: 0 0;
+}
+.jframe-toolbox > * + * {
+    margin-left: 6px;
+}
+
+.jframe-blocktool {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform: translate(0, -100%);
+    z-index: 100000;
+}
+
+.jframe-toolbtn {
+    display: inline-block;
+    background-color: #4E75EC;
+    padding: 6px;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    margin-bottom: 6px;
+}
+
+.jframe-deleteBtn {
+    vertical-align: bottom;
+    height: 14px;
+    width: 14px;
+    cursor: pointer;
+    background: url(./delete.png) center/50% no-repeat #4E75EC;
+}
+
+.jframe-toolbtn-group-item  {
+    display: inline-block;
+    height: 9px;
+    width: 9px;
+    cursor: pointer; 
+    background-position: center;
+    background-size: 150%;
+    background-repeat: no-repeat;
+}
+.jframe-toolbtn-group-item + .jframe-toolbtn-group-item  {
+    margin-left: 3px;
+}
+.jframe-toolbtn-group-item[light=true] {
+    opacity: 1;
+}
+.jframe-toolbtn-group-item[light=false] {
+    opacity: 0.6;
+}
+.jframe-title-wrapper{
+    position: relative;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+.jframe-title-wrapper .jframe-title + .jframe-title{
+    margin-top: 3px;
+}
+.jframe-title {
+    background-color: #4E75EC;
+    padding: 6px;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    display: none;
+}
+.jframe-title[first-title]{
+    display: block;
+}
+.jframe-title-wrapper:hover .jframe-title{
+    display: block;
+}
