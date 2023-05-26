@@ -22,6 +22,9 @@
                 display: flex;
                 justify-content: center;
             }
+            .stack {
+                width: 120px;
+            }
             .part {
                 width: 80px;
                 height: 50px;
@@ -76,14 +79,31 @@
             .crumb {
                 cursor: pointer;
             }
+
+            #vfl{
+                width: 800px;
+                height: 300px;
+                white-space: pre-wrap;
+            }
+            .stackitem {
+                cursor: pointer;
+            }
+            .stackitem > span:hover{
+                background-color: #DFDFDF;
+            }
+ 
+            .stackitem > .stackitem{
+                margin-left: 1.5em;
+            }
         </style>
     <script defer src="index.bundle.js"></script></head>
     <body>
         <div>
-            <button id="revokebtn">撤销</button>
+            <button id="toggleOverLayer">toggleOverLayer</button>
+            <!-- <button id="revokebtn">撤销</button>
             <button id="redobtn">重做</button>
             <button id="previewbtn">预览</button>
-            <button id="astbtn">查看数据结构</button>
+            <button id="astbtn">查看数据结构</button> -->
         </div>
         <div class="body">
             <div class="sidebar">
@@ -101,19 +121,25 @@
                     <div draggable="true" class="part" id="LiElement" >
                         LiElement
                     </div>
-                </div>
-                <div>
-                    <div draggable="true" class="part" id="TextElement">
-                        TextElement
-                    </div>
                 </div> -->
                 <div>
-                    <div draggable="true" class="part" id="ButtonElement">
-                        text
+                    <div draggable="true" class="part" id="AutoLayout">
+                        AutoLayout
+                    </div>
+                </div> 
+                <div>
+                    <div draggable="true" class="part" id="ViewElement">
+                        View
                     </div>
                 </div>
             </div>
             <div class="wrapper" id="app"></div>
+            <div class="stack">
+                <p>栈</p>
+                <div id="stackContainer">
+
+                </div>
+            </div>
         </div>
 
         <div class="footer">
@@ -121,7 +147,7 @@
                 未选中目标
             </div>
             <div>
-                <div>
+                <!-- <div>
                     <input type="color" id="backgroundColor" name="head">
                     <label for="backgroundColor">背景色</label>
                 </div>
@@ -135,10 +161,12 @@
                 </div>
                 <div>
                     <button id="applytoAll">应用于所有同类型组件</button>
-                </div>
+                </div> -->
                 <!-- <div>
                     <button id="resetMargin">重置边距</button>
                 </div> -->
+                <button id="applyvfl">应用规则</button>
+                <pre id="vfl" contenteditable></pre>
             </div>
         </div>
         <dialog id="astDialog">
