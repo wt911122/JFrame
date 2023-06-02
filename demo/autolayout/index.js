@@ -1,5 +1,5 @@
 // import data from './data/data-flex.json';
-import data from './data/data.json';
+import data from './data/data2.json';
 import JFrame, { 
     BlockTitle,
     BlockDelete

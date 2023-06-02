@@ -93,13 +93,66 @@
             }
  
             .stackitem > .stackitem{
-                margin-left: 1.5em;
+                margin-left: 1em;
+            }
+
+            .controlpanel {
+                position: relative;
+                width: 201px;
+                height: 161px;
+                /* padding-top: 250px; */
+            }
+            .controlpanel > .box{
+                position: absolute;
+                cursor: pointer;
+                border: 1px solid #4E75EC;
+            }
+            .controlpanel > .top{
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+            }
+            .controlpanel > .bottom{
+                left: 50%;
+                top: 100%;
+                transform: translate(-50%, -100%);
+            }
+            .controlpanel > .right{
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .controlpanel > .left{
+                left: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .controlpanel > .center{
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .controlpanel .active {
+                border: 2px solid black;
+            }
+            .footer > div {
+                display: flex;
+            }
+            .footer > div div.nestedControlPanel{
+                display: flex;
+                flex-direction: row;
+            }
+            .nestedControlPanel.active {
+                border: 2px solid black;
             }
         </style>
     </head>
     <body>
         <div>
             <button id="toggleOverLayer">toggleOverLayer</button>
+            模拟器大小
+            <input id="simulatorW"/> 乘 <input id="simulatorH"/>
+            <button id="setSimulator">设置模拟器大小</button>
             <!-- <button id="revokebtn">撤销</button>
             <button id="redobtn">重做</button>
             <button id="previewbtn">预览</button>
@@ -165,8 +218,74 @@
                 <!-- <div>
                     <button id="resetMargin">重置边距</button>
                 </div> -->
-                <button id="applyvfl">应用规则</button>
-                <pre id="vfl" contenteditable></pre>
+                <!-- <button id="applyvfl">应用规则</button> -->
+                <!-- <pre id="vfl" contenteditable></pre> -->
+                <div class="controlpanel">
+                    <div class="box top">
+                        ?
+                    </div>
+                    <div class="box right">
+                        ?
+                    </div>
+                    <div class="box bottom">
+                        ?
+                    </div>
+                    <div class="box left">
+                        ?
+                    </div>
+                    <div class="box center">
+                        width: <span class="width">?</span><br />
+                        height: <span class="height">?</span><br />
+                        x: <span class="centerx">?</span><br />
+                        y: <span class="centery">?</span><br />
+                    </div>
+                </div>
+                <div>
+                    <div class="nestedControlPanel">
+                        <div>
+                            对象：
+                            <select id="control-target">
+                            </select>
+                        </div>
+                        <div>
+                            属性：
+                            <select id="control-attribute">
+                                <option value="const">绝对值</option>
+                                <option value="left">左边距</option>
+                                <option value="leftedge">左边缘</option>
+                                <option value="right">右边距</option>
+                                <option value="rightedge">右边缘</option>
+                                <option value="top">上边距</option>
+                                <option value="topedge">上边缘</option>
+                                <option value="bottom">下边距</option>
+                                <option value="bottomedge">下边缘</option>
+                                <option value="width">宽度</option>
+                                <option value="height">高度</option>
+                                <option value="centerX">中心X</option>
+                                <option value="centerY">中心Y</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="control-operator">
+                                <option value="">绝对值</option>
+                                <option value="plus">加</option>
+                                <option value="minus">减</option>
+                                <option value="multiply">乘</option>
+                                <option value="divide">除</option>
+                            </select>
+                        </div>
+                        <div>
+                        <input id="control-value" />
+                        </div>
+                        <div>
+                            <button id="control-confirm">设置！</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div>
+                        背景图片地址：<input id="imageAddr" /> <button id="background-confirm">设置背景！</button>
+                    </div>
+                </div>
             </div>
         </div>
         <dialog id="astDialog">

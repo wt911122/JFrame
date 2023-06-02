@@ -1,4 +1,4 @@
-import AutoLayoutComponent from './auto-layout-component.vue'
+import AutoLayoutComponent from './auto-layout-component2.vue'
 import ViewContainer from './viewContainer.vue'
 export default {
   components: {

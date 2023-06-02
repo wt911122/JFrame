@@ -1,5 +1,5 @@
 <template>
-    <div :component-name="name">
+    <div :component-name="name" class="componentBackground">
         <slot></slot>
     </div>
 </template>
@@ -10,3 +10,4 @@ export default {
     }
 }
 </script>
+
