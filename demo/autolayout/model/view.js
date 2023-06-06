@@ -5,6 +5,7 @@ import {
 } from './constance';
 
 const defaultPriorityStrength = kiwi.Strength.create(0, 1000, 1000);
+const generatePriortyStrength =  kiwi.Strength.create(0, 500, 1000);
 let transformAttr = 'transform' in document.documentElement.style ? 'transform' : undefined;
 transformAttr =
 	transformAttr || ('-webkit-transform' in document.documentElement.style ? '-webkit-transform' : 'undefined');
@@ -18,6 +19,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.LEFT],
             kiwi.Operator.Eq,
             parentWidth.minus(attr[BOUNDING_RECT.RIGHT]).minus(attr[BOUNDING_RECT.WIDTH]),
+            generatePriortyStrength,
         );
     },
     [BOUNDING_RECT.RIGHT](attr, parentWidth) {
@@ -25,6 +27,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.RIGHT],
             kiwi.Operator.Eq,
             parentWidth.minus(attr[BOUNDING_RECT.LEFT]).minus(attr[BOUNDING_RECT.WIDTH]),
+            generatePriortyStrength,
         );
     },
     [BOUNDING_RECT.TOP](attr, parentHeight) {
@@ -32,6 +35,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.TOP],
             kiwi.Operator.Eq,
             parentHeight.minus(attr[BOUNDING_RECT.BOTTOM]).minus(attr[BOUNDING_RECT.HEIGHT]),
+            generatePriortyStrength,
         );
     },
     [BOUNDING_RECT.BOTTOM](attr, parentHeight) {
@@ -39,6 +43,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.BOTTOM],
             kiwi.Operator.Eq,
             parentHeight.minus(attr[BOUNDING_RECT.TOP]).minus(attr[BOUNDING_RECT.HEIGHT]),
+            generatePriortyStrength,
         );
     },
     [BOUNDING_RECT.CENTERX](attr) {
@@ -46,6 +51,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.CENTERX],
             kiwi.Operator.Eq,
             attr[BOUNDING_RECT.LEFT].plus(attr[BOUNDING_RECT.WIDTH].divide(2)),
+            generatePriortyStrength
         );
     },
     [BOUNDING_RECT.CENTERY](attr) {
@@ -53,6 +59,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.CENTERY],
             kiwi.Operator.Eq,
             attr[BOUNDING_RECT.TOP].plus(attr[BOUNDING_RECT.HEIGHT].divide(2)),
+            generatePriortyStrength
         );
     },
     [BOUNDING_RECT.WIDTH](attr, parentWidth) {
@@ -60,6 +67,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.WIDTH],
             kiwi.Operator.Eq,
             parentWidth.minus(attr[BOUNDING_RECT.LEFT]).minus(attr[BOUNDING_RECT.RIGHT]),
+            generatePriortyStrength
         );
     },
     [BOUNDING_RECT.HEIGHT](attr, parentHeight) {
@@ -67,6 +75,7 @@ const DEFAULT_RECT_CONSTRAINTS = {
             attr[BOUNDING_RECT.HEIGHT],
             kiwi.Operator.Eq,
             parentHeight.minus(attr[BOUNDING_RECT.TOP]).minus(attr[BOUNDING_RECT.BOTTOM]),
+            generatePriortyStrength
         );
     },
 }
@@ -198,6 +207,7 @@ const RECT_RELATION_MODE = {
     V_GET_ONE: 'verticalTripleGetOne',
 }
 
+
 export class View {
     [BOUNDING_RECT.LEFT] = new kiwi.Variable(BOUNDING_RECT.LEFT);
     [BOUNDING_RECT.RIGHT] = new kiwi.Variable(BOUNDING_RECT.RIGHT);
@@ -224,8 +234,12 @@ export class View {
     horizontalMode = RECT_RELATION_MODE.H_GET_TWO;
     verticalMode = RECT_RELATION_MODE.V_GET_TWO;
 
+    
+
     widthConstraintInModeOne = null;
+    widthConstraintInModeOneInLeftRight = null;
     heightConstraintInModeOne = null;
+    heightConstraintInModeOneInTopBottom = null;
 
     documentElement = null;
 
@@ -305,7 +319,37 @@ export class View {
         this.horizonTripleGetTwo.set(BOUNDING_RECT.LEFT, new kiwi.Constraint(this[BOUNDING_RECT.LEFT], kiwi.Operator.Eq, 0, defaultPriorityStrength));
         this.verticalTripleGetTwo.set(BOUNDING_RECT.HEIGHT, new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwi.Operator.Eq, 160, defaultPriorityStrength));
         this.verticalTripleGetTwo.set(BOUNDING_RECT.TOP, new kiwi.Constraint(this[BOUNDING_RECT.TOP], kiwi.Operator.Eq, 0, defaultPriorityStrength));
-                
+          
+        this.widthConstraintInModeOneInLeftRight = {
+            [BOUNDING_RECT.LEFT]: new kiwi.Constraint(
+                this[BOUNDING_RECT.LEFT],
+                kiwi.Operator.Eq,
+                this[BOUNDING_RECT.CENTERX].minus(this[BOUNDING_RECT.WIDTH].divide(2)),
+                generatePriortyStrength
+            ),
+            [BOUNDING_RECT.RIGHT]: new kiwi.Constraint(
+                this[BOUNDING_RECT.RIGHT],
+                kiwi.Operator.Eq,
+                parentlayout[BOUNDING_RECT.WIDTH].minus(this[BOUNDING_RECT.WIDTH].divide(2)).minus(this[BOUNDING_RECT.LEFT]),
+                generatePriortyStrength
+            ),
+        }
+
+        this.heightConstraintInModeOneInTopBottom = {
+            [BOUNDING_RECT.TOP]: new kiwi.Constraint(
+                this[BOUNDING_RECT.TOP],
+                kiwi.Operator.Eq,
+                this[BOUNDING_RECT.CENTERY].minus(this[BOUNDING_RECT.HEIGHT].divide(2)),
+                generatePriortyStrength
+            ),
+            [BOUNDING_RECT.BOTTOM]: new kiwi.Constraint(
+                this[BOUNDING_RECT.BOTTOM],
+                kiwi.Operator.Eq,
+                parentlayout[BOUNDING_RECT.HEIGHT].minus(this[BOUNDING_RECT.HEIGHT].divide(2)).minus(this[BOUNDING_RECT.TOP]),
+                generatePriortyStrength
+            ),
+        }
+
         this._defCopy[BOUNDING_RECT.LEFT] = {
             target: "",
             attr: "const",
@@ -343,7 +387,7 @@ export class View {
                 this.horizontalMode = RECT_RELATION_MODE.H_GET_ONE;
                 const relation = this.horizonTripleGetTwo.find(BOUNDING_RECT.WIDTH);
                 if(relation.isDefault) {
-                    this.widthConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwiRelation, this[BOUNDING_RECT.WIDTH].value());
+                    this.widthConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwiRelation, this[BOUNDING_RECT.WIDTH].value(), defaultPriorityStrength);
                 } else {
                     this.widthConstraintInModeOne  = relation.value;
                 }
@@ -354,9 +398,9 @@ export class View {
         if(key === BOUNDING_RECT.CENTERY) {
             if(this.verticalMode !== RECT_RELATION_MODE.V_GET_ONE) {
                 this.verticalMode = RECT_RELATION_MODE.V_GET_ONE;
-                const relation = this.horizonTripleGetTwo.find(BOUNDING_RECT.HEIGHT);
+                const relation = this.verticalTripleGetTwo.find(BOUNDING_RECT.HEIGHT);
                 if(relation.isDefault) {
-                    this.heightConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwiRelation, this[BOUNDING_RECT.HEIGHT].value());
+                    this.heightConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwiRelation, this[BOUNDING_RECT.HEIGHT].value(), defaultPriorityStrength);
                 } else {
                     this.heightConstraintInModeOne  = relation.value;
                 }
@@ -412,8 +456,8 @@ export class View {
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_ONE) {
             c = c.concat(this.horizonTripleGetOne.getConstraints());
             c.push(this.widthConstraintInModeOne);
-            c.push(this.horizonTripleGetTwo.getConstraint(BOUNDING_RECT.LEFT))
-            c.push(this.horizonTripleGetTwo.getConstraint(BOUNDING_RECT.RIGHT))
+            c.push(this.widthConstraintInModeOneInLeftRight[BOUNDING_RECT.LEFT])
+            c.push(this.widthConstraintInModeOneInLeftRight[BOUNDING_RECT.RIGHT])
         }
 
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
@@ -423,8 +467,8 @@ export class View {
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_ONE) {
             c = c.concat(this.verticalTripleGetOne.getConstraints());
             c.push(this.heightConstraintInModeOne);
-            c.push(this.verticalTripleGetTwo.getConstraint(BOUNDING_RECT.TOP))
-            c.push(this.verticalTripleGetTwo.getConstraint(BOUNDING_RECT.BOTTOM))
+            c.push(this.heightConstraintInModeOneInTopBottom[BOUNDING_RECT.TOP])
+            c.push(this.heightConstraintInModeOneInTopBottom[BOUNDING_RECT.BOTTOM])
         }
         this._solver_constraints = c;
         return c;

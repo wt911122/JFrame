@@ -335,7 +335,7 @@ ViewElementTool.addEventListener('dragstart', function() {
         tag: 'ViewContainer',
         title: '文本',
         props: {
-            name: `viewcontainer${viewid++}`,
+            name: `viewcontainer-${viewid++}`,
         }
     }))
     console.log(currentInstance)

@@ -158,12 +158,12 @@ class ConstraintLayout {
         
         solver.updateVariables();
         // console.log(solver)
-        // this._views.forEach((view) => {
-        //     const c = view.getConstraints();
-        //     c.forEach(_c => {
-        //         console.log(_c.toString())
-        //     })
-        // });
+        this._views.forEach((view) => {
+            const c = view.getConstraints();
+            c.forEach(_c => {
+                console.log(_c.toString())
+            })
+        });
         this._views.forEach((view) => {
             view.onResize();
         });
