@@ -9,6 +9,7 @@ export const BOUNDING_RECT = {
     CENTERY: 'centerY',
 }
 
+export const INTRISIC = 'intrisic';
 
 export const ATTRIBUTES = {
     ...BOUNDING_RECT,

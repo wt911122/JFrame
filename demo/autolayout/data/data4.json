@@ -73,6 +73,25 @@
                     "value": 0.176,
                     "relation": "Eq"
                 }]
+            }, 
+            {
+                "component": "intrisic1",
+                "left": [{
+                    "target": "title",
+                    "attr": "left",
+                    "operator": "multiply",
+                    "value": 1,
+                    "relation": "Eq"
+                }],
+                "top": [{
+                    "target": "subtitle",
+                    "attr": "bottomedge",
+                    "operator": "plus",
+                    "value": 20,
+                    "relation": "Eq"
+                }],
+                "width": "intrisic",
+                "height": "intrisic"
             }
         ]
     },
@@ -96,6 +115,18 @@
             "props": {
                 "name": "subtitle"
             }
+        },
+        {
+            "id": 3,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "intrisicView",
+            "title": "容器2",
+            "props": {
+                "name": "intrisic1",
+                "intrisicWidth": true,
+                "intrisicHeight": true
+            }  
         }
     ]
 }

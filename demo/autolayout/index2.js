@@ -253,34 +253,34 @@ jframeInstance.addEventListener('drop', e => {
         const constraints = [
             {
                 component: name,
-                left: {
+                left: [{
                     target: "",
                     attr: "const",
                     operator: "",
                     value: p[0],
                     relation: "Eq"
-                },
-                top: {
+                }],
+                top: [{
                     target: "",
                     attr: "const",
                     operator: "",
                     value: p[1],
                     relation: "Eq"
-                },
-                width: {
+                }],
+                width: [{
                     target: "",
                     attr: "const",
                     operator: "",
                     value: 200,
                     relation: "Eq"
-                },
-                height: {
+                }],
+                height: [{
                     target: "",
                     attr: "const",
                     operator: "",
                     value: 80,
                     relation: "Eq"
-                },
+                }],
             }
         ]
         source.props.constraints = source.props.constraints.concat(constraints);
@@ -327,6 +327,7 @@ document.getElementById('toggleOverLayer').addEventListener('click', () => {
 const AutoLayoutTool = document.getElementById('AutoLayout');
 
 const ViewElementTool = document.getElementById('ViewElement');
+const IntrisicViewTool = document.getElementById('IntrisicView');
 let currentInstance;
 let viewid = 0;
 ViewElementTool.addEventListener('dragstart', function() {
@@ -357,6 +358,22 @@ AutoLayoutTool.addEventListener('dragstart', function() {
     console.log(currentInstance)
 })
 AutoLayoutTool.addEventListener('dragend', function() {
+    currentInstance = null;
+})
+
+IntrisicViewTool.addEventListener('dragstart', function() {
+    currentInstance = (new Elem({
+        concept: 'ViewElement',
+        tag: 'IntrisicView',
+        title: '内宽高',
+        props: {
+            name: `IntrisicView-${viewid++}`,
+            constraints: [],
+        }
+    }))
+    console.log(currentInstance)
+})
+IntrisicViewTool.addEventListener('dragend', function() {
     currentInstance = null;
 })
 
@@ -429,6 +446,11 @@ const cheight = controlPanel.querySelector('.center > .height');
 const centerx = controlPanel.querySelector('.center > .centerx');
 const centery = controlPanel.querySelector('.center > .centery');
 
+const dimensionMapping = {
+    top: ctop, left: cleft, right: cright, bottom: cbottom,
+    width: cwidth, height: cheight, centerX: centerx, centerY: centery,
+}
+
 const imageBtn = document.getElementById('background-confirm');
 const imageAddr = document.getElementById('imageAddr');
 imageBtn.addEventListener('click', () => {
@@ -462,18 +484,93 @@ function focusConstaintView(target) {
         setElem(cheight, bounding.height.value, bounding.height.isDefault);
         setElem(centerx, bounding.centerX.value, bounding.centerX.isDefault);
         setElem(centery, bounding.centerY.value, bounding.centerY.isDefault);
+        if(currDimension) {
+            dimensionMapping[currDimension].click();
+        }
     }
 }
 const nestedControlPanel = document.querySelector('.nestedControlPanel');
-const controlTarget = document.querySelector('#control-target');
-const controlAttribute = document.querySelector('#control-attribute');
-const controlOperator = document.querySelector('#control-operator');
-const controlValue = document.querySelector('#control-value');
-const controlConfirm = document.querySelector('#control-confirm');
 
+function createWrapper(target, content) {
+    const div = document.createElement('div');
+    div.append(content, target);
+    return div;
+}
+function genDefControls(isLast) {
+    const operatorElem = document.createElement('select');
+    operatorElem.innerHTML = `
+        <option value="Eq">等于</option>
+        <option value="Ge">大于等于</option>
+        <option value="Le">小于等于</option>
+    `
+    const controlTarget = document.createElement('select');
+    
+    const controlAttribute = document.createElement('select');
+    controlAttribute.innerHTML = ` <option value="const">绝对值</option>
+        <option value="left">左边距</option>
+        <option value="leftedge">左边缘</option>
+        <option value="right">右边距</option>
+        <option value="rightedge">右边缘</option>
+        <option value="top">上边距</option>
+        <option value="topedge">上边缘</option>
+        <option value="bottom">下边距</option>
+        <option value="bottomedge">下边缘</option>
+        <option value="width">宽度</option>
+        <option value="height">高度</option>
+        <option value="centerX">中心X</option>
+        <option value="centerY">中心Y</option>`
+    const controlOperator = document.createElement('select');
+    controlOperator.innerHTML = `
+        <option value="">绝对值</option>
+        <option value="plus">加</option>
+        <option value="minus">减</option>
+        <option value="multiply">乘</option>
+        <option value="divide">除</option>
+    `
+    const controlValue = document.createElement('input');
+   
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('nestedControlPanel');
+
+    wrapper.append(
+        createWrapper(operatorElem, '关系'),
+        createWrapper(controlTarget, '对象'),
+        createWrapper(controlAttribute, '属性'),
+        createWrapper(controlOperator, ''),
+        createWrapper(controlValue, ''));
+    
+    let deleteButton;
+    if(!isLast) {
+        deleteButton = document.createElement('button');
+        deleteButton.innerText = '删除'
+        wrapper.append(
+            createWrapper(deleteButton, '')
+        )
+    }
+    return {
+        wrapper,
+        operatorElem,
+        controlTarget,
+        controlAttribute,
+        controlOperator,
+        controlValue,
+        deleteButton,
+    };
+
+}
+// const controlTarget = document.querySelector('#control-target');
+// const controlAttribute = document.querySelector('#control-attribute');
+// const controlOperator = document.querySelector('#control-operator');
+// const controlValue = document.querySelector('#control-value');
+const controlConfirm = document.querySelector('#control-confirm');
+const nestedControlPanelwrapper = document.getElementById('nestedControlPanelwrapper');
+const dimensionLabel = document.getElementById('dimensionLabel');
 let currDimension
+let ruleElemList = [];
 function bindListeners(target, dimension) {
     target.addEventListener('click', () => {
+        ruleElemList = [];
+        nestedControlPanelwrapper.innerHTML = "";
         if(focusedTarget) {
             const source = focusedTarget.source;
             const element = jframeInstance.source_block_element_map.getElementBySource(source.parentElement);
@@ -485,20 +582,65 @@ function bindListeners(target, dimension) {
                 const bounding = cInstance.getViewConstraintBounding(source.props.name);
                 const d = bounding[dimension];
                 currDimension = dimension;
+                dimensionLabel.innerText = currDimension;
+                console.log(currDimension)
                 nestedControlPanel.classList.toggle('active', !d.isDefault)
-                controlTarget.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
+                const targetsTemplate = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
                 if(!d.isDefault) {
                     const def = d.def;
-                    controlTarget.value = def.target;
-                    controlAttribute.value = def.attr;
-                    controlOperator.value = def.operator;
-                    controlValue.value = def.value
-                } else {
-                    controlTarget.value = ''
-                    controlAttribute.value = 'const'
-                    controlOperator.value = ''
-                    controlValue.value = ''
-                }
+                    const isLast = def.length === 1;
+                    
+                    def.forEach((_def, idx) => {
+                        const {
+                            wrapper,
+                            operatorElem,
+                            controlTarget,
+                            controlAttribute,
+                            controlOperator,
+                            controlValue,
+                            deleteButton
+                        } = genDefControls(isLast);
+                        controlTarget.innerHTML = targetsTemplate;
+                        nestedControlPanelwrapper.append(wrapper);
+                        operatorElem.value = _def.relation;
+                        controlTarget.value = _def.target;
+                        controlAttribute.value = _def.attr;
+                        controlOperator.value = _def.operator;
+                        controlValue.value = _def.value;
+                        const t = () => {
+                            return {
+                                relation: operatorElem.value,
+                                target: controlTarget.value,
+                                attr: controlAttribute.value,
+                                operator: controlOperator.value,
+                                value: controlValue.value,
+                            }
+                        };
+                        ruleElemList.push(t)
+                        if(deleteButton){
+                            deleteButton.addEventListener('click', () => {
+                                const idx = ruleElemList.findIndex(q => q === t);
+                                if(idx !== -1) {
+                                    ruleElemList.splice(idx, 1);
+                                    wrapper.remove()
+                                }
+                            })
+                        }
+                        
+                    })
+                    
+                    
+                    // controlTarget.value = def.target;
+                    // controlAttribute.value = def.attr;
+                    // controlOperator.value = def.operator;
+                    // controlValue.value = def.value
+                } 
+                // else {
+                //     controlTarget.value = ''
+                //     controlAttribute.value = 'const'
+                //     controlOperator.value = ''
+                //     controlValue.value = ''
+                // }
                 console.log(d)
             }
         }
@@ -516,29 +658,31 @@ bindListeners(centery, 'centerY');
 
 controlConfirm.addEventListener('click', () => {
     if(focusedTarget) {
-        const target = controlTarget.value;
-        const attr = controlAttribute.value;
-        const operator = controlOperator.value;
-        const value = controlValue.value;
-        if(value && currDimension) {
-            if(attr === 'const') {
-                set(focusedTarget, currDimension, {
-                    target: "",
-                    attr: "const",
-                    operator: "",
-                    value: parseFloat(value),
-                    relation: "Eq"
-                })
-            } else if(target && operator){
-                set(focusedTarget, currDimension, {
-                    target,
-                    attr,
-                    operator,
-                    value: parseFloat(value),
-                    relation: "Eq"
-                })
-            }
-        }
+        // const target = controlTarget.value;
+        // const attr = controlAttribute.value;
+        // const operator = controlOperator.value;
+        // const value = controlValue.value;
+        const constraints = ruleElemList.map(getValue => getValue())
+            .map(v => {
+                if(v.attr === 'const' && v.value) {
+                    return {
+                        target: "",
+                        attr: "const",
+                        operator: "",
+                        value: parseFloat(v.value),
+                        relation: v.relation
+                    }
+                } else if(v.target && v.operator && v.value) {
+                    return {
+                        target: v.target,
+                        attr: v.attr,
+                        operator: v.operator,
+                        value: parseFloat(v.value),
+                        relation: v.relation
+                    }
+                }
+            }).filter(i => !!i);
+        set(focusedTarget, currDimension, constraints)
     }
 
 })
@@ -557,6 +701,52 @@ function set(elem, d, def) {
         focusConstaintView(elem);
     }
 }
+
+const addRuleBtn = document.getElementById('add-rule');
+addRuleBtn.addEventListener('click', () => {
+    if(focusedTarget && currDimension) {
+        const source = focusedTarget.source;
+        // const defs = source.props.constraints[currDimension];
+        const names = source.parentElement.props.constraints.map(c => c.component);
+        const targetsTemplate = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
+        const {
+            wrapper,
+            operatorElem,
+            controlTarget,
+            controlAttribute,
+            controlOperator,
+            controlValue,
+            deleteButton
+        } = genDefControls(ruleElemList.length === 0);
+        controlTarget.innerHTML = targetsTemplate;
+        nestedControlPanelwrapper.append(wrapper);
+        operatorElem.value = 'Eq';
+        controlTarget.value = '';
+        controlAttribute.value = 'const';
+        controlOperator.value = '';
+        controlValue.value = '';
+        const t = () => {
+            return {
+                relation: operatorElem.value,
+                target: controlTarget.value,
+                attr: controlAttribute.value,
+                operator: controlOperator.value,
+                value: controlValue.value,
+            }
+        };
+        ruleElemList.push(t)
+        if(deleteButton){
+            deleteButton.addEventListener('click', () => {
+                const idx = ruleElemList.findIndex(q => q === t);
+                if(idx !== -1) {
+                    ruleElemList.splice(idx, 1);
+                    wrapper.remove()
+                }
+            })
+        }
+
+    }
+})
 
 
 

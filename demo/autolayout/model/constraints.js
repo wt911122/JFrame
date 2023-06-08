@@ -105,8 +105,14 @@ class ConstraintLayout {
                 Object.values(BOUNDING_RECT).forEach(d => {
                     const def = c[d];
                     if(def) {
-                        const expr = ConstraintLayout.resolveExpr(def, finder);
-                        view.set(d, def.relation, expr, def);
+                        const constraints = [];
+                        def.forEach(df => {
+                            constraints.push({
+                                relation: df.relation,
+                                expr: ConstraintLayout.resolveExpr(df, finder)
+                            });
+                        })
+                        view.set(d, constraints, def);
                     }
                 });
             }
@@ -149,8 +155,14 @@ class ConstraintLayout {
             solver.removeConstraint(c);
         })
         const finder = this._genGetTarget(this._views);
-        const expr = ConstraintLayout.resolveExpr(def, finder);
-        view.set(d, def.relation, expr, def);
+        const constraints = [];
+        def.forEach(df => {
+            constraints.push({
+                relation: df.relation,
+                expr: ConstraintLayout.resolveExpr(df, finder)
+            });
+        })
+        view.set(d, constraints, def);
         const c = view.getConstraints();
         c.forEach(_c => {
             solver.addConstraint(_c)

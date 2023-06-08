@@ -1,9 +1,11 @@
 import AutoLayoutComponent from './auto-layout-component2.vue'
 import ViewContainer from './viewContainer.vue'
+import IntrisicView from './intrisicView.vue';
 export default {
   components: {
     AutoLayoutComponent,
-    ViewContainer
+    ViewContainer,
+    IntrisicView
   },
   data() {
     return {

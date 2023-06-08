@@ -95,7 +95,7 @@ class RelationShip {
         this.meta[obj.key] = obj;
         this.relation.push({
             key: obj.key,
-            value: obj.default,
+            value: [obj.default],
             isDefault: true,
         })
     }
@@ -107,14 +107,14 @@ class RelationShip {
     setDefault() {
         this.relation.forEach(r => {
             const key = r.key;
-            r.value = this.meta[key].default;
+            r.value = [this.meta[key].default];
             r.isDefault = true;
         });
         this.isDefault = true;
     }
 
     getConstraints() {
-        return this.relation.map(r => r.value)
+        return this.relation.map(r => r.value).flat()
     }
     getConstraint(name) {
         return this.relation.find(r => r.key === name).value
@@ -127,76 +127,55 @@ class RelationShip {
 
 }
 
-class TriangleRelationshipGetTwo extends RelationShip {
-    
-    constructor(aconf, bconf, cconf) {
+class fixedTriangleRelationShip extends RelationShip {
+    constructor(allowKeys, aconf, bconf, cconf, dconf) {
         super();
         this._resolve(aconf);
         this._resolve(bconf);
         this._resolve(cconf);
+        this._resolve(dconf);
+        this.allowKeys = allowKeys;
     }
+
     set(key, val) {
-        this.isDefault = false;
-        const relation = this.relation;
-        const index = relation.findIndex(r => r.key === key);
-        if(index !== -1) {
-            relation[index].value = val;
-            relation[index].isDefault = false;
-            const [target] = relation.splice(index, 1);
-            relation.push(target);
-            const r0 = relation[0];
-            r0.value = this.meta[r0.key].default;
-            r0.isDefault = true;
-        } 
+        if(this.allowKeys.includes(key)) {
+            this.isDefault = false;
+            const relation = this.relation;
+            const index = relation.findIndex(r => r.key === key);
+            if(index !== -1) {
+                relation[index].value = val;
+                relation[index].isDefault = false;
+                const [target] = relation.splice(index, 1);
+                relation.push(target);
+                const r = relation.filter(r => this.allowKeys.includes(r.key))
+                const r0 = r[0];
+                r0.value = this.meta[r0.key].default;
+                r0.isDefault = true;
+            } 
+        }
     }
+
 }
 
-// class DoubleRelationship {
-//     relation = [];
-//     meta = {};
-//     isDefault = true;
-
-//     constructor(aconf, bconf) {
-//         this._resolve(aconf);
-//         this._resolve(bconf);
-//     }
-
-//     set(key, val) {
-//         this.isDefault = false;
-//         const relation = this.relation;
-//         const index = relation.findIndex(r => r.key === key);
-//         if(index !== -1) {
-//             relation[index].value = val;
-//             relation[index].isDefault = false;
-//         } 
-//     }
-// }
-
-class TriangleRelationshipGetOne extends RelationShip{
-    constructor(aconf, bconf, cconf) {
+class fixedRelationShip extends RelationShip {
+    constructor(allowKeys, aconf, bconf, cconf, dconf) {
         super();
         this._resolve(aconf);
         this._resolve(bconf);
         this._resolve(cconf);
+        this._resolve(dconf);
+        this.allowKeys = allowKeys;
     }
     set(key, val) {
         this.isDefault = false;
-        const relation = this.relation;
-        const index = relation.findIndex(r => r.key === key);
-        if(index !== -1) {
-            relation[index].value = val;
-            relation[index].isDefault = false;
-            const [target] = relation.splice(index, 1);
-            relation.push(target);
-            
-            const r0 = relation[0];
-            r0.value = this.meta[r0.key].default;
-            r0.isDefault = true;
-            const r1 = relation[1];
-            r1.value = this.meta[r1.key].default;
-            r1.isDefault = true;
-            
-        } 
+        if(this.allowKeys.includes(key)) {
+            const relation = this.relation;
+            const index = relation.findIndex(r => r.key === key);
+            if(index !== -1) {
+                relation[index].value = val;
+                relation[index].isDefault = false;
+            } 
+        }
     }
 }
 
@@ -234,12 +213,10 @@ export class View {
     horizontalMode = RECT_RELATION_MODE.H_GET_TWO;
     verticalMode = RECT_RELATION_MODE.V_GET_TWO;
 
-    
-
-    widthConstraintInModeOne = null;
-    widthConstraintInModeOneInLeftRight = null;
-    heightConstraintInModeOne = null;
-    heightConstraintInModeOneInTopBottom = null;
+    horizonTripleGetTwo = null;
+    verticalTripleGetTwo = null;
+    horizontalConple = null;
+    verticalConple = null;
 
     documentElement = null;
 
@@ -248,7 +225,8 @@ export class View {
     constructor(documentElement, parentlayout, name) {
         this.documentElement = documentElement;
         this._name = name;
-        this.horizonTripleGetTwo = new TriangleRelationshipGetTwo(
+        this.horizonTripleGetTwo = new fixedTriangleRelationShip(
+                [BOUNDING_RECT.LEFT, BOUNDING_RECT.RIGHT, BOUNDING_RECT.WIDTH],
                 {
                     name: BOUNDING_RECT.LEFT,
                     default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.LEFT](this, parentlayout[BOUNDING_RECT.WIDTH])
@@ -261,8 +239,13 @@ export class View {
                     name: BOUNDING_RECT.WIDTH,
                     default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.WIDTH](this, parentlayout[BOUNDING_RECT.WIDTH])
                 },
+                {
+                    name: BOUNDING_RECT.CENTERX,
+                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.CENTERX](this)
+                },
             );
-        this.verticalTripleGetTwo = new TriangleRelationshipGetTwo(
+        this.verticalTripleGetTwo = new fixedTriangleRelationShip(
+                [BOUNDING_RECT.TOP, BOUNDING_RECT.BOTTOM, BOUNDING_RECT.HEIGHT],
                 {
                     name: BOUNDING_RECT.TOP,
                     default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.TOP](this, parentlayout[BOUNDING_RECT.HEIGHT])
@@ -275,36 +258,68 @@ export class View {
                     name: BOUNDING_RECT.HEIGHT,
                     default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.HEIGHT](this, parentlayout[BOUNDING_RECT.HEIGHT])
                 },
-            );
-    
-        this.horizonTripleGetOne = new TriangleRelationshipGetOne(
-                {
-                    name: BOUNDING_RECT.LEFT,
-                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.LEFT](this, parentlayout[BOUNDING_RECT.WIDTH])
-                },
-                {
-                    name: BOUNDING_RECT.RIGHT,
-                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.RIGHT](this, parentlayout[BOUNDING_RECT.WIDTH])
-                },
-                {
-                    name: BOUNDING_RECT.CENTERX,
-                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.CENTERX](this)
-                },
-            );
-        this.verticalTripleGetOne = new TriangleRelationshipGetOne(
-                {
-                    name: BOUNDING_RECT.TOP,
-                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.TOP](this, parentlayout[BOUNDING_RECT.HEIGHT])
-                },
-                {
-                    name: BOUNDING_RECT.BOTTOM,
-                    default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.BOTTOM](this, parentlayout[BOUNDING_RECT.HEIGHT])
-                },
                 {
                     name: BOUNDING_RECT.CENTERY,
                     default: DEFAULT_RECT_CONSTRAINTS[BOUNDING_RECT.CENTERY](this)
                 },
             );
+
+        this.horizontalConple = new fixedRelationShip(
+            [BOUNDING_RECT.WIDTH, BOUNDING_RECT.CENTERX],
+            {
+                name: BOUNDING_RECT.LEFT,
+                default: new kiwi.Constraint(
+                    this[BOUNDING_RECT.LEFT],
+                    kiwi.Operator.Eq,
+                    this[BOUNDING_RECT.CENTERX].minus(this[BOUNDING_RECT.WIDTH].divide(2)),
+                    generatePriortyStrength
+                ),
+            },
+            {
+                name: BOUNDING_RECT.RIGHT,
+                default: new kiwi.Constraint(
+                    this[BOUNDING_RECT.RIGHT],
+                    kiwi.Operator.Eq,
+                    parentlayout[BOUNDING_RECT.WIDTH].minus(this[BOUNDING_RECT.WIDTH].divide(2)).minus(this[BOUNDING_RECT.LEFT]),
+                    generatePriortyStrength
+                ),
+            },
+            {
+                name: BOUNDING_RECT.WIDTH,
+            },
+            {
+                name: BOUNDING_RECT.CENTERX,
+            }
+        )
+
+        this.verticalConple = new fixedRelationShip(
+            [BOUNDING_RECT.HEIGHT, BOUNDING_RECT.CENTERY],
+            {
+                name: BOUNDING_RECT.TOP,
+                default: new kiwi.Constraint(
+                    this[BOUNDING_RECT.TOP],
+                    kiwi.Operator.Eq,
+                    this[BOUNDING_RECT.CENTERY].minus(this[BOUNDING_RECT.HEIGHT].divide(2)),
+                    generatePriortyStrength
+                ),
+            },
+            {
+                name: BOUNDING_RECT.BOTTOM,
+                default: new kiwi.Constraint(
+                    this[BOUNDING_RECT.BOTTOM],
+                    kiwi.Operator.Eq,
+                    parentlayout[BOUNDING_RECT.HEIGHT].minus(this[BOUNDING_RECT.HEIGHT].divide(2)).minus(this[BOUNDING_RECT.TOP]),
+                    generatePriortyStrength
+                ),
+            },
+            {
+                name: BOUNDING_RECT.HEIGHT,
+            },
+            {
+                name: BOUNDING_RECT.CENTERY,
+            }
+        )
+        
         this[BOUNDING_RECT.LEFT].setContext(name)
         this[BOUNDING_RECT.RIGHT].setContext(name)
         this[BOUNDING_RECT.TOP].setContext(name)
@@ -315,160 +330,166 @@ export class View {
         this[BOUNDING_RECT.CENTERY].setContext(name)
                 
             
-        this.horizonTripleGetTwo.set(BOUNDING_RECT.WIDTH, new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwi.Operator.Eq, 280, defaultPriorityStrength));
-        this.horizonTripleGetTwo.set(BOUNDING_RECT.LEFT, new kiwi.Constraint(this[BOUNDING_RECT.LEFT], kiwi.Operator.Eq, 0, defaultPriorityStrength));
-        this.verticalTripleGetTwo.set(BOUNDING_RECT.HEIGHT, new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwi.Operator.Eq, 160, defaultPriorityStrength));
-        this.verticalTripleGetTwo.set(BOUNDING_RECT.TOP, new kiwi.Constraint(this[BOUNDING_RECT.TOP], kiwi.Operator.Eq, 0, defaultPriorityStrength));
-          
-        this.widthConstraintInModeOneInLeftRight = {
-            [BOUNDING_RECT.LEFT]: new kiwi.Constraint(
-                this[BOUNDING_RECT.LEFT],
-                kiwi.Operator.Eq,
-                this[BOUNDING_RECT.CENTERX].minus(this[BOUNDING_RECT.WIDTH].divide(2)),
-                generatePriortyStrength
-            ),
-            [BOUNDING_RECT.RIGHT]: new kiwi.Constraint(
-                this[BOUNDING_RECT.RIGHT],
-                kiwi.Operator.Eq,
-                parentlayout[BOUNDING_RECT.WIDTH].minus(this[BOUNDING_RECT.WIDTH].divide(2)).minus(this[BOUNDING_RECT.LEFT]),
-                generatePriortyStrength
-            ),
-        }
-
-        this.heightConstraintInModeOneInTopBottom = {
-            [BOUNDING_RECT.TOP]: new kiwi.Constraint(
-                this[BOUNDING_RECT.TOP],
-                kiwi.Operator.Eq,
-                this[BOUNDING_RECT.CENTERY].minus(this[BOUNDING_RECT.HEIGHT].divide(2)),
-                generatePriortyStrength
-            ),
-            [BOUNDING_RECT.BOTTOM]: new kiwi.Constraint(
-                this[BOUNDING_RECT.BOTTOM],
-                kiwi.Operator.Eq,
-                parentlayout[BOUNDING_RECT.HEIGHT].minus(this[BOUNDING_RECT.HEIGHT].divide(2)).minus(this[BOUNDING_RECT.TOP]),
-                generatePriortyStrength
-            ),
-        }
-
-        this._defCopy[BOUNDING_RECT.LEFT] = {
+        this.horizonTripleGetTwo.set(BOUNDING_RECT.WIDTH, [
+            new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwi.Operator.Eq, 280, defaultPriorityStrength)
+        ]);
+        this.horizonTripleGetTwo.set(BOUNDING_RECT.LEFT, [
+            new kiwi.Constraint(this[BOUNDING_RECT.LEFT], kiwi.Operator.Eq, 0, defaultPriorityStrength)
+        ]);
+        this.verticalTripleGetTwo.set(BOUNDING_RECT.HEIGHT, [
+            new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwi.Operator.Eq, 160, defaultPriorityStrength)
+        ]);
+        this.verticalTripleGetTwo.set(BOUNDING_RECT.TOP, [
+            new kiwi.Constraint(this[BOUNDING_RECT.TOP], kiwi.Operator.Eq, 0, defaultPriorityStrength)
+        ]);
+    
+        this._defCopy[BOUNDING_RECT.LEFT] = [{
             target: "",
             attr: "const",
             operator: "",
             value: 0,
             relation: "Eq"
-        }
-        this._defCopy[BOUNDING_RECT.TOP] = {
+        }]
+        this._defCopy[BOUNDING_RECT.TOP] = [{
             target: "",
             attr: "const",
             operator: "",
             value: 0,
             relation: "Eq"
-        }
-        this._defCopy[BOUNDING_RECT.WIDTH] = {
+        }]
+        this._defCopy[BOUNDING_RECT.WIDTH] = [{
             target: "",
             attr: "const",
             operator: "",
             value: 280,
             relation: "Eq"
-        }
-        this._defCopy[BOUNDING_RECT.HEIGHT] = {
+        }]
+        this._defCopy[BOUNDING_RECT.HEIGHT] = [{
             target: "",
             attr: "const",
             operator: "",
             value: 160,
             relation: "Eq"
-        }
+        }]
     }
 
-    set(key, _relation, expr, def) {
-        const kiwiRelation = kiwi.Operator[_relation];
-        if(key === BOUNDING_RECT.CENTERX) {
-            if(this.horizontalMode !== RECT_RELATION_MODE.H_GET_ONE) {
-                this.horizontalMode = RECT_RELATION_MODE.H_GET_ONE;
-                const relation = this.horizonTripleGetTwo.find(BOUNDING_RECT.WIDTH);
-                if(relation.isDefault) {
-                    this.widthConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwiRelation, this[BOUNDING_RECT.WIDTH].value(), defaultPriorityStrength);
-                } else {
-                    this.widthConstraintInModeOne  = relation.value;
+    _observe() {
+
+    }
+
+    _setConstraint(key, constraints, target) {  
+        const cs = [];
+        constraints.forEach((cons) => {
+            if(cons instanceof kiwi.Constraint) {
+                cs.push(cons);
+            } else if(cons.attr === 'intrisic') {
+                if(key === BOUNDING_RECT.WIDTH) {
+
                 }
-            }
-            this.horizonTripleGetOne.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
-        }
-        
-        if(key === BOUNDING_RECT.CENTERY) {
-            if(this.verticalMode !== RECT_RELATION_MODE.V_GET_ONE) {
-                this.verticalMode = RECT_RELATION_MODE.V_GET_ONE;
-                const relation = this.verticalTripleGetTwo.find(BOUNDING_RECT.HEIGHT);
-                if(relation.isDefault) {
-                    this.heightConstraintInModeOne = new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwiRelation, this[BOUNDING_RECT.HEIGHT].value(), defaultPriorityStrength);
-                } else {
-                    this.heightConstraintInModeOne  = relation.value;
+                if(key === BOUNDING_RECT.HEIGHT) {
+                    
                 }
-            }
-            this.verticalTripleGetOne.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
-        }
-
-        if(key === BOUNDING_RECT.LEFT || key === BOUNDING_RECT.RIGHT) {
-            if(this.horizontalMode !== RECT_RELATION_MODE.H_GET_TWO) {
-                this.horizontalMode = RECT_RELATION_MODE.H_GET_TWO;
-                this.horizonTripleGetOne.setDefault();
-                this.horizonTripleGetTwo.set(BOUNDING_RECT.WIDTH, this.widthConstraintInModeOne);
-                this.widthConstraintInModeOne = null;   
-            }
-            this.horizonTripleGetTwo.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
-        }
-
-        if(key === BOUNDING_RECT.TOP || key === BOUNDING_RECT.BOTTOM) {
-            if(this.verticalMode !== RECT_RELATION_MODE.V_GET_TWO) {
-                this.verticalMode = RECT_RELATION_MODE.V_GET_TWO;
-                this.verticalTripleGetOne.setDefault();
-                this.verticalTripleGetTwo.set(BOUNDING_RECT.HEIGHT, this.heightConstraintInModeOne);
-                this.heightConstraintInModeOne = null;   
-            }
-            this.verticalTripleGetTwo.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
-        }
-
-        if(key === BOUNDING_RECT.WIDTH) {
-            if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
-                this.horizonTripleGetTwo.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
             } else {
-                this.widthConstraintInModeOne = new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength);
+                const { relation, expr } = cons
+                const kiwiRelation = kiwi.Operator[relation];
+                cs.push(new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength))
             }
+           
+        });
+        target.set(key, cs);
+    }
+
+    set(key, constraints, def) {
+        switch(key) {
+            case BOUNDING_RECT.CENTERX:
+                if(this.horizontalMode !== RECT_RELATION_MODE.H_GET_ONE) {
+                    this.horizontalMode = RECT_RELATION_MODE.H_GET_ONE;
+                    const relation = this.horizonTripleGetTwo.find(BOUNDING_RECT.WIDTH);
+                    let cs;
+                    if(relation.isDefault) {
+                        cs = [new kiwi.Constraint(this[BOUNDING_RECT.WIDTH], kiwiRelation, this[BOUNDING_RECT.WIDTH].value(), defaultPriorityStrength)];
+                    } else {
+                        cs = relation.value;
+                    }
+                    this._setConstraint(BOUNDING_RECT.WIDTH, cs, this.horizontalConple);
+                }
+                this._setConstraint(key, constraints, this.horizontalConple);
+            break;
+
+            case BOUNDING_RECT.CENTERY:
+                if(this.verticalMode !== RECT_RELATION_MODE.V_GET_ONE) {
+                    this.verticalMode = RECT_RELATION_MODE.H_GET_ONE;
+                    const relation = this.verticalTripleGetTwo.find(BOUNDING_RECT.HEIGHT);
+                    let cs;
+                    if(relation.isDefault) {
+                        cs = [new kiwi.Constraint(this[BOUNDING_RECT.HEIGHT], kiwiRelation, this[BOUNDING_RECT.HEIGHT].value(), defaultPriorityStrength)];
+                    } else {
+                        cs = relation.value;
+                    }
+                    this._setConstraint(BOUNDING_RECT.HEIGHT, cs, this.verticalConple);
+                }
+                this._setConstraint(key, constraints, this.verticalConple);
+            break;
+
+            case BOUNDING_RECT.LEFT:
+            case BOUNDING_RECT.RIGHT:
+                if(this.horizontalMode !== RECT_RELATION_MODE.H_GET_TWO) {
+                    this.horizontalMode = RECT_RELATION_MODE.H_GET_TWO;
+                    this._setConstraint(BOUNDING_RECT.WIDTH, 
+                        this.horizontalConple.find(BOUNDING_RECT.WIDTH).value, 
+                        this.horizonTripleGetTwo);
+                    this.horizontalConple.setDefault();
+                }
+                this._setConstraint(key, constraints, this.horizonTripleGetTwo);
+            break;
+
+            case BOUNDING_RECT.TOP:
+            case BOUNDING_RECT.BOTTOM:
+                if(this.verticalMode !== RECT_RELATION_MODE.V_GET_TWO) {
+                    this.verticalMode = RECT_RELATION_MODE.V_GET_TWO;
+                    this._setConstraint(BOUNDING_RECT.HEIGHT, 
+                        this.verticalConple.find(BOUNDING_RECT.HEIGHT).value, 
+                        this.verticalTripleGetTwo);
+                    this.verticalConple.setDefault();
+                }
+                this._setConstraint(key, constraints, this.verticalTripleGetTwo);
+            break;
+
+            case BOUNDING_RECT.WIDTH:
+                if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
+                    this._setConstraint(key, constraints, this.horizonTripleGetTwo);
+                } else {
+                    this._setConstraint(key, constraints, this.horizontalConple);
+                }
+            break;
+
+            case BOUNDING_RECT.HEIGHT:
+                if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
+                    this._setConstraint(key, constraints, this.verticalTripleGetTwo);
+                } else {
+                    this._setConstraint(key, constraints, this.verticalConple);
+                }
+            break;
         }
 
-        if(key === BOUNDING_RECT.HEIGHT) {
-            if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
-                this.verticalTripleGetTwo.set(key, new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength));
-            } else {
-                this.heightConstraintInModeOne = new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength);
-            }
-        }
-
-        this._defCopy[key] = Object.assign({}, def);
+        this._defCopy[key] = def.slice();
     }
 
     getConstraints() {
         let c = [];
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
             c = c.concat(this.horizonTripleGetTwo.getConstraints());
-            c.push(this.horizonTripleGetOne.getConstraint(BOUNDING_RECT.CENTERX))
-        }
+        } 
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_ONE) {
-            c = c.concat(this.horizonTripleGetOne.getConstraints());
-            c.push(this.widthConstraintInModeOne);
-            c.push(this.widthConstraintInModeOneInLeftRight[BOUNDING_RECT.LEFT])
-            c.push(this.widthConstraintInModeOneInLeftRight[BOUNDING_RECT.RIGHT])
+            c = c.concat(this.horizontalConple.getConstraints());
         }
 
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
             c = c.concat(this.verticalTripleGetTwo.getConstraints());
-            c.push(this.verticalTripleGetOne.getConstraint(BOUNDING_RECT.CENTERY))
         }
+
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_ONE) {
-            c = c.concat(this.verticalTripleGetOne.getConstraints());
-            c.push(this.heightConstraintInModeOne);
-            c.push(this.heightConstraintInModeOneInTopBottom[BOUNDING_RECT.TOP])
-            c.push(this.heightConstraintInModeOneInTopBottom[BOUNDING_RECT.BOTTOM])
+            c = c.concat(this.verticalConple.getConstraints());
         }
         this._solver_constraints = c;
         return c;
@@ -479,20 +500,20 @@ export class View {
             component: this._name
         };
         let keys = [];
+
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
             keys = keys.concat(this.horizonTripleGetTwo.getEnableRelationKey());
-        }
+        } 
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_ONE) {
-            keys = keys.concat(this.horizonTripleGetOne.getEnableRelationKey());
-            keys.push(BOUNDING_RECT.WIDTH);
+            keys = keys.concat(this.horizontalConple.getEnableRelationKey());
         }
 
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
             keys = keys.concat(this.verticalTripleGetTwo.getEnableRelationKey());
         }
+
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_ONE) {
-            keys = keys.concat(this.verticalTripleGetOne.getEnableRelationKey());
-            keys.push(BOUNDING_RECT.HEIGHT);
+            keys = keys.concat(this.verticalConple.getEnableRelationKey());
         }
         keys.forEach(k => {
             c[k] = this._defCopy[k];
@@ -509,33 +530,22 @@ export class View {
                 isDefault: r.isDefault
             }
        };
+
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
-           this.horizonTripleGetTwo.relation.forEach(callback);
-           callback({ key: BOUNDING_RECT.CENTERX, isDefault: true });
-        }
+            this.horizonTripleGetTwo.relation.forEach(callback);
+        } 
         if(this.horizontalMode === RECT_RELATION_MODE.H_GET_ONE) {
-            this.horizonTripleGetOne.relation.forEach(callback)
-            c[BOUNDING_RECT.WIDTH] = {
-                value: this[BOUNDING_RECT.WIDTH].value(),
-                isDefault: false,
-            }
-            callback({ key: BOUNDING_RECT.LEFT, isDefault: true });
-            callback({ key: BOUNDING_RECT.RIGHT, isDefault: true });
+           this.horizontalConple.relation.forEach(callback);
         }
 
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
             this.verticalTripleGetTwo.relation.forEach(callback);
-            callback({ key: BOUNDING_RECT.CENTERY, isDefault: true });
         }
+
         if(this.verticalMode === RECT_RELATION_MODE.V_GET_ONE) {
-            this.verticalTripleGetOne.relation.forEach(callback)
-            c[BOUNDING_RECT.HEIGHT] = {
-                value: this[BOUNDING_RECT.HEIGHT].value(),
-                isDefault: false,
-            }
-            callback({ key: BOUNDING_RECT.TOP, isDefault: true });
-            callback({ key: BOUNDING_RECT.BOTTOM, isDefault: true });
+            this.verticalConple.relation.forEach(callback);
         }
+  
         return c;
     }
 
