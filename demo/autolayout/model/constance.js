@@ -1,3 +1,4 @@
+import * as kiwi from '@lume/kiwi'; 
 export const BOUNDING_RECT = {
     LEFT: 'left',
     RIGHT: 'right',
@@ -10,6 +11,7 @@ export const BOUNDING_RECT = {
 }
 
 export const INTRISIC = 'intrisic';
+export const NORMAL = 'normal';
 
 export const ATTRIBUTES = {
     ...BOUNDING_RECT,
@@ -33,3 +35,7 @@ export const RELATION = {
     Le: 'Le'
 }
 export const RELATIONLIST = ['Le', 'Ge', 'Eq'];
+
+
+export const defaultPriorityStrength = kiwi.Strength.create(0, 1000, 1000);
+export const generatePriortyStrength =  kiwi.Strength.create(0, 500, 1000);

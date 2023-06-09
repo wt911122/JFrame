@@ -92,6 +92,87 @@
                 }],
                 "width": "intrisic",
                 "height": "intrisic"
+            },
+            {
+                "component": "view4",
+                "centerX": [{
+                    "target": "intrisic1",
+                    "attr": "centerX",
+                    "operator": "multiply",
+                    "value": 1,
+                    "relation": "Eq"
+                }],
+                "width": [{
+                    "target": "intrisic1",
+                    "attr": "width",
+                    "operator": "divide",
+                    "value": 2,
+                    "relation": "Eq"
+                }],
+                "height": [{
+                    "target": "",
+                    "attr": "const",
+                    "operator": "",
+                    "value": 120,
+                    "relation": "Eq"
+                }],
+                "top": [{
+                    "target": "intrisic1",
+                    "attr": "bottomedge",
+                    "operator": "plus",
+                    "value": 20,
+                    "relation": "Eq"
+                }]
+            },
+            {
+                "component": "auto2",
+                "left": [{
+                    "target": "intrisic1",
+                    "attr": "rightedge",
+                    "operator": "plus",
+                    "value": 50,
+                    "relation": "Eq"
+                }],
+                "top": [{
+                    "target": "intrisic1",
+                    "attr": "top",
+                    "operator": "multiply",
+                    "value": 1,
+                    "relation": "Eq"
+                }],
+                "height": "intrisic",
+                "width": "intrisic"
+            },
+            {
+                "component": "auto4",
+                "left": [{
+                    "target": "",
+                    "attr": "const",
+                    "operator": "",
+                    "value": 50,
+                    "relation": "Eq"
+                }],
+                "bottom": [{
+                    "target": "",
+                    "attr": "const",
+                    "operator": "",
+                    "value": 50,
+                    "relation": "Eq"
+                }],
+                "width": [{
+                    "target": "",
+                    "attr": "const",
+                    "operator": "",
+                    "value": 180,
+                    "relation": "Eq"
+                }],
+                "height": [{
+                    "target": "",
+                    "attr": "const",
+                    "operator": "",
+                    "value": 120,
+                    "relation": "Eq"
+                }]
             }
         ]
     },
@@ -104,6 +185,9 @@
             "title": "容器",
             "props": {
                 "name": "title"
+            },
+            "style": {
+                "backgroundColor": "red"
             }
         },
         {
@@ -114,6 +198,9 @@
             "title": "容器2",
             "props": {
                 "name": "subtitle"
+            },
+            "style": {
+                "backgroundColor": "blue"
             }
         },
         {
@@ -127,6 +214,102 @@
                 "intrisicWidth": true,
                 "intrisicHeight": true
             }  
+        },
+        {
+            "id": 4,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "ViewContainer",
+            "title": "容器4",
+            "props": {
+                "name": "view4"
+            },
+            "style": {
+                "backgroundColor": "green"
+            }
+        },
+        {
+            "id": 5,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "AutoLayoutComponent",
+            "title": "自动布局",
+            "style": {
+                "backgroundColor": "crimson"
+            },
+            "props": {
+                "name": "auto4",
+                "constraints": []
+            }
+        },
+        {
+            "id": 5,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "AutoLayoutComponent",
+            "title": "自动布局",
+            "style": {
+                "backgroundColor": "orange"
+            },
+            "props": {
+                "name": "auto2",
+                "constraints": [
+                    {
+                        "component": "intrisic2",
+                        "left": [{
+                            "target": "",
+                            "attr": "const",
+                            "operator": "",
+                            "value": 20,
+                            "relation": "Eq"
+                        }],
+                        "top": [{
+                            "target": "",
+                            "attr": "const",
+                            "operator": "",
+                            "value": 20,
+                            "relation": "Eq"
+                        }],
+                        "width": "intrisic",
+                        "height": "intrisic"
+                    },
+                    {
+                        "component": "|",
+                        "width":[{
+                            "target": "intrisic2",
+                            "attr": "width",
+                            "operator": "plus",
+                            "value": 40,
+                            "relation": "Eq"
+                        }],
+                        "height":[{
+                            "target": "intrisic2",
+                            "attr": "height",
+                            "operator": "plus",
+                            "value": 40,
+                            "relation": "Eq"
+                        }]
+                    }
+                ]
+            },
+            "children": [
+                {
+                    "id": 6,
+                    "concept": "ViewElement",
+                    "type": 0,
+                    "tag": "intrisicView",
+                    "title": "容器6",
+                    "style": {
+                        "backgroundColor": "brown"
+                    },
+                    "props": {
+                        "name": "intrisic2",
+                        "intrisicWidth": true,
+                        "intrisicHeight": true
+                    }
+                }
+            ]
         }
+
     ]
 }

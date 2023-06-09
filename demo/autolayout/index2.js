@@ -1,5 +1,5 @@
 // import data from './data/data-flex.json';
-import data from './data/data2.json';
+import data from './data/data4.json';
 import JFrame, { 
     BlockTitle,
     BlockDelete
@@ -17,11 +17,15 @@ function resolveDependencies(name, remainConstraints) {
         const component = c.component;
         Object.keys(c).forEach(k => {
             if(k !== 'component') {
-                if(c[k].target === name) {
-                    dependencies.push({
-                        component,
-                        constraint: k,
-                    });
+                if(Array.isArray(c[k])) {
+                    c[k].forEach(t => {
+                        if(t.target === name) {
+                            dependencies.push({
+                                component,
+                                constraint: k,
+                            });
+                        }
+                    })
                 }
             }
         });
@@ -33,15 +37,19 @@ function resolveDependencies(name, remainConstraints) {
             const component = c.component;
             Object.keys(c).forEach(k => {
                 if(k !== 'component') {
-                    const cc = c[k];
-                    const r = inDependency(cc.target, cc.attr);
-                    if(r && !inDependency(component, k)) {
-                        dependencies.push({
-                            component,
-                            constraint: k,
-                        });
-                        flag = true;
+                    if(Array.isArray(c[k])) {
+                        c[k].forEach(t => {
+                            const r = inDependency(t.target, t.attr);
+                            if(r && !inDependency(component, k)) {
+                                dependencies.push({
+                                    component,
+                                    constraint: k,
+                                });
+                                flag = true;
+                            }
+                        })
                     }
+                   
                 }
             });
         })
@@ -250,8 +258,7 @@ jframeInstance.addEventListener('drop', e => {
     if(source.tag === 'AutoLayoutComponent') {
         const name = currentInstance.props.name
         const p = [parseInt(point[0] - target.x), parseInt(point[1] - target.y)];
-        const constraints = [
-            {
+        const constraints = {
                 component: name,
                 left: [{
                     target: "",
@@ -282,9 +289,12 @@ jframeInstance.addEventListener('drop', e => {
                     relation: "Eq"
                 }],
             }
-        ]
-        source.props.constraints = source.props.constraints.concat(constraints);
-        console.log(source)
+        
+        if(currentInstance.tag === "IntrisicView") {
+            constraints.width = 'intrisic';
+            constraints.height = 'intrisic';
+        }
+        source.props.constraints.push(constraints);
         source.addElement(currentInstance);
         _rerenderJframeInstance();
     }
@@ -460,9 +470,12 @@ imageBtn.addEventListener('click', () => {
     }
 })
 
-function setElem(el, value, isDefault) {
+function setElem(el, value, isDefault, disabled, isIntrisic) {
     el.innerText = value.toFixed(0);
     el.classList.toggle('active', !isDefault);
+    console.log(isIntrisic)
+    el.classList.toggle('intrisic', !!isIntrisic);
+    el.setAttribute('disabled', !!disabled);
 }
 let focusedTarget
 function focusConstaintView(target) {
@@ -480,8 +493,8 @@ function focusConstaintView(target) {
         setElem(cleft, bounding.left.value, bounding.left.isDefault);
         setElem(cright, bounding.right.value, bounding.right.isDefault);
         setElem(cbottom, bounding.bottom.value, bounding.bottom.isDefault);
-        setElem(cwidth, bounding.width.value, bounding.width.isDefault);
-        setElem(cheight, bounding.height.value, bounding.height.isDefault);
+        setElem(cwidth, bounding.width.value, bounding.width.isDefault, source.props.intrisicWidth, bounding.width.def === "intrisic");
+        setElem(cheight, bounding.height.value, bounding.height.isDefault, source.props.intrisicHeight, bounding.height.def === "intrisic");
         setElem(centerx, bounding.centerX.value, bounding.centerX.isDefault);
         setElem(centery, bounding.centerY.value, bounding.centerY.isDefault);
         if(currDimension) {
@@ -558,6 +571,7 @@ function genDefControls(isLast) {
     };
 
 }
+
 // const controlTarget = document.querySelector('#control-target');
 // const controlAttribute = document.querySelector('#control-attribute');
 // const controlOperator = document.querySelector('#control-operator');
@@ -567,81 +581,203 @@ const nestedControlPanelwrapper = document.getElementById('nestedControlPanelwra
 const dimensionLabel = document.getElementById('dimensionLabel');
 let currDimension
 let ruleElemList = [];
+let autoLayoutMode = 'normal';
+let isCurrIntrisic = false;
+
+function genIntrisicRadiogenIntrisicRadio(onChange) {
+    const a = document.createElement('input');
+    a.setAttribute('type', "radio");
+    a.setAttribute('name', "mode");
+    a.setAttribute('value', "normal");
+    const alabel = document.createElement('label');
+    alabel.setAttribute('for', 'normal');
+    alabel.innerText = '外部';
+
+    a.addEventListener('click', () => {
+        autoLayoutMode = a.value;
+        onChange(a.value);
+    })
+
+    const b = document.createElement('input');
+    b.setAttribute('type', "radio");
+    b.setAttribute('name', "mode");
+    b.setAttribute('value', "intrisic");
+    b.innerHTML = `<label for="intrisic">内部</label>`
+    const blabel = document.createElement('label');
+    blabel.setAttribute('for', 'intrisic');
+    blabel.innerText = '内部';
+    b.addEventListener('click', () => {
+        autoLayoutMode = b.value;
+        onChange(b.value);
+    })
+
+    const div = document.createElement('div');
+    div.append(a, alabel, b, blabel);
+    return {
+        a, b, div,
+    }
+
+}
+
+function genElement(bounding, innerTargets) {
+    const def = bounding.def || [];
+    const isLast = def.length === 1;
+    def.forEach((_def, idx) => {
+        const {
+            wrapper,
+            operatorElem,
+            controlTarget,
+            controlAttribute,
+            controlOperator,
+            controlValue,
+            deleteButton
+        } = genDefControls(isLast);
+        controlTarget.innerHTML = innerTargets;
+        nestedControlPanelwrapper.append(wrapper);
+        operatorElem.value = _def.relation;
+        controlTarget.value = _def.target;
+        controlAttribute.value = _def.attr;
+        controlOperator.value = _def.operator;
+        controlValue.value = _def.value;
+        const t = () => {
+            return {
+                relation: operatorElem.value,
+                target: controlTarget.value,
+                attr: controlAttribute.value,
+                operator: controlOperator.value,
+                value: controlValue.value,
+            }
+        };
+        ruleElemList.push(t)
+        if(deleteButton){
+            deleteButton.addEventListener('click', () => {
+                const idx = ruleElemList.findIndex(q => q === t);
+                if(idx !== -1) {
+                    ruleElemList.splice(idx, 1);
+                    wrapper.remove()
+                }
+            })
+        }
+        
+    })
+}
+
+function genNewRuleElement(innerTargets) {
+    const {
+        wrapper,
+        operatorElem,
+        controlTarget,
+        controlAttribute,
+        controlOperator,
+        controlValue,
+        deleteButton
+    } = genDefControls(ruleElemList.length === 0);
+    controlTarget.innerHTML = innerTargets;
+    nestedControlPanelwrapper.append(wrapper);
+    operatorElem.value = 'Eq';
+    controlTarget.value = '';
+    controlAttribute.value = 'const';
+    controlOperator.value = '';
+    controlValue.value = '';
+    const t = () => {
+        return {
+            relation: operatorElem.value,
+            target: controlTarget.value,
+            attr: controlAttribute.value,
+            operator: controlOperator.value,
+            value: controlValue.value,
+        }
+    };
+    ruleElemList.push(t)
+    if(deleteButton){
+        deleteButton.addEventListener('click', () => {
+            const idx = ruleElemList.findIndex(q => q === t);
+            if(idx !== -1) {
+                ruleElemList.splice(idx, 1);
+                wrapper.remove()
+            }
+        })
+    }
+}
 function bindListeners(target, dimension) {
     target.addEventListener('click', () => {
         ruleElemList = [];
+        autoLayoutMode = '';
         nestedControlPanelwrapper.innerHTML = "";
+        if(target.getAttribute('disabled') === 'true') {
+            return;
+        }
         if(focusedTarget) {
             const source = focusedTarget.source;
             const element = jframeInstance.source_block_element_map.getElementBySource(source.parentElement);
             const cInstance = element?._constraints_;
-            console.log(cInstance)
+            if(source.tag === 'AutoLayoutComponent') {
+                currDimension = dimension;
+                const useIntrisic = target.classList.contains('intrisic');
+                isCurrIntrisic = useIntrisic;
+                const el = jframeInstance.source_block_element_map.getElementBySource(source);
+                const elInstance = el?._constraints_;
+
+
+                function _intrisicElem() {
+                    const innerNames = source.props.constraints.map(c => c.component).filter(c => c !== '|');
+                    const innerTargets = innerNames.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>';
+                    const bounding = elInstance.getBounding(dimension);
+                    genElement(bounding, innerTargets);
+                }
+                function _normalElem() {
+                    const names = source.parentElement.props.constraints.map(c => c.component);
+                    const bounding = cInstance.getViewConstraintBounding(source.props.name);
+                    const d = bounding[dimension];
+                    const targetsTemplate = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
+                    if(!d.isDefault && d.def !== 'intrisic') {
+                        genElement(d, targetsTemplate) 
+                    } 
+                }
+                if(dimension === 'width' || dimension === 'height') {
+                    const { a, b, div } = genIntrisicRadiogenIntrisicRadio((value) => {
+                        nestedControlPanelwrapper.innerHTML = "";
+                        ruleElemList = [];
+                        nestedControlPanelwrapper.append(div);
+                        if(value === 'intrisic') {
+                            _intrisicElem();
+                        } else {
+                            _normalElem();
+                        }
+
+                    });
+                    dimensionLabel.innerText = dimension;
+                    nestedControlPanelwrapper.append(div);
+                    if(useIntrisic) {
+                        autoLayoutMode = b.value;
+                        b.setAttribute('checked', true);
+                    } else {
+                        autoLayoutMode = a.value;
+                        a.setAttribute('checked', true);
+                    }
+                }
+                
+                
+                if(useIntrisic && elInstance) {
+                    _intrisicElem();
+                } else {
+                    _normalElem();
+                }
+
+                return;
+                
+            }
             if(cInstance) {
                 const names = source.parentElement.props.constraints.map(c => c.component);
-                console.log(names);
                 const bounding = cInstance.getViewConstraintBounding(source.props.name);
                 const d = bounding[dimension];
                 currDimension = dimension;
                 dimensionLabel.innerText = currDimension;
-                console.log(currDimension)
                 nestedControlPanel.classList.toggle('active', !d.isDefault)
                 const targetsTemplate = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
                 if(!d.isDefault) {
-                    const def = d.def;
-                    const isLast = def.length === 1;
-                    
-                    def.forEach((_def, idx) => {
-                        const {
-                            wrapper,
-                            operatorElem,
-                            controlTarget,
-                            controlAttribute,
-                            controlOperator,
-                            controlValue,
-                            deleteButton
-                        } = genDefControls(isLast);
-                        controlTarget.innerHTML = targetsTemplate;
-                        nestedControlPanelwrapper.append(wrapper);
-                        operatorElem.value = _def.relation;
-                        controlTarget.value = _def.target;
-                        controlAttribute.value = _def.attr;
-                        controlOperator.value = _def.operator;
-                        controlValue.value = _def.value;
-                        const t = () => {
-                            return {
-                                relation: operatorElem.value,
-                                target: controlTarget.value,
-                                attr: controlAttribute.value,
-                                operator: controlOperator.value,
-                                value: controlValue.value,
-                            }
-                        };
-                        ruleElemList.push(t)
-                        if(deleteButton){
-                            deleteButton.addEventListener('click', () => {
-                                const idx = ruleElemList.findIndex(q => q === t);
-                                if(idx !== -1) {
-                                    ruleElemList.splice(idx, 1);
-                                    wrapper.remove()
-                                }
-                            })
-                        }
-                        
-                    })
-                    
-                    
-                    // controlTarget.value = def.target;
-                    // controlAttribute.value = def.attr;
-                    // controlOperator.value = def.operator;
-                    // controlValue.value = def.value
+                    genElement(d, targetsTemplate) 
                 } 
-                // else {
-                //     controlTarget.value = ''
-                //     controlAttribute.value = 'const'
-                //     controlOperator.value = ''
-                //     controlValue.value = ''
-                // }
-                console.log(d)
             }
         }
     })
@@ -687,7 +823,61 @@ controlConfirm.addEventListener('click', () => {
 
 })
 
+function getLayoutInstance(source) {
+    const el = jframeInstance.source_block_element_map.getElementBySource(source);
+    const elInstance = el?._constraints_;
+    return elInstance;
+}
+
 function set(elem, d, def) {
+    const source = elem.source;
+    if(source.tag === 'AutoLayoutComponent') {
+        console.log(isCurrIntrisic);
+        if(autoLayoutMode === 'intrisic') {
+            const elInstance = getLayoutInstance(source);
+            if(elInstance) {
+                elInstance.setSelfConstraint('intrisic', d, def);
+                const newConstraints = elInstance.getSelfConstraint();
+                console.log(newConstraints)
+                const cs = source.props.constraints;
+                const idx = cs.findIndex(c => c.component === newConstraints.component);
+                if(idx === -1) {
+                    cs.push(newConstraints);
+                } else {
+                    cs.splice(idx, 1, newConstraints)
+                }
+                elInstance.reflow();
+                elInstance.resize();
+            }
+            if(!isCurrIntrisic) {
+                setConstraintOnView(elem, d, 'intrisic')
+            } 
+            focusConstaintView(elem);
+        } else {
+            if(isCurrIntrisic) {
+                const elInstance = getLayoutInstance(source);
+                if(elInstance) {
+                    elInstance.setSelfConstraint('normal', d, def);
+                    const newConstraints = elInstance.getSelfConstraint();
+                    const cs = source.props.constraints;
+                    const idx = cs.findIndex(c => c.component === '|');
+                    if(newConstraints) {
+                        cs.splice(idx, 1, newConstraints)
+                    } else {
+                        cs.splice(idx, 1)
+                    }
+                    
+                    elInstance.reflow();
+                }
+            }
+            setConstraintOnView(elem, d, def)
+        }
+        return;
+    }
+    setConstraintOnView(elem, d, def)
+}
+
+function setConstraintOnView(elem, d, def) {
     const source = elem.source;
     const element = jframeInstance.source_block_element_map.getElementBySource(source.parentElement);
     const cInstance = element._constraints_;
@@ -706,44 +896,23 @@ const addRuleBtn = document.getElementById('add-rule');
 addRuleBtn.addEventListener('click', () => {
     if(focusedTarget && currDimension) {
         const source = focusedTarget.source;
+        if(source.tag === 'AutoLayoutComponent') {
+
+            if(currDimension === 'width' || currDimension === 'height') {
+                if(autoLayoutMode === 'intrisic') {
+                    const innerNames = source.props.constraints.map(c => c.component).filter(c => c !== '|');
+                    const innerTargets = innerNames.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>';
+                    genNewRuleElement(innerTargets);
+                    return;
+                }
+            }
+           
+        }
+       
         // const defs = source.props.constraints[currDimension];
         const names = source.parentElement.props.constraints.map(c => c.component);
         const targetsTemplate = names.map(n => `<option value="${n}">${n}</option>`).join('') + '<option value="">绝对值</option>' + '<option value="|">父级</option>';
-        const {
-            wrapper,
-            operatorElem,
-            controlTarget,
-            controlAttribute,
-            controlOperator,
-            controlValue,
-            deleteButton
-        } = genDefControls(ruleElemList.length === 0);
-        controlTarget.innerHTML = targetsTemplate;
-        nestedControlPanelwrapper.append(wrapper);
-        operatorElem.value = 'Eq';
-        controlTarget.value = '';
-        controlAttribute.value = 'const';
-        controlOperator.value = '';
-        controlValue.value = '';
-        const t = () => {
-            return {
-                relation: operatorElem.value,
-                target: controlTarget.value,
-                attr: controlAttribute.value,
-                operator: controlOperator.value,
-                value: controlValue.value,
-            }
-        };
-        ruleElemList.push(t)
-        if(deleteButton){
-            deleteButton.addEventListener('click', () => {
-                const idx = ruleElemList.findIndex(q => q === t);
-                if(idx !== -1) {
-                    ruleElemList.splice(idx, 1);
-                    wrapper.remove()
-                }
-            })
-        }
+        genNewRuleElement(targetsTemplate);
 
     }
 })

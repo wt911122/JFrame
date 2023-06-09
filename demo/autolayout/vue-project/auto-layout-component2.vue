@@ -37,7 +37,7 @@ export default {
         reflow() {
             const root = this.$refs.root;
             if(this.$slots.default && this.$slots.default.length > 0) {
-                
+                this.layout.cleanConstraint();
                 this.layout.setConstraint(this.constraints);
                 this.layout.reflow();
                 this.layout.resize();

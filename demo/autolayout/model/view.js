@@ -1,11 +1,14 @@
 import * as kiwi from '@lume/kiwi'; 
 import { 
     BOUNDING_RECT,
-    RELATIONLIST 
+    INTRISIC,
+    defaultPriorityStrength,
+    generatePriortyStrength,
 } from './constance';
+import { Intrisic } from './intrisic';
+const HORIZON_KEYS = [BOUNDING_RECT.LEFT, BOUNDING_RECT.WIDTH, BOUNDING_RECT.RIGHT];
+const VERTICAL_KEYS = [BOUNDING_RECT.TOP, BOUNDING_RECT.HEIGHT, BOUNDING_RECT.BOTTOM];
 
-const defaultPriorityStrength = kiwi.Strength.create(0, 1000, 1000);
-const generatePriortyStrength =  kiwi.Strength.create(0, 500, 1000);
 let transformAttr = 'transform' in document.documentElement.style ? 'transform' : undefined;
 transformAttr =
 	transformAttr || ('-webkit-transform' in document.documentElement.style ? '-webkit-transform' : 'undefined');
@@ -147,7 +150,7 @@ class fixedTriangleRelationShip extends RelationShip {
                 relation[index].isDefault = false;
                 const [target] = relation.splice(index, 1);
                 relation.push(target);
-                const r = relation.filter(r => this.allowKeys.includes(r.key))
+                const r = relation.filter(r => this.allowKeys.includes(r.key) && !(r.value instanceof Intrisic))
                 const r0 = r[0];
                 r0.value = this.meta[r0.key].default;
                 r0.isDefault = true;
@@ -220,7 +223,10 @@ export class View {
 
     documentElement = null;
 
-    _solver_constraints = []
+    _solver_constraints = [];
+
+    useIntrisicWidth = false;
+    useIntrisicHeight = false;
 
     constructor(documentElement, parentlayout, name) {
         this.documentElement = documentElement;
@@ -373,22 +379,32 @@ export class View {
         }]
     }
 
-    _observe() {
-
+    setIntrisic(def, val) {
+        if(def === BOUNDING_RECT.WIDTH) {
+            this.useIntrisicWidth = val;
+            if(val) {
+                const _inW = new Intrisic(BOUNDING_RECT.WIDTH, this[BOUNDING_RECT.WIDTH], this.documentElement);
+                this.set(BOUNDING_RECT.WIDTH, _inW, INTRISIC)
+            }
+        }
+        if(def === BOUNDING_RECT.HEIGHT) {
+            this.useIntrisicHeight = val;
+            if(val) {
+                const _inW = new Intrisic(BOUNDING_RECT.HEIGHT, this[BOUNDING_RECT.HEIGHT], this.documentElement);
+                this.set(BOUNDING_RECT.HEIGHT, _inW, INTRISIC)
+            }
+        }
     }
 
     _setConstraint(key, constraints, target) {  
+        if(constraints instanceof Intrisic) {
+            target.set(key, constraints);
+            return;
+        }
         const cs = [];
         constraints.forEach((cons) => {
             if(cons instanceof kiwi.Constraint) {
                 cs.push(cons);
-            } else if(cons.attr === 'intrisic') {
-                if(key === BOUNDING_RECT.WIDTH) {
-
-                }
-                if(key === BOUNDING_RECT.HEIGHT) {
-                    
-                }
             } else {
                 const { relation, expr } = cons
                 const kiwiRelation = kiwi.Operator[relation];
@@ -418,7 +434,7 @@ export class View {
 
             case BOUNDING_RECT.CENTERY:
                 if(this.verticalMode !== RECT_RELATION_MODE.V_GET_ONE) {
-                    this.verticalMode = RECT_RELATION_MODE.H_GET_ONE;
+                    this.verticalMode = RECT_RELATION_MODE.V_GET_ONE;
                     const relation = this.verticalTripleGetTwo.find(BOUNDING_RECT.HEIGHT);
                     let cs;
                     if(relation.isDefault) {
@@ -472,7 +488,27 @@ export class View {
             break;
         }
 
-        this._defCopy[key] = def.slice();
+        this._defCopy[key] = Array.isArray(def) ? def.slice() : def;
+    }
+
+    getConstraint(key) {
+        if(HORIZON_KEYS.includes(key)) {
+            if(this.horizontalMode === RECT_RELATION_MODE.H_GET_TWO) {
+                return this.horizonTripleGetTwo.find(key).value;
+            } 
+            if(this.horizontalMode === RECT_RELATION_MODE.H_GET_ONE) {
+                return this.horizontalConple.find(key).value;
+            }
+        }
+        if(VERTICAL_KEYS.includes(key)) {
+            if(this.verticalMode === RECT_RELATION_MODE.V_GET_TWO) {
+                return this.verticalTripleGetTwo.find(key).value;
+            }
+    
+            if(this.verticalMode === RECT_RELATION_MODE.V_GET_ONE) {
+                return this.verticalConple.find(key).value;
+            }
+        }
     }
 
     getConstraints() {
@@ -527,7 +563,7 @@ export class View {
             c[r.key] = {
                 def: this._defCopy[r.key],
                 value: this[r.key].value(),
-                isDefault: r.isDefault
+                isDefault: r.isDefault,
             }
        };
 
@@ -549,17 +585,31 @@ export class View {
         return c;
     }
 
-    onResize() {
-        const width = parseInt(this[BOUNDING_RECT.WIDTH].value());
-        const height = parseInt(this[BOUNDING_RECT.HEIGHT].value());
+    onResize() { 
         const left = parseInt(this[BOUNDING_RECT.LEFT].value());
         const top = parseInt(this[BOUNDING_RECT.TOP].value());
         const el = this.documentElement
         el.style.position = 'absolute';
         el.style.left = 0;
         el.style.top = 0;
-        el.style.width = `${width}px`;
-        el.style.height = `${height}px`;
+        if(!this.useIntrisicWidth) {
+            const width = parseInt(this[BOUNDING_RECT.WIDTH].value());
+            el.style.width = `${width}px`;
+        }
+        if(!this.useIntrisicHeight) {
+            const height = parseInt(this[BOUNDING_RECT.HEIGHT].value());
+            el.style.height = `${height}px`;
+        }
         el.style[transformAttr] = `translate3d(${left}px, ${top}px, 0px)`
+    }
+
+    destroy() {
+        // clear observer
+        const c = this.getConstraints();
+        c.forEach(_c => {
+            if(_c instanceof Intrisic) {
+                _c.unObserve();
+            } 
+        })
     }
 }
