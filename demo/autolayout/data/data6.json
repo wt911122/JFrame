@@ -1,0 +1,207 @@
+{
+	"id": 0,
+	"tag": "AutoLayoutComponent",
+	"props": {
+		"name": "autoLayoutContainer",
+		"constraints": [
+			{
+				"component": "viewcontainer-0",
+				"left": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 20,
+						"relation": "Eq"
+					}
+				],
+				"right": [
+					{
+						"target": "viewcontainer-1",
+						"attr": "leftedge",
+						"operator": "plus",
+						"value": 20,
+						"relation": "Eq"
+					}
+				],
+				"height": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 80,
+						"relation": "Eq"
+					}
+				],
+				"top": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 20,
+						"relation": "Eq"
+					}
+				]
+			},
+			{
+				"component": "viewcontainer-1",
+				"right": [
+					{
+						"target": "viewcontainer-3",
+						"attr": "leftedge",
+						"operator": "plus",
+						"value": 20,
+						"relation": "Eq"
+					}
+				],
+				"width": [
+					{
+						"target": "viewcontainer-0",
+						"attr": "width",
+						"operator": "multiply",
+						"value": 1,
+						"relation": "Eq"
+					}
+				],
+				"height": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 80,
+						"relation": "Eq"
+					}
+				],
+				"centerY": [
+					{
+						"target": "viewcontainer-0",
+						"attr": "centerY",
+						"operator": "multiply",
+						"value": 1,
+						"relation": "Eq"
+					}
+				]
+			},
+			{
+				"component": "viewcontainer-2",
+				"right": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 20,
+						"relation": "Eq"
+					}
+				],
+				"width": [
+					{
+						"target": "viewcontainer-0",
+						"attr": "width",
+						"operator": "multiply",
+						"value": 1,
+						"relation": "Eq"
+					}
+				],
+				"height": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 80,
+						"relation": "Eq"
+					}
+				],
+				"centerY": [
+					{
+						"target": "viewcontainer-0",
+						"attr": "centerY",
+						"operator": "multiply",
+						"value": 1,
+						"relation": "Eq"
+					}
+				]
+			},
+			{
+				"component": "viewcontainer-3",
+				"width": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 200,
+						"relation": "Eq"
+					}
+				],
+				"right": [
+					{
+						"target": "viewcontainer-2",
+						"attr": "leftedge",
+						"operator": "plus",
+						"value": 20,
+						"relation": "Eq"
+					}
+				],
+				"height": [
+					{
+						"target": "",
+						"attr": "const",
+						"operator": "",
+						"value": 80,
+						"relation": "Eq"
+					}
+				],
+				"centerY": [
+					{
+						"target": "viewcontainer-0",
+						"attr": "centerY",
+						"operator": "multiply",
+						"value": 1,
+						"relation": "Eq"
+					}
+				]
+			}
+		]
+	},
+	"style": {
+		"width": "100vw",
+		"height": "100vh"
+	},
+	"children": [
+		{
+			"id": 1,
+			"tag": "ViewContainer",
+			"props": {
+				"name": "viewcontainer-0"
+			},
+			"style": {},
+			"children": []
+		},
+		{
+			"id": 2,
+			"tag": "ViewContainer",
+			"props": {
+				"name": "viewcontainer-1"
+			},
+			"style": {},
+			"children": []
+		},
+		{
+			"id": 3,
+			"tag": "ViewContainer",
+			"props": {
+				"name": "viewcontainer-2"
+			},
+			"style": {},
+			"children": []
+		},
+		{
+			"id": 4,
+			"tag": "ViewContainer",
+			"props": {
+				"name": "viewcontainer-3"
+			},
+			"style": {},
+			"children": []
+		}
+	]
+}

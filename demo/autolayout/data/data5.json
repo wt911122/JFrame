@@ -1,0 +1,17 @@
+
+{
+    "id": 0,
+    "concept": "ViewElement",
+    "type": 0,
+    "tag": "AutoLayoutComponent",
+    "title": "自动布局",
+    "style": {
+        "width": "100vw",
+        "height": "100vh"
+    },
+    "props": {
+        "name": "autoLayoutContainer",
+        "constraints": [
+        ]
+    }
+}

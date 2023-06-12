@@ -1,5 +1,15 @@
 // import data from './data/data-flex.json';
-import data from './data/data4.json';
+import data5 from './data/data5.json';
+import data3 from './data/data3.json';
+import data4 from './data/data4.json';
+import data6 from './data/data6.json';
+const DATAMAP = {
+    data5,
+    data3,
+    data4,
+    data6
+} 
+
 import JFrame, { 
     BlockTitle,
     BlockDelete
@@ -138,7 +148,24 @@ class Elem {
     }
 }
 
-const source = new Elem(data);
+
+let currData = 'data5';
+let source = new Elem(DATAMAP[currData]);
+const astDialog = document.getElementById('astDialog');
+const aststructure = document.getElementById('aststructure');
+const toJSONBtn = document.getElementById('tojsonBtn');
+toJSONBtn.addEventListener('click', () => {
+    astDialog.showModal()
+    aststructure.value = JSON.stringify(source.toPlainObject(), null, "\t")
+})
+
+const dataselector = document.getElementById('dataselector');
+dataselector.onchange = () => {
+    const value = dataselector.value;
+    currData = value;
+    source = new Elem(DATAMAP[currData]);
+    _rerenderJframeInstance();
+}
 
 function getElement(path) {
     const p = path.split(/\s+/).filter(s => s);

@@ -156,10 +156,22 @@
     </head>
     <body>
         <div>
+            <span>数据：</span>
+            <select id="dataselector" value="data5">
+                <option value="data5">空白</option>
+                <option value="data3">活动</option>
+                <option value="data4">内外影响能力</option>
+                <option value="data6">线性布局能力</option>
+            </select>
             <button id="toggleOverLayer">toggleOverLayer</button>
             模拟器大小
             <input id="simulatorW"/> 乘 <input id="simulatorH"/>
             <button id="setSimulator">设置模拟器大小</button>
+
+            <span>
+                导出JSON
+            </span>
+            <button id="tojsonBtn">toJSON</button>
             <!-- <button id="revokebtn">撤销</button>
             <button id="redobtn">重做</button>
             <button id="previewbtn">预览</button>

@@ -149,7 +149,7 @@ class ConstraintLayout {
         this[BOUNDING_RECT.WIDTH].setContext('_parent_');
         this[BOUNDING_RECT.HEIGHT].setContext('_parent_');
         this.initCoinConstraints();
-        this._observe();
+        this.disconnectOb = this._observe();
     }
     initCoinConstraints() {
         const widthVariable = this[BOUNDING_RECT.WIDTH];
@@ -279,11 +279,16 @@ class ConstraintLayout {
 
     _observe() {
         const observer = new ResizeObserver(() => {
+            console.log('layout observer')
             if(this._solver) {
-                this.resize()
+                this.scheduleResize();
             }
+           
         });
         observer.observe(this._root);
+        return () => {
+            observer.disconnect();
+        }
     }
 
     _genGetTarget(views) {
@@ -477,7 +482,6 @@ class ConstraintLayout {
                 _c.onReflow(solver);
                 const t = this.scheduleResize.bind(this);
                 _c.observe(() => {
-                    console.log('observed')
                     t();
                 });
             } else {
@@ -576,6 +580,7 @@ class ConstraintLayout {
         //     [BOUNDING_RECT.WIDTH]: null,
         //     [BOUNDING_RECT.HEIGHT]: null,
         // }
+        this.disconnectOb();
         this._widthCoin.setCoin(NORMAL, null);
         this._heightCoin.setCoin(NORMAL, null);
         this._views.forEach((view) => {

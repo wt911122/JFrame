@@ -33,6 +33,10 @@ export default {
         });
         this.reflow();
     },
+    beforeDestroy() {
+        console.log('beforeDestroy')
+        this.layout.cleanConstraint();
+    },
     methods: {
         reflow() {
             const root = this.$refs.root;
