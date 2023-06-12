@@ -1,0 +1,42 @@
+.constraint-indicator{
+    position: absolute;
+}
+
+.constraint-indicator[dir="horizontal"]::before{
+    position: absolute;
+    content: ' ';
+    display: block;
+    left: 0;
+    width: 2px;
+    height: 10px;
+    top: -5px;
+}
+
+.constraint-indicator[dir="horizontal"]::after{
+    position: absolute;
+    content: ' ';
+    display: block;
+    right: 0;
+    width: 2px;
+    height: 10px;
+    top: -5px;
+}
+
+.constraint-indicator[dir="vertical"]::before{
+    position: absolute;
+    content: ' ';
+    display: block;
+    top: 0;
+    width: 10px;
+    height: 2px;
+    left: -5px;
+}
+.constraint-indicator[dir="vertical"]::after{
+    position: absolute;
+    content: ' ';
+    display: block;
+    bottom: 0;
+    width: 10px;
+    height: 2px;
+    left: -5px;
+}

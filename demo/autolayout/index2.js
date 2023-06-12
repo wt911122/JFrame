@@ -283,7 +283,12 @@ jframeInstance.addEventListener('drop', e => {
     const { target, point } = e.detail;
     const source = target.source;
     if(source.tag === 'AutoLayoutComponent') {
-        const name = currentInstance.props.name
+        let name = currentInstance.props.name
+        const existNames = source.props.constraints.map(c => c.component);
+        while(existNames.includes(name)) {
+            name = `${name}-${parseInt(Math.random()*10)}`
+        }
+
         const p = [parseInt(point[0] - target.x), parseInt(point[1] - target.y)];
         const constraints = {
                 component: name,
@@ -321,6 +326,7 @@ jframeInstance.addEventListener('drop', e => {
             constraints.width = 'intrisic';
             constraints.height = 'intrisic';
         }
+        currentInstance.props.name = name;
         source.props.constraints.push(constraints);
         source.addElement(currentInstance);
         _rerenderJframeInstance();
@@ -373,7 +379,7 @@ ViewElementTool.addEventListener('dragstart', function() {
         tag: 'ViewContainer',
         title: '文本',
         props: {
-            name: `viewcontainer-${viewid++}`,
+            name: `viewcontainer-${parseInt(Math.random()*20000)}`,
         }
     }))
     console.log(currentInstance)
