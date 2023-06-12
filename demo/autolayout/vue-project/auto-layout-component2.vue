@@ -31,7 +31,6 @@ export default {
                 return root.querySelector(keyGen(component));
             },
         });
-        observer.observe(this.$refs.root);
         this.reflow();
     },
     beforeDestroy() {
