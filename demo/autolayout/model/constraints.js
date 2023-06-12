@@ -113,7 +113,7 @@ class ConstraintLayout {
                         return view[BOUNDING_RECT.LEFT].plus(view[BOUNDING_RECT.WIDTH])[operator](value);
                     default:
                         const variable = view[attr];
-                        console.log(target, attr, variable, operator, value)
+                        // console.log(target, attr, variable, operator, value)
                         return variable[operator](value);
                 }
             }
@@ -165,6 +165,7 @@ class ConstraintLayout {
                     }
                 },
                 updateValue(solver) {
+                    console.log('update width', root.clientWidth)
                     solver.suggestValue(widthVariable, root.clientWidth);
                 },
                 onResize() {},
@@ -219,6 +220,7 @@ class ConstraintLayout {
                     }
                 },
                 updateValue(solver) {
+                    console.log('update height', root.clientHeight)
                     solver.suggestValue(heightVariable, root.clientHeight);
                 },
                 onResize() {},
@@ -285,8 +287,10 @@ class ConstraintLayout {
             }
            
         });
+        console.log(this._root)
         observer.observe(this._root);
         return () => {
+            console.log('disconnect root Observer')
             observer.disconnect();
         }
     }
@@ -482,6 +486,7 @@ class ConstraintLayout {
                 _c.onReflow(solver);
                 const t = this.scheduleResize.bind(this);
                 _c.observe(() => {
+                    console.log('resize intrisic')
                     t();
                 });
             } else {
@@ -522,6 +527,7 @@ class ConstraintLayout {
         if(!this.useIntrisicHeight) {
             solver.suggestValue(this.height, root.clientHeight);
         }*/
+        console.log('resize')
 
         this._widthCoin.updateValue(solver);
         this._heightCoin.updateValue(solver);
@@ -580,7 +586,7 @@ class ConstraintLayout {
         //     [BOUNDING_RECT.WIDTH]: null,
         //     [BOUNDING_RECT.HEIGHT]: null,
         // }
-        this.disconnectOb();
+        // this.disconnectOb();
         this._widthCoin.setCoin(NORMAL, null);
         this._heightCoin.setCoin(NORMAL, null);
         this._views.forEach((view) => {
@@ -588,10 +594,15 @@ class ConstraintLayout {
         });
     }
 
+    cleanObserver() {
+        this.disconnectOb();
+    }
+
     scheduleResize() {
         requestAnimationFrame((timestamp) => {
             const isFirstTime = this.__clock__ !== timestamp
             if(isFirstTime) {
+                console.log('scheduleResize')
                 this.resize();
             }
             this.__clock__ = timestamp;

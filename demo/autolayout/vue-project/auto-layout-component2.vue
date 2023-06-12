@@ -31,20 +31,21 @@ export default {
                 return root.querySelector(keyGen(component));
             },
         });
+        observer.observe(this.$refs.root);
         this.reflow();
     },
     beforeDestroy() {
-        console.log('beforeDestroy')
-        this.layout.cleanConstraint();
+        this.layout.cleanObserver();
     },
     methods: {
         reflow() {
             const root = this.$refs.root;
             if(this.$slots.default && this.$slots.default.length > 0) {
+                console.log('beforeDestroy')
                 this.layout.cleanConstraint();
                 this.layout.setConstraint(this.constraints);
                 this.layout.reflow();
-                this.layout.resize();
+                this.layout.scheduleResize();
                 // autoLayout(root, this.constraints);
             }
         }
