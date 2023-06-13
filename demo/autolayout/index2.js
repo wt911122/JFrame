@@ -503,6 +503,16 @@ imageBtn.addEventListener('click', () => {
     }
 })
 
+const backgroundColorPeeker = document.getElementById('backgroundColorPeeker');
+const colorBtn = document.getElementById('backgroundColor-confirm');
+colorBtn.addEventListener('click', () => {
+    if(focusedTarget) {
+        focusedTarget.source.style['background-color'] = backgroundColorPeeker.value;
+        _rerenderJframeInstance();
+    }
+})
+
+
 function setElem(el, value, isDefault, disabled, isIntrisic) {
     el.innerText = value.toFixed(0);
     el.classList.toggle('active', !isDefault);
@@ -517,7 +527,11 @@ function focusConstaintView(target) {
     const element = jframeInstance.source_block_element_map.getElementBySource(source.parentElement);
     const cInstance = element?._constraints_;
     imageAddr.value = focusedTarget.source.style?.['background-image'] || ''
-    console.log(cInstance)
+//    console.log(element)
+    const elem = jframeInstance.source_block_element_map.getElementBySource(source);
+    const stylesheet = window.getComputedStyle(elem);
+    backgroundColorPeeker.value =  rgb2hex('rgb(255, 255, 255)', stylesheet?.['background-color'] || ''); 
+    console.log(focusedTarget.source.style?.['backgroundColor'] || '')
     if(cInstance) {
         const bounding = cInstance.getViewConstraintBounding(source.props.name);
         // source.props.constraints = [newConstraints];
@@ -952,3 +966,20 @@ addRuleBtn.addEventListener('click', () => {
 
 
 
+
+function rgb2hex(rgb, rgba){
+    if(/^rgb\(/.test(rgba)){
+        const t = rgba.match(/^rgb?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+        rgba = `rgba(${t[1]},${t[2]},${t[3]}, 1)`
+    }
+    rgb = rgb.match(/^rgb?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    rgba = rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
+
+  var red = Math.round((rgba[1] * rgba[4]) + (rgb[1] * (1-rgba[4])));
+  var blue = Math.round((rgba[2] * rgba[4]) + (rgb[2] * (1-rgba[4])));
+  var green = Math.round((rgba[3] * rgba[4]) + (rgb[3] * (1-rgba[4])));  
+ return (rgba && rgba.length === 5) ? "#" +
+  ("0" + red.toString(16)).slice(-2) +
+  ("0" + blue.toString(16)).slice(-2) +
+  ("0" + green.toString(16)).slice(-2) : '';
+}
