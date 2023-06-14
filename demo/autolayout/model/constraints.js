@@ -549,19 +549,22 @@ class ConstraintLayout {
     }
 
     getSelfConstraint() {
-        let c = [];
+        let c = {};
+        let flag = false;
         const def1 = this._widthCoin.getJSONConstraints();
         if(def1) {
-            c = c.concat(def1);
+            c.width = def1;
+            flag = true;
         }
         const def2 = this._heightCoin.getJSONConstraints();
         if(def2) {
-            c = c.concat(def2);
+            c.height = def2;
+            flag = true;
         }
-        if(c.length) {
+        if(flag) {
             return {
                 component: '|',
-                constraints: c,
+                ...c
             }
         }
         return null;
