@@ -41,7 +41,6 @@ export default {
             const root = this.$refs.root;
             if(this.$slots.default && this.$slots.default.length > 0) {
                 console.log('beforeDestroy')
-                debugger
                 this.layout.cleanConstraint();
                 console.log(this.constraints)
                 this.layout.setConstraint(this.constraints);

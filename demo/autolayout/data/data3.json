@@ -7,40 +7,16 @@
 			{
 				"component": "autoLayout0",
 				"left": [
-					{
-						"target": "",
-						"attr": "const",
-						"operator": "",
-						"value": 0,
-						"relation": "Eq"
-					}
+					"=0"
 				],
 				"right": [
-					{
-						"target": "",
-						"attr": "const",
-						"operator": "",
-						"value": 0,
-						"relation": "Eq"
-					}
+					"=0"
 				],
 				"top": [
-					{
-						"target": "",
-						"attr": "const",
-						"operator": "",
-						"value": 0,
-						"relation": "Eq"
-					}
+					"=0"
 				],
 				"height": [
-					{
-						"target": "autoLayout0",
-						"attr": "width",
-						"operator": "multiply",
-						"value": 0.781,
-						"relation": "Eq"
-					}
+					"=autoLayout0.width*0.781"
 				]
 			}
 		]
@@ -59,196 +35,76 @@
 					{
 						"component": "viewcontainer0",
 						"left": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.2,
-								"relation": "Eq"
-							}
+							"=|.width*0.2"
 						],
 						"width": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.5,
-								"relation": "Eq"
-							}
+							"=|.width*0.5"
 						],
 						"top": [
-							{
-								"target": "|",
-								"attr": "height",
-								"operator": "multiply",
-								"value": 0.05,
-								"relation": "Eq"
-							}
+							"=|.height*0.05"
 						],
 						"height": [
-							{
-								"target": "viewcontainer0",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.176,
-								"relation": "Eq"
-							}
+							"=viewcontainer0.width*0.176"
 						]
 					},
 					{
 						"component": "viewcontainer1",
 						"right": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.07,
-								"relation": "Eq"
-							}
+							"=|.width*0.07"
 						],
 						"width": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.14,
-								"relation": "Eq"
-							}
+							"=|.width*0.14"
 						],
 						"top": [
-							{
-								"target": "|",
-								"attr": "height",
-								"operator": "multiply",
-								"value": 0.04,
-								"relation": "Eq"
-							}
+							"=|.height*0.04"
 						],
 						"height": [
-							{
-								"target": "viewcontainer1",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.355,
-								"relation": "Eq"
-							}
+							"=viewcontainer1.width*0.355"
 						]
 					},
 					{
 						"component": "viewcontainer2",
 						"left": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.08,
-								"relation": "Eq"
-							}
+							"=|.width*0.08"
 						],
 						"width": [
-							{
-								"target": "|",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.41,
-								"relation": "Eq"
-							}
+							"=|.width*0.41"
 						],
 						"top": [
-							{
-								"target": "|",
-								"attr": "height",
-								"operator": "multiply",
-								"value": 0.19,
-								"relation": "Eq"
-							}
+							"=|.height*0.19"
 						],
 						"height": [
-							{
-								"target": "viewcontainer2",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.333,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.width*0.333"
 						]
 					},
 					{
 						"component": "viewcontainer3",
 						"left": [
-							{
-								"target": "viewcontainer2",
-								"attr": "left",
-								"operator": "multiply",
-								"value": 1,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.left"
 						],
 						"width": [
-							{
-								"target": "viewcontainer2",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 1,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.width"
 						],
 						"top": [
-							{
-								"target": "viewcontainer2",
-								"attr": "bottomedge",
-								"operator": "plus",
-								"value": 1,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.height+viewcontainer2.top"
 						],
 						"height": [
-							{
-								"target": "viewcontainer3",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 0.893,
-								"relation": "Eq"
-							}
+							"=viewcontainer3.width * 0.893"
 						]
 					},
 					{
 						"component": "autoLayout1",
 						"width": [
-							{
-								"target": "viewcontainer2",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 1,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.width"
 						],
 						"left": [
-							{
-								"target": "viewcontainer2",
-								"attr": "rightedge",
-								"operator": "plus",
-								"value": 10,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.width + viewcontainer2.left"
 						],
 						"top": [
-							{
-								"target": "viewcontainer2",
-								"attr": "top",
-								"operator": "multiply",
-								"value": 1,
-								"relation": "Eq"
-							}
+							"=viewcontainer2.top"
 						],
 						"height": [
-							{
-								"target": "autoLayout1",
-								"attr": "width",
-								"operator": "multiply",
-								"value": 1.27,
-								"relation": "Eq"
-							}
+							"=autoLayout1.width*1.27"
 						]
 					}
 				]
@@ -310,235 +166,91 @@
 							{
 								"component": "vasetitle0",
 								"left": [
-									{
-										"target": "",
-										"attr": "const",
-										"operator": "",
-										"value": 10,
-										"relation": "Eq"
-									}
+									"=10"
 								],
 								"width": [
-									{
-										"target": "|",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.197,
-										"relation": "Eq"
-									}
+									"=|.width*0.197"
 								],
 								"top": [
-									{
-										"target": "vase0",
-										"attr": "bottomedge",
-										"operator": "minus",
-										"value": 10,
-										"relation": "Eq"
-									}
+									"=vase0.top+vase0.height-10"
 								],
 								"height": [
-									{
-										"target": "vasetitle0",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.337,
-										"relation": "Eq"
-									}
+									"=vasetitle0.width*0.337"
 								]
 							},
 							{
 								"component": "vase0",
 								"centerX": [
-									{
-										"target": "vasetitle0",
-										"attr": "centerX",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=vasetitle0.centerX"
 								],
 								"width": [
-									{
-										"target": "vasetitle0",
-										"attr": "width",
-										"operator": "divide",
-										"value": 1.6,
-										"relation": "Eq"
-									}
+									"=vasetitle0.width/1.6"
 								],
 								"top": [
-									{
-										"target": "|",
-										"attr": "height",
-										"operator": "multiply",
-										"value": 0.25,
-										"relation": "Eq"
-									}
+									"=|.height*0.25"
 								],
 								"height": [
-									{
-										"target": "vase0",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 1.84,
-										"relation": "Eq"
-									}
+									"=vase0.width*1.84"
 								]
 							},
 							{
 								"component": "vasetitle1",
 								"centerX": [
-									{
-										"target": "vasetitle0",
-										"attr": "centerX",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=vasetitle0.centerX"
 								],
 								"width": [
-									{
-										"target": "vasetitle0",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=vasetitle0.width"
 								],
 								"top": [
-									{
-										"target": "vase1",
-										"attr": "bottomedge",
-										"operator": "minus",
-										"value": 10,
-										"relation": "Eq"
-									}
+									"=vase1.top+vase1.height-10"
 								],
 								"height": [
-									{
-										"target": "vasetitle1",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.337,
-										"relation": "Eq"
-									}
+									"=vasetitle1.width*0.337"
 								]
 							},
 							{
 								"component": "vase1",
 								"centerX": [
-									{
-										"target": "vasetitle0",
-										"attr": "centerX",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=vasetitle0.centerX"
 								],
 								"width": [
-									{
-										"target": "vase0",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=vase0.width"
 								],
 								"top": [
-									{
-										"target": "|",
-										"attr": "height",
-										"operator": "multiply",
-										"value": 0.74,
-										"relation": "Eq"
-									}
+									"=|.height*0.74"
 								],
 								"height": [
-									{
-										"target": "vase1",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 1.84,
-										"relation": "Eq"
-									}
+									"=vase1.width*1.84"
 								]
 							},
 							{
-								"component": "autolayout-3",
+								"component": "autolayout3",
 								"right": [
-									{
-										"target": "",
-										"attr": "const",
-										"operator": "",
-										"value": 10,
-										"relation": "Eq"
-									}
+									"=10"
 								],
 								"width": [
-									{
-										"target": "|",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.65,
-										"relation": "Eq"
-									}
+									"=|.width*0.65"
 								],
 								"top": [
-									{
-										"target": "",
-										"attr": "const",
-										"operator": "",
-										"value": 82,
-										"relation": "Eq"
-									}
+									"=82"
 								],
 								"height": [
-									{
-										"target": "autolayout-3",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.549,
-										"relation": "Eq"
-									}
+									"=autolayout3.width*0.549"
 								]
 							},
 							{
-								"component": "autolayout-4",
+								"component": "autolayout4",
 								"width": [
-									{
-										"target": "autolayout-3",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=autolayout3.width"
 								],
 								"centerX": [
-									{
-										"target": "autolayout-3",
-										"attr": "centerX",
-										"operator": "multiply",
-										"value": 1,
-										"relation": "Eq"
-									}
+									"=autolayout3.centerX"
 								],
 								"height": [
-									{
-										"target": "autolayout-4",
-										"attr": "width",
-										"operator": "multiply",
-										"value": 0.886,
-										"relation": "Eq"
-									}
+									"=autolayout4.width*0.886"
 								],
 								"top": [
-									{
-										"target": "autolayout-3",
-										"attr": "bottomedge",
-										"operator": "plus",
-										"value": 10,
-										"relation": "Eq"
-									}
+									"=autolayout3.top+autolayout3.height"
 								]
 							}
 						]
@@ -596,123 +308,52 @@
 							"id": 12,
 							"tag": "AutoLayoutComponent",
 							"props": {
-								"name": "autolayout-3",
+								"name": "autolayout3",
 								"constraints": [
 									{
-										"component": "viewcontainer-1742",
+										"component": "viewcontainer1742",
 										"left": [
-											{
-												"target": "",
-												"attr": "const",
-												"operator": "",
-												"value": 10,
-												"relation": "Eq"
-											}
+											"=10"
 										],
 										"right": [
-											{
-												"target": "viewcontainer-6391",
-												"attr": "leftedge",
-												"operator": "plus",
-												"value": 10,
-												"relation": "Eq"
-											}
+											"=viewcontainer6391.right+viewcontainer6391.width+10"
 										],
 										"height": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "width",
-												"operator": "multiply",
-												"value": 1.115,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.width*1.115"
 										],
 										"bottom": [
-											{
-												"target": "",
-												"attr": "const",
-												"operator": "",
-												"value": 10,
-												"relation": "Eq"
-											}
+											"=10"
 										]
 									},
 									{
-										"component": "viewcontainer-18175",
+										"component": "viewcontainer18175",
 										"right": [
-											{
-												"target": "",
-												"attr": "const",
-												"operator": "",
-												"value": 10,
-												"relation": "Eq"
-											}
+											"=10"
 										],
 										"width": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "width",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.width"
 										],
 										"height": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "height",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.height"
 										],
 										"centerY": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "centerY",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.centerY"
 										]
 									},
 									{
-										"component": "viewcontainer-6391",
+										"component": "viewcontainer6391",
 										"right": [
-											{
-												"target": "viewcontainer-18175",
-												"attr": "leftedge",
-												"operator": "plus",
-												"value": 10,
-												"relation": "Eq"
-											}
+											"=viewcontainer18175.right+viewcontainer18175.width+10"
 										],
 										"width": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "width",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.width"
 										],
 										"height": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "height",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.height"
 										],
 										"centerY": [
-											{
-												"target": "viewcontainer-1742",
-												"attr": "centerY",
-												"operator": "multiply",
-												"value": 1,
-												"relation": "Eq"
-											}
+											"=viewcontainer1742.centerY"
+											
 										]
 									}
 								]
@@ -725,7 +366,7 @@
 									"id": 14,
 									"tag": "ViewContainer",
 									"props": {
-										"name": "viewcontainer-1742"
+										"name": "viewcontainer1742"
 									},
 									"style": {
 										"background-image": "url(https://vusion.github.io/autolayoutdemo/img/image00012.defb3736.png)"
@@ -736,7 +377,7 @@
 									"id": 16,
 									"tag": "ViewContainer",
 									"props": {
-										"name": "viewcontainer-18175"
+										"name": "viewcontainer18175"
 									},
 									"style": {
 										"background-image": "url(https://vusion.github.io/autolayoutdemo/img/image00012.defb3736.png)"
@@ -747,7 +388,7 @@
 									"id": 17,
 									"tag": "ViewContainer",
 									"props": {
-										"name": "viewcontainer-6391"
+										"name": "viewcontainer6391"
 									},
 									"style": {
 										"background-image": "url(https://vusion.github.io/autolayoutdemo/img/image00012.defb3736.png)"
@@ -760,7 +401,7 @@
 							"id": 13,
 							"tag": "AutoLayoutComponent",
 							"props": {
-								"name": "autolayout-4",
+								"name": "autolayout4",
 								"constraints": []
 							},
 							"style": {

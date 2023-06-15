@@ -3,11 +3,13 @@ import data5 from './data/data5.json';
 import data3 from './data/data3.json';
 import data4 from './data/data4.json';
 import data6 from './data/data6.json';
+import data7 from './data/data7.json';
 const DATAMAP = {
     data5,
     data3,
     data4,
-    data6
+    data6,
+    data7
 } 
 
 import JFrame, { 
@@ -149,7 +151,7 @@ class Elem {
 }
 
 
-let currData = 'data5';
+let currData = 'data7';
 let source = new Elem(DATAMAP[currData]);
 const astDialog = document.getElementById('astDialog');
 const aststructure = document.getElementById('aststructure');
@@ -292,34 +294,18 @@ jframeInstance.addEventListener('drop', e => {
         const p = [parseInt(point[0] - target.x), parseInt(point[1] - target.y)];
         const constraints = {
                 component: name,
-                left: [{
-                    target: "",
-                    attr: "const",
-                    operator: "",
-                    value: p[0],
-                    relation: "Eq"
-                }],
-                top: [{
-                    target: "",
-                    attr: "const",
-                    operator: "",
-                    value: p[1],
-                    relation: "Eq"
-                }],
-                width: [{
-                    target: "",
-                    attr: "const",
-                    operator: "",
-                    value: 200,
-                    relation: "Eq"
-                }],
-                height: [{
-                    target: "",
-                    attr: "const",
-                    operator: "",
-                    value: 80,
-                    relation: "Eq"
-                }],
+                left: [
+                    `=${p[0]}`
+                ],
+                top: [
+                    `=${p[1]}`
+                ],
+                width: [
+                    '=200'
+                ],
+                height: [
+                    '=80'
+                ],
             }
         
         if(currentInstance.tag === "IntrisicView") {
@@ -379,7 +365,7 @@ ViewElementTool.addEventListener('dragstart', function() {
         tag: 'ViewContainer',
         title: '文本',
         props: {
-            name: `viewcontainer-${parseInt(Math.random()*20000)}`,
+            name: `viewcontainer${parseInt(Math.random()*20000)}`,
         }
     }))
     console.log(currentInstance)
@@ -410,7 +396,7 @@ IntrisicViewTool.addEventListener('dragstart', function() {
         tag: 'IntrisicView',
         title: '内宽高',
         props: {
-            name: `IntrisicView-${viewid++}`,
+            name: `IntrisicView${viewid++}`,
             constraints: [],
         }
     }))
@@ -557,7 +543,36 @@ function createWrapper(target, content) {
     return div;
 }
 function genDefControls(isLast) {
-    const operatorElem = document.createElement('select');
+    const formular = document.createElement('div');
+    formular.setAttribute('class', 'form__group field');
+
+    const input = document.createElement('input');
+    input.setAttribute('class', 'form__field');
+    const label = document.createElement('label');
+    label.setAttribute('class', 'form__label');
+
+    formular.append(input, label);
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('nestedControlPanel');
+
+    wrapper.append(formular);
+    
+    let deleteButton;
+    if(!isLast) {
+        deleteButton = document.createElement('button');
+        deleteButton.innerText = '删除'
+        wrapper.append(
+            createWrapper(deleteButton, '')
+        )
+    }
+    return {
+        wrapper,
+        input,
+        deleteButton,
+    };
+
+
+    /* const operatorElem = document.createElement('select');
     operatorElem.innerHTML = `
         <option value="Eq">等于</option>
         <option value="Ge">大于等于</option>
@@ -615,7 +630,7 @@ function genDefControls(isLast) {
         controlOperator,
         controlValue,
         deleteButton,
-    };
+    };*/
 
 }
 
@@ -671,6 +686,24 @@ function genElement(bounding, innerTargets) {
     const isLast = def.length === 1;
     def.forEach((_def, idx) => {
         const {
+            wrapper, input, deleteButton
+        } = genDefControls(isLast);
+        nestedControlPanelwrapper.append(wrapper);
+        input.value = _def;
+        const t = () => {
+            return input.value
+        };
+        ruleElemList.push(t);
+        if(deleteButton){
+            deleteButton.addEventListener('click', () => {
+                const idx = ruleElemList.findIndex(q => q === t);
+                if(idx !== -1) {
+                    ruleElemList.splice(idx, 1);
+                    wrapper.remove()
+                }
+            })
+        }
+        /* const {
             wrapper,
             operatorElem,
             controlTarget,
@@ -704,13 +737,31 @@ function genElement(bounding, innerTargets) {
                     wrapper.remove()
                 }
             })
-        }
+        }*/
         
     })
 }
 
 function genNewRuleElement(innerTargets) {
     const {
+        wrapper, input, deleteButton
+    } = genDefControls(ruleElemList.length === 0);
+    nestedControlPanelwrapper.append(wrapper);
+    // input.value = ;
+    const t = () => {
+        return input.value
+    };
+    ruleElemList.push(t);
+    if(deleteButton){
+        deleteButton.addEventListener('click', () => {
+            const idx = ruleElemList.findIndex(q => q === t);
+            if(idx !== -1) {
+                ruleElemList.splice(idx, 1);
+                wrapper.remove()
+            }
+        })
+    }
+    /* const {
         wrapper,
         operatorElem,
         controlTarget,
@@ -744,7 +795,7 @@ function genNewRuleElement(innerTargets) {
                 wrapper.remove()
             }
         })
-    }
+    }*/
 }
 function bindListeners(target, dimension) {
     target.addEventListener('click', () => {
@@ -845,26 +896,28 @@ controlConfirm.addEventListener('click', () => {
         // const attr = controlAttribute.value;
         // const operator = controlOperator.value;
         // const value = controlValue.value;
-        const constraints = ruleElemList.map(getValue => getValue())
-            .map(v => {
-                if(v.attr === 'const' && v.value) {
-                    return {
-                        target: "",
-                        attr: "const",
-                        operator: "",
-                        value: parseFloat(v.value),
-                        relation: v.relation
-                    }
-                } else if(v.target && v.operator && v.value) {
-                    return {
-                        target: v.target,
-                        attr: v.attr,
-                        operator: v.operator,
-                        value: parseFloat(v.value),
-                        relation: v.relation
-                    }
-                }
-            }).filter(i => !!i);
+        // const constraints = ruleElemList.map(getValue => getValue())
+        //     .map(v => {
+        //         if(v.attr === 'const' && v.value) {
+        //             return {
+        //                 target: "",
+        //                 attr: "const",
+        //                 operator: "",
+        //                 value: parseFloat(v.value),
+        //                 relation: v.relation
+        //             }
+        //         } else if(v.target && v.operator && v.value) {
+        //             return {
+        //                 target: v.target,
+        //                 attr: v.attr,
+        //                 operator: v.operator,
+        //                 value: parseFloat(v.value),
+        //                 relation: v.relation
+        //             }
+        //         }
+        //     }).filter(i => !!i);
+
+        const constraints = ruleElemList.map(getValue => getValue()).filter(i => !!i)
         set(focusedTarget, currDimension, constraints)
     }
 

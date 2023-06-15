@@ -1,0 +1,189 @@
+
+{
+    "id": 0,
+    "concept": "ViewElement",
+    "type": 0,
+    "tag": "AutoLayoutComponent",
+    "title": "自动布局",
+    "style": {
+        "width": "100vw",
+        "height": "100vh"
+    },
+    "props": {
+        "name": "autoLayoutContainer",
+        "constraints": [
+            { 
+                "component": "title",
+                "left": [
+                    "=|.width*0.2"    
+                ],
+                "top": [
+                    "=|.height*0.055"  
+                ],
+                "width": [
+                    "=|.width*0.5"
+                ],
+                "height": [
+                    "=title.width*0.176"
+                ]
+            },
+            { 
+                "component": "subtitle",
+                "left": [
+                    "=title.left"
+                ],
+                "top": [
+                    "=title.top+title.height+20"
+                ],
+                "width": [
+                    "=|.width*0.2"
+                ],
+                "height": [
+                    "=subtitle.width*0.176"
+                ]
+            }, 
+            {
+                "component": "intrisic1",
+                "left": [
+                    "=title.left"
+                ],
+                "top": [
+                    "=subtitle.top+subtitle.height+20"
+                ],
+                "width": "intrisic",
+                "height": "intrisic"
+            },
+            {
+                "component": "view4",
+                "centerX": [
+                    "=intrisic1.centerX"
+                ],
+                "width": [
+                    "=intrisic1.width/2"
+                ],
+                "height": [
+                    "=120"
+                ],
+                "top": [
+                    "=intrisic1.top+intrisic1.height+20"
+                ]
+            },
+            {
+                "component": "auto2",
+                "left": [
+                    "=intrisic1.left+intrisic1.width+50"
+                ],
+                "top": [
+                    "=intrisic1.top"
+                ],
+                "height": "intrisic",
+                "width": "intrisic"
+            }
+        ]
+    },
+    "children": [
+        {
+            "id": 1,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "ViewContainer",
+            "title": "容器",
+            "props": {
+                "name": "title"
+            },
+            "style": {
+                "backgroundColor": "red"
+            }
+        },
+        {
+            "id": 2,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "ViewContainer",
+            "title": "容器2",
+            "props": {
+                "name": "subtitle"
+            },
+            "style": {
+                "backgroundColor": "blue"
+            }
+        },
+        {
+            "id": 3,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "intrisicView",
+            "title": "容器2",
+            "props": {
+                "name": "intrisic1",
+                "intrisicWidth": true,
+                "intrisicHeight": true
+            }  
+        },
+        {
+            "id": 4,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "ViewContainer",
+            "title": "容器4",
+            "props": {
+                "name": "view4"
+            },
+            "style": {
+                "backgroundColor": "green"
+            }
+        },
+        {
+            "id": 5,
+            "concept": "ViewElement",
+            "type": 0,
+            "tag": "AutoLayoutComponent",
+            "title": "自动布局",
+            "style": {
+                "backgroundColor": "orange"
+            },
+            "props": {
+                "name": "auto2",
+                "constraints": [
+                    {
+                        "component": "intrisic2",
+                        "left": [
+                            "=20"
+                        ],
+                        "top": [
+                            "=20"
+                        ],
+                        "width": "intrisic",
+                        "height": "intrisic"
+                    },
+                    {
+                        "component": "|",
+                        "width":[
+                            "=intrisic2.width+40"
+                        ],
+                        "height": [
+                            "=intrisic2.height+40"
+                        ]
+                    }
+                ]
+            },
+            "children": [
+                {
+                    "id": 6,
+                    "concept": "ViewElement",
+                    "type": 0,
+                    "tag": "intrisicView",
+                    "title": "容器6",
+                    "style": {
+                        "backgroundColor": "brown"
+                    },
+                    "props": {
+                        "name": "intrisic2",
+                        "intrisicWidth": true,
+                        "intrisicHeight": true
+                    }
+                }
+            ]
+        }
+    ]
+}

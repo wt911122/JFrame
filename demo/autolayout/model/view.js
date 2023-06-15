@@ -349,34 +349,18 @@ export class View {
             new kiwi.Constraint(this[BOUNDING_RECT.TOP], kiwi.Operator.Eq, 0, defaultPriorityStrength)
         ]);
     
-        this._defCopy[BOUNDING_RECT.LEFT] = [{
-            target: "",
-            attr: "const",
-            operator: "",
-            value: 0,
-            relation: "Eq"
-        }]
-        this._defCopy[BOUNDING_RECT.TOP] = [{
-            target: "",
-            attr: "const",
-            operator: "",
-            value: 0,
-            relation: "Eq"
-        }]
-        this._defCopy[BOUNDING_RECT.WIDTH] = [{
-            target: "",
-            attr: "const",
-            operator: "",
-            value: 280,
-            relation: "Eq"
-        }]
-        this._defCopy[BOUNDING_RECT.HEIGHT] = [{
-            target: "",
-            attr: "const",
-            operator: "",
-            value: 160,
-            relation: "Eq"
-        }]
+        this._defCopy[BOUNDING_RECT.LEFT] = [
+            '=0'
+        ]
+        this._defCopy[BOUNDING_RECT.TOP] = [
+            '=0'
+        ]
+        this._defCopy[BOUNDING_RECT.WIDTH] = [
+            '=280'
+        ]
+        this._defCopy[BOUNDING_RECT.HEIGHT] = [
+            '=160'
+        ]
     }
 
     setIntrisic(def, val) {
@@ -401,18 +385,18 @@ export class View {
             target.set(key, constraints);
             return;
         }
-        const cs = [];
-        constraints.forEach((cons) => {
-            if(cons instanceof kiwi.Constraint) {
-                cs.push(cons);
-            } else {
-                const { relation, expr } = cons
-                const kiwiRelation = kiwi.Operator[relation];
-                cs.push(new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength))
-            }
+        // const cs = [];
+        // constraints.forEach((cons) => {
+        //     if(cons instanceof kiwi.Constraint) {
+        //         cs.push(cons);
+        //     } else {
+        //         const { relation, expr } = cons
+        //         const kiwiRelation = kiwi.Operator[relation];
+        //         cs.push(new kiwi.Constraint(this[key], kiwiRelation, expr, defaultPriorityStrength))
+        //     }
            
-        });
-        target.set(key, cs);
+        // });
+        target.set(key, constraints);
     }
 
     set(key, constraints, def) {

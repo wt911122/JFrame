@@ -22,6 +22,8 @@ import {
 
 import { View } from './view';
 import { Intrisic } from './intrisic';
+import { parse as parser } from './layout-parser'
+import { translate } from './translate';
 
 class CoinRelation {
     metaA = null;
@@ -165,7 +167,6 @@ class ConstraintLayout {
                     }
                 },
                 updateValue(solver) {
-                    console.log('update width', root.clientWidth)
                     solver.suggestValue(widthVariable, root.clientWidth);
                 },
                 onResize() {},
@@ -196,12 +197,9 @@ class ConstraintLayout {
                     const finder = this._genGetTarget(this._views);
                     const cs = [];
                     def.forEach(df => {
-                        const kiwiRelation = kiwi.Operator[df.relation];
-                        cs.push(new kiwi.Constraint(
-                            widthVariable, 
-                            kiwiRelation, 
-                            ConstraintLayout.resolveExpr(df, finder), 
-                            defaultPriorityStrength));
+                        const ast = parser(df);
+                        const c = translate(ast, finder, this, widthVariable, defaultPriorityStrength)
+                        cs.push(c);
                     });
                     return cs;
                 },
@@ -247,16 +245,12 @@ class ConstraintLayout {
                     root.style.height = `${height}px`;
                 },
                 setValue: (def) => {
-                    console.log(this)
                     const finder = this._genGetTarget(this._views);
                     const cs = [];
                     def.forEach(df => {
-                        const kiwiRelation = kiwi.Operator[df.relation];
-                        cs.push(new kiwi.Constraint(
-                            heightVariable, 
-                            kiwiRelation, 
-                            ConstraintLayout.resolveExpr(df, finder), 
-                            defaultPriorityStrength));
+                        const ast = parser(df);
+                        const c = translate(ast, finder, this, heightVariable, defaultPriorityStrength)
+                        cs.push(c);
                     });
                     return cs;
                 },
@@ -376,10 +370,13 @@ class ConstraintLayout {
             view.setIntrisic(dimension, false)
             const constraints = [];
             def.forEach(df => {
-                constraints.push({
-                    relation: df.relation,
-                    expr: ConstraintLayout.resolveExpr(df, finder)
-                });
+                const ast = parser(df);
+                const c = translate(ast, finder, this, view[dimension], defaultPriorityStrength)
+                constraints.push(c);
+                // constraints.push({
+                //     relation: df.relation,
+                //     expr: ConstraintLayout.resolveExpr(df, finder)
+                // });
             })
             view.set(dimension, constraints, def);
         }
@@ -405,17 +402,27 @@ class ConstraintLayout {
         }
         const value = view[d].value();
 
-        const def = [{
-            target: "",
-            attr: "const",
-            operator: "",
-            value: value,
-            relation: "Eq"
-        }]
-        view.set(d, [{
-            relation: 'Eq',
-            expr: value,
-        }], def);
+        // const def = [{
+        //     target: "",
+        //     attr: "const",
+        //     operator: "",
+        //     value: value,
+        //     relation: "Eq"
+        // }]
+        // view.set(d, [{
+        //     relation: 'Eq',
+        //     expr: value,
+        // }], def);
+        view.set(d, [
+            new kiwi.Constraint(
+                view[d],
+                kiwi.Operator.Eq,
+                value,
+                defaultPriorityStrength
+            )
+        ], [
+            `=${value}`
+        ]);
         solver.addConstraint(view.getConstraint(d)[0])
     }
 
@@ -435,36 +442,6 @@ class ConstraintLayout {
         });
         return c;
     }
-
-    /* setConstraintSelf(d, def) {
-        const solver = this._solver; 
-        this._solver_constraints.forEach(c => {
-            this._removeSingleConstraint(solver, c.value);
-        });
-        const finder = this._genGetTarget(this._views);
-        if(d === BOUNDING_RECT.WIDTH || d === BOUNDING_RECT.HEIGHT) {
-            this._setIntrisic(d, def, finder);
-        }
-        this._reflowSelf(solver);
-        this.resize();
-        return this.getSelfConstraintJSON();
-    }
-
-    removeConstraintSelf(d) {
-        const solver = this._solver; 
-        this._solver_constraints.forEach(c => {
-            if(c.key === d) {
-                this._removeSingleConstraint(solver, c.value);
-            }
-        });
-        const idx = this._solver_constraints.findIndex(c => c.key === key);
-        if(idx !== -1) {
-            this._solver_constraints.splice(idx, 1);
-        }
-        this._reflowSelf(solver);
-        this._defCopy[d] = null;
-        return this.getSelfConstraintJSON();
-    }*/
 
     setConstraintOnView(viewname, d, def) {
         const solver = this._solver; 
@@ -534,6 +511,7 @@ class ConstraintLayout {
         this._views.forEach((view) => {
             const c = view.getConstraints();
             c.forEach(_c => {
+                console.log(_c.toString())
                 if(_c instanceof Intrisic) {
                     _c.onResize(solver);
                 } 
