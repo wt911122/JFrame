@@ -146,11 +146,68 @@
                 display: flex;
             }
             .footer > div div.nestedControlPanel{
-                display: flex;
-                flex-direction: row;
+                display: block;
             }
             .nestedControlPanel.active {
                 border: 2px solid black;
+            }
+            .form__group {
+                position: relative;
+                padding: 15px 0 0;
+                margin-top: 10px;
+            }
+
+            .form__field {
+                font-family: inherit;
+                min-width: 480px;
+                border: 0;
+                border-bottom: 2px solid #9b9b9b;
+                outline: 0;
+                font-size: 1.3rem;
+                color: #000;
+                padding: 7px 0;
+                background: transparent;
+                transition: border-color 0.2s;
+            }
+            .form__field::placeholder {
+                color: transparent;
+            }
+            .form__field:placeholder-shown ~ .form__label {
+                font-size: 1.3rem;
+                cursor: text;
+                top: 20px;
+            }
+
+            .form__label {
+                position: absolute;
+                top: 0;
+                display: block;
+                transition: 0.2s;
+                font-size: 1rem;
+                color: #9b9b9b;
+            }
+
+            .form__field:focus {
+            
+                padding-bottom: 6px;  
+                font-weight: 700;
+                border-width: 3px;
+                border-image: linear-gradient(to right, #11998e,#38ef7d);
+                border-image-slice: 1;
+            }
+            .form__field:focus ~ .form__label {
+                position: absolute;
+                top: 0;
+                display: block;
+                transition: 0.2s;
+                font-size: 1rem;
+                color: #11998e;
+                font-weight:700;    
+            }
+            /* reset input */
+            .form__field:required,
+            .form__field:invalid {
+                box-shadow:none;
             }
         </style>
     <script defer src="index.bundle.js"></script></head>
@@ -160,8 +217,7 @@
             <select id="dataselector" value="data5">
                 <option value="data5">空白</option>
                 <option value="data3">活动</option>
-                <option value="data4">内外影响能力</option>
-                <option value="data6">线性布局能力</option>
+                <option value="data7">内外影响能力</option>
             </select>
             <button id="toggleOverLayer">toggleOverLayer</button>
             模拟器大小
